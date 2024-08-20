@@ -133,6 +133,7 @@ namespace CinemaAPI.Controllers
                         foreach (var session in oldSessions)
                         {
                             session.Status = 1;
+                            session.TimeLogout = DateTime.Now;
                         }
                     }
 

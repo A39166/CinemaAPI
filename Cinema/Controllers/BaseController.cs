@@ -85,9 +85,7 @@ namespace CinemaAPI.Controllers
                         item.TimeLogout = DateTime.Now;
                         item.Status = 1;
                     }
-
                 }
-
                 _context.SaveChanges();
             }
         }
