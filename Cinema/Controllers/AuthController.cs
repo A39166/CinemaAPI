@@ -93,7 +93,6 @@ namespace CinemaAPI.Controllers
                         TimeLogin = DateTime.Now,
                         Status = 0
                     };
-                    user.FcmToken = request.FCMToken;
                     _context.Sessions.Add(newSession);
                     _context.SaveChanges();
                 }
