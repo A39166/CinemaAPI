@@ -1,0 +1,1 @@
+dotnet ef dbcontext scaffold 'Server=localhost;Database=cinema;Uid=root;Allow Zero Datetime=true;convert zero datetime=True;old guids=True;'Pomelo.EntityFrameworkCore.MySql -c DBContext -o Databases/CinemaDB -f -v --no-build --no-onconfiguring --no-pluralize
