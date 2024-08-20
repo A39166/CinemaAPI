@@ -53,10 +53,8 @@ namespace CinemaAPI.Controllers
                     Password = request.Password,
                     Role = request.Role,
                     Status = request.Status,
-
                 };
             
-                
                 // Bước 2.2: Dùng lệnh add để thêm bản ghi vào CSDL
                 _context.User.Add(user);
                 _context.SaveChanges();
