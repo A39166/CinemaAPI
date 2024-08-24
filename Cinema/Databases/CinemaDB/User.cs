@@ -36,7 +36,5 @@ public partial class User
     /// </summary>
     public sbyte Status { get; set; }
 
-    public string? FcmToken { get; set; }
-
     public virtual ICollection<Sessions> Sessions { get; set; } = new List<Sessions>();
 }

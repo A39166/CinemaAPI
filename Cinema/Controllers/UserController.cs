@@ -1,5 +1,4 @@
-﻿using CinemaAPI.AttributeExtend;
-using CinemaAPI.Databases.CinemaDB;
+﻿using CinemaAPI.Databases.CinemaDB;
 using CinemaAPI.Enums;
 using CinemaAPI.Models.Response;
 using CinemaAPI.Models.Request;
@@ -25,7 +24,6 @@ namespace CinemaAPI.Controllers
             _logger = logger;
         }
         [HttpPost("register")]
-        [DbpCert]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "Register Response")]
         public async Task<IActionResult> Register(RegisterUserRequest request)
         {

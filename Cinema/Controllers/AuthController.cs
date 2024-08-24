@@ -1,5 +1,4 @@
-﻿using CinemaAPI.AttributeExtend;
-using CinemaAPI.Models.Request;
+﻿using CinemaAPI.Models.Request;
 using CinemaAPI.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -28,7 +27,6 @@ namespace CinemaAPI.Controllers
             _logger = logger;
         }
         [HttpPost("login")]
-        [DbpCert]
         [SwaggerResponse(statusCode: 200, type: typeof(LogInRespDTO), description: "LogIn Response")]
         public async Task<IActionResult> LogIn(LogInRequest request)
         {
@@ -111,9 +109,8 @@ namespace CinemaAPI.Controllers
             }
         }
         [HttpPost("logout")]
-        [DbpCert]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "LogOut Response")]
-        public async Task<IActionResult> LogOut(DpsParamBase request)
+        public async Task<IActionResult> LogOut()
         {
             var response = new BaseResponse();
 
@@ -132,7 +129,6 @@ namespace CinemaAPI.Controllers
                         foreach (var session in oldSessions)
                         {
                             session.Status = 1;
-                            session.TimeLogout = DateTime.Now;
                         }
                     }
 

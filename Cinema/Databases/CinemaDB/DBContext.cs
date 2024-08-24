@@ -11,6 +11,8 @@ public partial class DBContext : DbContext
     {
     }
 
+    public virtual DbSet<Movies> Movies { get; set; }
+
     public virtual DbSet<Sessions> Sessions { get; set; }
 
     public virtual DbSet<User> User { get; set; }
@@ -20,6 +22,47 @@ public partial class DBContext : DbContext
         modelBuilder
             .UseCollation("utf8mb4_unicode_520_ci")
             .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<Movies>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("movies");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.AverageReview).HasColumnName("average_review");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.DirectorUuid)
+                .HasColumnType("int(11)")
+                .HasColumnName("director_uuid");
+            entity.Property(e => e.Duration)
+                .HasColumnType("int(11)")
+                .HasColumnName("duration");
+            entity.Property(e => e.EngTitle)
+                .HasMaxLength(50)
+                .HasColumnName("eng_title");
+            entity.Property(e => e.Rated)
+                .HasColumnType("int(11)")
+                .HasColumnName("rated");
+            entity.Property(e => e.RealeaseDate)
+                .HasColumnType("datetime")
+                .HasColumnName("realease_date");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.Title)
+                .HasMaxLength(50)
+                .HasColumnName("title");
+            entity.Property(e => e.Trailer)
+                .HasMaxLength(255)
+                .HasColumnName("trailer");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
 
         modelBuilder.Entity<Sessions>(entity =>
         {
@@ -79,9 +122,6 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(50)
                 .HasColumnName("email");
-            entity.Property(e => e.FcmToken)
-                .HasMaxLength(255)
-                .HasColumnName("fcm_token");
             entity.Property(e => e.Fullname)
                 .HasMaxLength(50)
                 .HasColumnName("fullname");
@@ -96,6 +136,7 @@ public partial class DBContext : DbContext
                 .HasMaxLength(20)
                 .HasColumnName("phone_number");
             entity.Property(e => e.Role)
+                .HasDefaultValueSql("'1'")
                 .HasComment("0-Admin, 1-Client")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("role");

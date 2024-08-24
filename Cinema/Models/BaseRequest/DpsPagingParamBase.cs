@@ -2,7 +2,7 @@
 
 namespace CinemaAPI.Models.BaseRequest
 {
-    public class DpsPagingParamBase : DpsParamBase
+    public class DpsPagingParamBase
     {
         [DefaultValue(20)]
         public int PageSize { get; set; } = 20;

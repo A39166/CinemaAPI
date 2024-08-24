@@ -7,7 +7,6 @@
         public static TokenInfo getTokenInfoByUser(string userName)
         {
             mutex.Wait();
-
             try
             {
                 if (TOKEN_MANAGER.Values != null && TOKEN_MANAGER.Values.Count > 0)

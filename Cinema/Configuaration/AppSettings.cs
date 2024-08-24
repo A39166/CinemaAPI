@@ -7,7 +7,6 @@
     public class AppSettings
     {
         public Database Database { get; set; }
-        public string DPS_CERT { get; set; }
         public string MailServiceUrl { get; set; }
         public string UploadPath { get; set; }
         public string ContentRootPath { get; set; }

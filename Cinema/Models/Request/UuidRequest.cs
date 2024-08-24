@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CinemaAPI.Models.Request
 {
-    public class UuidRequest : DpsParamBase
+    public class UuidRequest 
     {
        
         public string? Uuid { get; set; }

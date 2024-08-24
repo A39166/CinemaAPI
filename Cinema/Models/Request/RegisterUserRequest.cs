@@ -1,9 +1,10 @@
 ﻿using CinemaAPI.Models.BaseRequest;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace CinemaAPI.Models.Request
 {
-    public class RegisterUserRequest : DpsParamBase
+    public class RegisterUserRequest 
     {
        
         public string Email { get; set; }
@@ -17,7 +18,9 @@ namespace CinemaAPI.Models.Request
         public string? PhoneNumber { get; set; }
         public string Password { get; set; }
         public string Password2 { get; set; }
+        [DefaultValue(1)]
         public sbyte Role { get; set; } = 1;
+        [DefaultValue(1)]
         public sbyte Status { get; set; } = 1;
     }
 }
