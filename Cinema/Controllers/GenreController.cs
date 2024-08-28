@@ -13,7 +13,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace CinemaAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class GenreController : BaseController
     {
@@ -44,10 +44,8 @@ namespace CinemaAPI.Controllers
                     var genreName = _context.Genre.Where(d => d.GenreName == request.GenreName).FirstOrDefault();
                     if (genreName != null)
                     {
-                        // Bước 2.1: Khởi tạo đối tượng insert khi thêm mới
-                        throw new Exception("Đã có thể loại này");
+                        response.error.SetErrorCode(ErrorCode.DUPLICATE_GENRE);
                     }
-                    //khởi tạo đối tượng insert
                     var genre = new Genre()
                     {
                         Uuid = Guid.NewGuid().ToString(),

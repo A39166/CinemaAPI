@@ -35,10 +35,10 @@ namespace CinemaAPI.Controllers
                 if (email != null)
                 {
                     // Bước 2.1: Khởi tạo đối tượng insert khi thêm mới
-                    throw new Exception("Lỗi tài khoản đã có");
+                    response.error.SetErrorCode(ErrorCode.DUPLICATE_EMAIL);
                 }
                 if (request.Password2 != request.Password) {
-                    throw new Exception("Mật khẩu không khớp");
+                    response.error.SetErrorCode(ErrorCode.MATCH_PASS);
                 }
                 var user = new Databases.CinemaDB.User()
                 {

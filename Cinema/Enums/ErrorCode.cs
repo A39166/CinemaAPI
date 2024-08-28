@@ -40,13 +40,17 @@ namespace CinemaAPI.Enums
         [Description("Tài khoản đã bị khóa. Vui lòng liên hệ Admin để biết thêm chi tiết")]
         ACCOUNT_LOCKED = 23,
 
-        [Description("Mật khẩu không chính xác. Vui lòng thử lại")]
-        INVALID_PASS = 24,
+        [Description("Đã có thể loại này")]
+        DUPLICATE_GENRE = 24,
 
         [Description("Tài khoản không tồn tại. Vui lòng kiểm tra lại")]
         ACCOUNT_NOTFOUND = 25,
         [Description("Email hoặc Mật khẩu sai ! Vui lòng thử lại")]
         WRONG_LOGIN = 26,
+        [Description("Tài khoản đã có")]
+        DUPLICATE_EMAIL = 27,
+        [Description("Mật khẩu không khớp")]
+        MATCH_PASS = 28,
 
 
     }
