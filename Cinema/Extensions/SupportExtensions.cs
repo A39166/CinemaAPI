@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using CinemaAPI.Enums;
 using CinemaAPI.Models.Response;
+using CinemaAPI.Utils;
 
 namespace CinemaAPI.Extensions
 {
@@ -32,6 +33,10 @@ namespace CinemaAPI.Extensions
             }
 
             return resp;
+        }
+        public static PagedList<T> TakePage<T>(this IEnumerable<T> source, int pageNumber, int pageSize)
+        {
+            return PagedList<T>.ToPagedList(source, pageNumber, pageSize);
         }
     }
 }

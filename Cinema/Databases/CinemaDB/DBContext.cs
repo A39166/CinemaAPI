@@ -11,7 +11,25 @@ public partial class DBContext : DbContext
     {
     }
 
+    public virtual DbSet<Cast> Cast { get; set; }
+
+    public virtual DbSet<Director> Director { get; set; }
+
+    public virtual DbSet<Genre> Genre { get; set; }
+
+    public virtual DbSet<Language> Language { get; set; }
+
     public virtual DbSet<Movies> Movies { get; set; }
+
+    public virtual DbSet<MoviesCast> MoviesCast { get; set; }
+
+    public virtual DbSet<MoviesGenre> MoviesGenre { get; set; }
+
+    public virtual DbSet<MoviesLanguage> MoviesLanguage { get; set; }
+
+    public virtual DbSet<MoviesRegion> MoviesRegion { get; set; }
+
+    public virtual DbSet<Region> Region { get; set; }
 
     public virtual DbSet<Sessions> Sessions { get; set; }
 
@@ -23,11 +41,116 @@ public partial class DBContext : DbContext
             .UseCollation("utf8mb4_unicode_520_ci")
             .HasCharSet("utf8mb4");
 
+        modelBuilder.Entity<Cast>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("cast");
+
+            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.CastBirth).HasColumnName("cast_birth");
+            entity.Property(e => e.CastDescription).HasColumnName("cast_description");
+            entity.Property(e => e.CastName)
+                .HasMaxLength(50)
+                .HasColumnName("cast_name");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
+
+        modelBuilder.Entity<Director>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("director");
+
+            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.DirectorBirth).HasColumnName("director_birth");
+            entity.Property(e => e.DirectorDescription).HasColumnName("director_description");
+            entity.Property(e => e.DirectorName)
+                .HasMaxLength(50)
+                .HasColumnName("director_name");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'1'")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
+
+        modelBuilder.Entity<Genre>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("genre");
+
+            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.GenreName)
+                .HasMaxLength(50)
+                .HasColumnName("genre_name");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
+
+        modelBuilder.Entity<Language>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("language");
+
+            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.LanguageName)
+                .HasMaxLength(50)
+                .HasColumnName("language_name");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'1'")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
+
         modelBuilder.Entity<Movies>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.ToTable("movies");
+
+            entity.HasIndex(e => e.DirectorUuid, "fk_director_mv_ref");
+
+            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
 
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
@@ -35,7 +158,8 @@ public partial class DBContext : DbContext
             entity.Property(e => e.AverageReview).HasColumnName("average_review");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.DirectorUuid)
-                .HasColumnType("int(11)")
+                .HasMaxLength(36)
+                .IsFixedLength()
                 .HasColumnName("director_uuid");
             entity.Property(e => e.Duration)
                 .HasColumnType("int(11)")
@@ -43,6 +167,10 @@ public partial class DBContext : DbContext
             entity.Property(e => e.EngTitle)
                 .HasMaxLength(50)
                 .HasColumnName("eng_title");
+            entity.Property(e => e.Format)
+                .HasComment("0-Chiếu sớm, 1-Chiếu thường")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("format");
             entity.Property(e => e.Rated)
                 .HasColumnType("int(11)")
                 .HasColumnName("rated");
@@ -60,6 +188,177 @@ public partial class DBContext : DbContext
                 .HasColumnName("trailer");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("uuid");
+
+            entity.HasOne(d => d.DirectorUu).WithMany(p => p.Movies)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.DirectorUuid)
+                .HasConstraintName("fk_director_mv_ref");
+        });
+
+        modelBuilder.Entity<MoviesCast>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("movies_cast");
+
+            entity.HasIndex(e => e.CastUuid, "fk_cast_uuid_ref");
+
+            entity.HasIndex(e => e.MoviesUuid, "fk_movies_cast_uuid_ref");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.CastUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("cast_uuid");
+            entity.Property(e => e.MoviesUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("movies_uuid");
+
+            entity.HasOne(d => d.CastUu).WithMany(p => p.MoviesCast)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.CastUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_cast_uuid_ref");
+
+            entity.HasOne(d => d.MoviesUu).WithMany(p => p.MoviesCast)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.MoviesUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_movies_cast_uuid_ref");
+        });
+
+        modelBuilder.Entity<MoviesGenre>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("movies_genre");
+
+            entity.HasIndex(e => e.GenreUuid, "fk_genre_uuid_ref");
+
+            entity.HasIndex(e => e.MoviesUuid, "fk_movies_genre_uuid_ref");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.GenreUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("genre_uuid");
+            entity.Property(e => e.MoviesUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("movies_uuid");
+
+            entity.HasOne(d => d.GenreUu).WithMany(p => p.MoviesGenre)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.GenreUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_genre_uuid_ref");
+
+            entity.HasOne(d => d.MoviesUu).WithMany(p => p.MoviesGenre)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.MoviesUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_movies_mv_uuid_ref");
+        });
+
+        modelBuilder.Entity<MoviesLanguage>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("movies_language");
+
+            entity.HasIndex(e => e.LanguageUuid, "fk_lg_uuid_ref");
+
+            entity.HasIndex(e => e.MoviesUuid, "fk_movies_lg_uuid_ref");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.LanguageUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("language_uuid");
+            entity.Property(e => e.MoviesUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("movies_uuid");
+
+            entity.HasOne(d => d.LanguageUu).WithMany(p => p.MoviesLanguage)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.LanguageUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_lg_uuid_ref");
+
+            entity.HasOne(d => d.MoviesUu).WithMany(p => p.MoviesLanguage)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.MoviesUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_movies_lg_uuid_ref");
+        });
+
+        modelBuilder.Entity<MoviesRegion>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("movies_region");
+
+            entity.HasIndex(e => e.MoviesUuid, "fk_movies_region_uuid_ref");
+
+            entity.HasIndex(e => e.RegionUuid, "fk_region_uuid_ref");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.MoviesUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("movies_uuid");
+            entity.Property(e => e.RegionUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("region_uuid");
+
+            entity.HasOne(d => d.MoviesUu).WithMany(p => p.MoviesRegion)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.MoviesUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_movies_region_uuid_ref");
+
+            entity.HasOne(d => d.RegionUu).WithMany(p => p.MoviesRegion)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.RegionUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_region_uuid_ref");
+        });
+
+        modelBuilder.Entity<Region>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("region");
+
+            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.RegionName)
+                .HasMaxLength(50)
+                .HasColumnName("region_name");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'1'")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
                 .IsFixedLength()
                 .HasColumnName("uuid");
         });

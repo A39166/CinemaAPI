@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CinemaAPI.Utils;
 using CinemaAPI.Models.BaseRequest;
 using Microsoft.AspNetCore.Identity.Data;
+using CinemaAPI.Models.DataInfo;
 
 namespace CinemaAPI.Controllers
 {
@@ -58,17 +59,12 @@ namespace CinemaAPI.Controllers
                     };
 
                     _token.ResetExpired();
-
-                    // Lấy link ảnh avatar trong bảng Images nếu có
-                    /*var avatarImage = _context.Images.Where(x => x.OwnerUuid == account.Uuid && x.Type == 1).FirstOrDefault();*/
-
                     response.Data = new LogInRespDTO()
                     {
                         Token = _token.Token,
                         Uuid = user.Uuid,
                         Email = user.Email,
                         Fullname = user.Fullname,
-                        /*Avatar = avatarImage?.Path,*/
                     };
 
                     TokenManager.addToken(_token);
