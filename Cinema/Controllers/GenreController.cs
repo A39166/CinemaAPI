@@ -41,19 +41,24 @@ namespace CinemaAPI.Controllers
             {
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
-                    var genreName = _context.Genre.Where(d => d.GenreName == request.GenreName).FirstOrDefault();
+                    var genreName = _context.Genre.Where(d => d.GenreName.Trim().ToLower() == request.GenreName.Trim().ToLower()).FirstOrDefault();
                     if (genreName != null)
                     {
                         response.error.SetErrorCode(ErrorCode.DUPLICATE_GENRE);
+                        return BadRequest(response);
                     }
-                    var genre = new Genre()
+                    else
                     {
-                        Uuid = Guid.NewGuid().ToString(),
-                        GenreName = request.GenreName,
-                        Status = 1,
-                    };
-                    _context.Genre.Add(genre);
-                    _context.SaveChanges();
+                        var genre = new Genre()
+                        {
+                            Uuid = Guid.NewGuid().ToString(),
+                            GenreName = request.GenreName,
+                            Status = 1,
+                        };
+                        _context.Genre.Add(genre);
+                        _context.SaveChanges();
+                    }
+                    
                 }
                 else
                 //cập nhập dữ liệu

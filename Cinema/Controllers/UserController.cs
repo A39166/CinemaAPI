@@ -34,28 +34,30 @@ namespace CinemaAPI.Controllers
                 var email = _context.User.FirstOrDefault(d => d.Email == request.Email);
                 if (email != null)
                 {
-                    // Bước 2.1: Khởi tạo đối tượng insert khi thêm mới
                     response.error.SetErrorCode(ErrorCode.DUPLICATE_EMAIL);
+                    return BadRequest(response);
                 }
-                if (request.Password2 != request.Password) {
+                else if (request.Password2 != request.Password) {
                     response.error.SetErrorCode(ErrorCode.MATCH_PASS);
+                    return BadRequest(response);
                 }
-                var user = new Databases.CinemaDB.User()
+                else
                 {
-                    Uuid = Guid.NewGuid().ToString(),
-                    Email = request.Email,
-                    Fullname = request.Fullname,
-                    Gender = request.Gender,
-                    Birthday = request.Birthday,
-                    PhoneNumber = request.PhoneNumber,
-                    Password = request.Password,
-                    Role = request.Role,
-                    Status = request.Status,
-                };
-            
-                // Bước 2.2: Dùng lệnh add để thêm bản ghi vào CSDL
-                _context.User.Add(user);
-                _context.SaveChanges();
+                    var user = new Databases.CinemaDB.User()
+                    {
+                        Uuid = Guid.NewGuid().ToString(),
+                        Email = request.Email,
+                        Fullname = request.Fullname,
+                        Gender = request.Gender,
+                        Birthday = request.Birthday,
+                        PhoneNumber = request.PhoneNumber,
+                        Password = request.Password,
+                        Role = request.Role,
+                        Status = request.Status,
+                    };
+                    _context.User.Add(user);
+                    _context.SaveChanges();
+                }
                 return Ok(response);
             }
             catch (Exception ex)
