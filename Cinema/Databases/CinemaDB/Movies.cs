@@ -21,6 +21,11 @@ public partial class Movies
 
     public int Rated { get; set; }
 
+    /// <summary>
+    /// 0-Chiếu sớm, 1-Chiếu thường
+    /// </summary>
+    public sbyte Format { get; set; }
+
     public float AverageReview { get; set; }
 
     public string? DirectorUuid { get; set; }
@@ -28,11 +33,6 @@ public partial class Movies
     public DateTime? RealeaseDate { get; set; }
 
     public sbyte Status { get; set; }
-
-    /// <summary>
-    /// 0-Chiếu sớm, 1-Chiếu thường
-    /// </summary>
-    public sbyte Format { get; set; }
 
     public virtual Director? DirectorUu { get; set; }
 

@@ -9,26 +9,26 @@ namespace CinemaAPI.Models.Response
         public class Error
         {
             public ErrorCode Code { get; set; }
-            public string Message { get; set; }
+            public string ErrorMessage { get; set; }
             public Error(ErrorCode code = ErrorCode.SUCCESS)
             {
                 Code = code;
-                Message = code.ToDescriptionString();
+                ErrorMessage = code.ToDescriptionString();
             }
 
             public void SetErrorCode(ErrorCode code)
             {
                 Code = code;
-                Message = code.ToDescriptionString();
+                ErrorMessage = code.ToDescriptionString();
             }
 
             public void SetErrorCode(ErrorCode code, string? message)
             {
                 Code = code;
-                if(message != null) { Message = message; }
+                if(message != null) { ErrorMessage = message; }
                 else
                 {
-                    Message = code.ToDescriptionString();
+                    ErrorMessage = code.ToDescriptionString();
                 }
                
             }

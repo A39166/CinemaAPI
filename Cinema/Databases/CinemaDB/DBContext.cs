@@ -17,6 +17,8 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<Genre> Genre { get; set; }
 
+    public virtual DbSet<Images> Images { get; set; }
+
     public virtual DbSet<Language> Language { get; set; }
 
     public virtual DbSet<Movies> Movies { get; set; }
@@ -100,6 +102,8 @@ public partial class DBContext : DbContext
 
             entity.ToTable("genre");
 
+            entity.HasIndex(e => e.GenreName, "genre_name_unq").IsUnique();
+
             entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
 
             entity.Property(e => e.Id)
@@ -113,6 +117,41 @@ public partial class DBContext : DbContext
                 .HasColumnName("status");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
+
+        modelBuilder.Entity<Images>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("images");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("bigint(20)")
+                .HasColumnName("id");
+            entity.Property(e => e.OwnerUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("owner_uuid");
+            entity.Property(e => e.Path)
+                .HasMaxLength(255)
+                .HasColumnName("path");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
+            entity.Property(e => e.Type)
+                .HasComment("1-Avatar,2-poster")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("type");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
                 .IsFixedLength()
                 .HasColumnName("uuid");
         });
@@ -128,9 +167,10 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
-            entity.Property(e => e.LanguageName)
-                .HasMaxLength(50)
-                .HasColumnName("language_name");
+            entity.Property(e => e.LanguageType)
+                .HasComment("1-Phụ đề,2-Lồng tiếng")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("language_type");
             entity.Property(e => e.Status)
                 .HasDefaultValueSql("'1'")
                 .HasColumnType("tinyint(4)")

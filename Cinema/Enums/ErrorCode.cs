@@ -51,6 +51,8 @@ namespace CinemaAPI.Enums
         DUPLICATE_EMAIL = 27,
         [Description("Mật khẩu không khớp")]
         MATCH_PASS = 28,
+        [Description("Đã có quốc gia này")]
+        DUPLICATE_REGION = 29,
 
 
     }

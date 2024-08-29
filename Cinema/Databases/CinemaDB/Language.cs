@@ -9,7 +9,10 @@ public partial class Language
 
     public string Uuid { get; set; } = null!;
 
-    public string LanguageName { get; set; } = null!;
+    /// <summary>
+    /// 1-Phụ đề,2-Lồng tiếng
+    /// </summary>
+    public sbyte LanguageType { get; set; }
 
     public sbyte Status { get; set; }
 

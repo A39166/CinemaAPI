@@ -1,4 +1,4 @@
-﻿using CinemaAPI.Databases.CinemaDB;
+﻿/*using CinemaAPI.Databases.CinemaDB;
 using CinemaAPI.Enums;
 using CinemaAPI.Extensions;
 using CinemaAPI.Models.BaseRequest;
@@ -16,21 +16,21 @@ namespace CinemaAPI.Controllers
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [ApiVersion("1")]
-    [SwaggerTag("Genre Controller")]
-    public class GenreController : BaseController
+    [SwaggerTag("Region Controller")]
+    public class RegionController : BaseController
     {
-        private readonly ILogger<GenreController> _logger;
+        private readonly ILogger<RegionController> _logger;
         private readonly DBContext _context;
 
-        public GenreController(DBContext context, ILogger<GenreController> logger)
+        public RegionController(DBContext context, ILogger<RegionController> logger)
         {
 
             _context = context;
             _logger = logger;
         }
-        [HttpPost("upsert_genre")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertGenre Response")]
-        public async Task<IActionResult> UpsertGenre(UpsertGenreRequest request)
+        [HttpPost("upsert_region")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertRegion Response")]
+        public async Task<IActionResult> UpsertRegion(UpsertRegionRequest request)
         {
             var response = new BaseResponse();
 
@@ -43,21 +43,21 @@ namespace CinemaAPI.Controllers
             {
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
-                    var genreName = _context.Genre.Where(d => d.GenreName.Trim().ToLower() == request.GenreName.Trim().ToLower()).FirstOrDefault();
-                    if (genreName != null)
+                    var regionName = _context.Region.Where(d => d.RegionName.Trim().ToLower() == request.RegionName.Trim().ToLower()).FirstOrDefault();
+                    if (regionName != null)
                     {
-                        response.error.SetErrorCode(ErrorCode.DUPLICATE_GENRE);
+                        response.error.SetErrorCode(ErrorCode.DUPLICATE_REGION);
                         return BadRequest(response);
                     }
                     else
                     {
-                        var genre = new Genre()
+                        var region = new Region()
                         {
                             Uuid = Guid.NewGuid().ToString(),
-                            GenreName = request.GenreName,
+                            RegionName = request.RegionName,
                             Status = 1,
                         };
-                        _context.Genre.Add(genre);
+                        _context.Region.Add(region);
                         _context.SaveChanges();
                     }
                     
@@ -65,11 +65,11 @@ namespace CinemaAPI.Controllers
                 else
                 //cập nhập dữ liệu
                 {
-                    var genre = _context.Genre.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-                    if (genre != null)
+                    var region = _context.Region.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                    if (region != null)
                     {
-                        genre.GenreName = request.GenreName;
-                        genre.Status = 1;
+                        region.RegionName = request.RegionName;
+                        region.Status = 1;
                         _context.SaveChanges();
                     }
                     else
@@ -87,11 +87,11 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("page_list_genre")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<GenreDTO>), description: "GetPageListGenre Response")]
-        public async Task<IActionResult> GetPageListGenre(DpsPagingParamBase request)
+        [HttpPost("page_list_region")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<RegionDTO>), description: "GetPageListRegion Response")]
+        public async Task<IActionResult> GetPageListRegion(DpsPagingParamBase request)
         {
-            var response = new BaseResponseMessagePage<GenreDTO>();
+            var response = new BaseResponseMessagePage<RegionDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -100,25 +100,25 @@ namespace CinemaAPI.Controllers
             }
             try
             {
-                var query = _context.Genre;
-                var lstGenre = query.ToList();
+                var query = _context.Region;
+                var lstRegion = query.ToList();
                 var totalcount = query.Count();
 
-                if (lstGenre != null && lstGenre.Count > 0)
+                if (lstRegion != null && lstRegion.Count > 0)
                 {
-                    var result = lstGenre.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
+                    var result = lstRegion.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
                     if (result != null && result.Count > 0)
                     {
-                        response.Data.Items = new List<GenreDTO>();
+                        response.Data.Items = new List<RegionDTO>();
                     }
-                    foreach (var genre in result)
+                    foreach (var region in result)
                     {
-                        var convertItemDTO = new GenreDTO()
+                        var convertItemDTO = new RegionDTO()
 
                         {
-                            Uuid = genre.Uuid,
-                            GenreName = genre.GenreName,
-                            Status = genre.Status,
+                            Uuid = region.Uuid,
+                            RegionName = region.RegionName,
+                            Status = region.Status,
                         };
                         response.Data.Items.Add(convertItemDTO);
                     }
@@ -140,11 +140,11 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("genre_detail")]
-        [SwaggerResponse(statusCode: 200, type: typeof(GenreDTO), description: "GetGenreDetail Response")]
-        public async Task<IActionResult> GetGenreDetail(UuidRequest request)
+        [HttpPost("region_detail")]
+        [SwaggerResponse(statusCode: 200, type: typeof(RegionDTO), description: "GetRegionDetail Response")]
+        public async Task<IActionResult> GetRegionDetail(UuidRequest request)
         {
-            var response = new BaseResponseMessage<GenreDTO>();
+            var response = new BaseResponseMessage<RegionDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -156,16 +156,16 @@ namespace CinemaAPI.Controllers
             {
                 //TODO: Write code late
 
-                var genredetail = _context.Genre.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-                if (genredetail != null)
+                var regiondetail = _context.Region.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                if (regiondetail != null)
                 {
-                    response.Data = new GenreDTO()
+                    response.Data = new RegionDTO()
                     {
-                        Uuid = genredetail.Uuid,
-                        GenreName = genredetail.GenreName,
-                        Status = genredetail.Status,
+                        Uuid = regiondetail.Uuid,
+                        RegionName = regiondetail.RegionName,
+                        Status = regiondetail.Status,
                     };
-                        
+
                 }
                 return Ok(response);
             }
@@ -176,9 +176,9 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("update_genre_status")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateGenreStatus Response")]
-        public async Task<IActionResult> UpdateGenreStatus(UpdateStatusRequest request)
+        [HttpPost("update_region_status")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateRegionStatus Response")]
+        public async Task<IActionResult> UpdateRegionStatus(UpdateStatusRequest request)
         {
             var response = new BaseResponse();
 
@@ -192,11 +192,11 @@ namespace CinemaAPI.Controllers
             {
                 //TODO: Write code late
 
-                var genrestatus = _context.Genre.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                var regionstatus = _context.Region.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
 
-                if (genrestatus != null)
+                if (regionstatus != null)
                 {
-                    genrestatus.Status = request.Status;
+                    regionstatus.Status = request.Status;
    
                     _context.SaveChanges();
                 }
@@ -216,3 +216,4 @@ namespace CinemaAPI.Controllers
         }
     }
 }
+*/
