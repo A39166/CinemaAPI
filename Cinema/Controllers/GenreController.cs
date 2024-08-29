@@ -114,7 +114,6 @@ namespace CinemaAPI.Controllers
                     foreach (var genre in result)
                     {
                         var convertItemDTO = new GenreDTO()
-
                         {
                             Uuid = genre.Uuid,
                             GenreName = genre.GenreName,
