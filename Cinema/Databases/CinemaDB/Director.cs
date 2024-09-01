@@ -11,9 +11,9 @@ public partial class Director
 
     public string DirectorName { get; set; } = null!;
 
-    public DateOnly? DirectorBirth { get; set; }
+    public DateOnly? Birthday { get; set; }
 
-    public string? DirectorDescription { get; set; }
+    public string? Description { get; set; }
 
     public sbyte Status { get; set; }
 

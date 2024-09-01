@@ -17,21 +17,21 @@ namespace CinemaAPI.Controllers
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [ApiVersion("1")]
-    [SwaggerTag("Cast Controller")]
-    public class DirectorController : BaseController
+    [SwaggerTag("Director Controller")]
+    public class CastController : BaseController
     {
-        private readonly ILogger<DirectorController> _logger;
+        private readonly ILogger<CastController> _logger;
         private readonly DBContext _context;
 
-        public DirectorController(DBContext context, ILogger<DirectorController> logger)
+        public CastController(DBContext context, ILogger<CastController> logger)
         {
 
             _context = context;
             _logger = logger;
         }
-        [HttpPost("upsert_director")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertDirector Response")]
-        public async Task<IActionResult> UpsertDirector(UpsertDirectorRequest request)
+        [HttpPost("upsert_cast")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertCast Response")]
+        public async Task<IActionResult> UpsertCast(UpsertCastRequest request)
         {
             var response = new BaseResponse();
 
@@ -45,27 +45,27 @@ namespace CinemaAPI.Controllers
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
                     
-                    var director = new Director()
+                    var cast = new Cast()
                     {
                         Uuid = Guid.NewGuid().ToString(),
-                        DirectorName = request.DirectorName,
+                        CastName = request.CastName,
                         Birthday = request.Birthday,
                         Description = request.Description,
                         Status = 1,
                     };
-                    _context.Director.Add(director);
+                    _context.Cast.Add(cast);
                     _context.SaveChanges();
                 }
                 else
                 //cập nhập dữ liệu
                 {
-                    var director = _context.Director.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-                    if (director != null)
+                    var cast = _context.Cast.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                    if (cast != null)
                     {
-                        director.DirectorName = request.DirectorName;
-                        director.Birthday = request.Birthday;
-                        director.Description = request.Description;
-                        director.Status = 1;
+                        cast.CastName = request.CastName;
+                        cast.Birthday = request.Birthday;
+                        cast.Description = request.Description;
+                        cast.Status = 1;
                         _context.SaveChanges();
                     }
                     else
@@ -83,11 +83,11 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("page_list_director")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<DirectorDTO>), description: "GetPageListDirector Response")]
-        public async Task<IActionResult> GetPageListDirector(DpsPagingParamBase request)
+        [HttpPost("page_list_cast")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<CastDTO>), description: "GetPageListCast Response")]
+        public async Task<IActionResult> GetPageListCast(DpsPagingParamBase request)
         {
-            var response = new BaseResponseMessagePage<DirectorDTO>();
+            var response = new BaseResponseMessagePage<CastDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -96,26 +96,26 @@ namespace CinemaAPI.Controllers
             }
             try
             {
-                var query = _context.Director;
-                var lstDirector = query.ToList();
+                var query = _context.Cast;
+                var lstCast = query.ToList();
                 var totalcount = query.Count();
 
-                if (lstDirector != null && lstDirector.Count > 0)
+                if (lstCast != null && lstCast.Count > 0)
                 {
-                    var result = lstDirector.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
+                    var result = lstCast.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
                     if (result != null && result.Count > 0)
                     {
-                        response.Data.Items = new List<DirectorDTO>();
+                        response.Data.Items = new List<CastDTO>();
                     }
-                    foreach (var director in result)
+                    foreach (var cast in result)
                     {
-                        var convertItemDTO = new DirectorDTO()
+                        var convertItemDTO = new CastDTO()
                         {
-                            Uuid = director.Uuid,
-                            DirectorName = director.DirectorName,
-                            Birthday = director.Birthday,
-                            Description = director.Description,
-                            Status = director.Status,
+                            Uuid = cast.Uuid,
+                            CastName = cast.CastName,
+                            Birthday = cast.Birthday,
+                            Description = cast.Description,
+                            Status = cast.Status,
                         };
                         response.Data.Items.Add(convertItemDTO);
                     }
@@ -137,11 +137,11 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("director_detail")]
-        [SwaggerResponse(statusCode: 200, type: typeof(DirectorDTO), description: "GetDirectorDetail Response")]
-        public async Task<IActionResult> GetDirectorDetail(UuidRequest request)
+        [HttpPost("cast_detail")]
+        [SwaggerResponse(statusCode: 200, type: typeof(CastDTO), description: "GetCastDetail Response")]
+        public async Task<IActionResult> GetCastDetail(UuidRequest request)
         {
-            var response = new BaseResponseMessage<DirectorDTO>();
+            var response = new BaseResponseMessage<CastDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -153,16 +153,16 @@ namespace CinemaAPI.Controllers
             {
                 //TODO: Write code late
 
-                var directordetail = _context.Director.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-                if (directordetail != null)
+                var castdetail = _context.Cast.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                if (castdetail != null)
                 {
-                    response.Data = new DirectorDTO()
+                    response.Data = new CastDTO()
                     {
-                        Uuid = directordetail.Uuid,
-                        DirectorName = directordetail.DirectorName,
-                        Birthday = directordetail.Birthday,
-                        Description = directordetail.Description,
-                        Status = directordetail.Status,
+                        Uuid = castdetail.Uuid,
+                        CastName = castdetail.CastName,
+                        Birthday = castdetail.Birthday,
+                        Description = castdetail.Description,
+                        Status = castdetail.Status,
                     };
 
                 }
@@ -175,9 +175,9 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("update_director_status")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateDirectorStatus Response")]
-        public async Task<IActionResult> UpdateDirectorStatus(UpdateStatusRequest request)
+        [HttpPost("update_cast_status")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateCastStatus Response")]
+        public async Task<IActionResult> UpdateCastStatus(UpdateStatusRequest request)
         {
             var response = new BaseResponse();
 
@@ -189,11 +189,11 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                var directorstatus = _context.Director.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                var caststatus = _context.Cast.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
 
-                if (directorstatus != null)
+                if (caststatus != null)
                 {
-                    directorstatus.Status = request.Status;
+                    caststatus.Status = request.Status;
 
                     _context.SaveChanges();
                 }

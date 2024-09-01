@@ -54,11 +54,11 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
-            entity.Property(e => e.CastBirth).HasColumnName("cast_birth");
-            entity.Property(e => e.CastDescription).HasColumnName("cast_description");
+            entity.Property(e => e.Birthday).HasColumnName("birthday");
             entity.Property(e => e.CastName)
                 .HasMaxLength(50)
                 .HasColumnName("cast_name");
+            entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.Status)
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
@@ -80,8 +80,8 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
-            entity.Property(e => e.DirectorBirth).HasColumnName("director_birth");
-            entity.Property(e => e.DirectorDescription).HasColumnName("director_description");
+            entity.Property(e => e.Birthday).HasColumnName("birthday");
+            entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.DirectorName)
                 .HasMaxLength(50)
                 .HasColumnName("director_name");

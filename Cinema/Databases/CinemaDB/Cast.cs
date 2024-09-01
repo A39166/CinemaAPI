@@ -11,9 +11,9 @@ public partial class Cast
 
     public string CastName { get; set; } = null!;
 
-    public DateOnly? CastBirth { get; set; }
+    public DateOnly? Birthday { get; set; }
 
-    public string? CastDescription { get; set; }
+    public string? Description { get; set; }
 
     public sbyte Status { get; set; }
 
