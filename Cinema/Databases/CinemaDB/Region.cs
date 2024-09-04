@@ -11,6 +11,8 @@ public partial class Region
 
     public string RegionName { get; set; } = null!;
 
+    public DateTime TimeCreated { get; set; }
+
     public sbyte Status { get; set; }
 
     public virtual ICollection<MoviesRegion> MoviesRegion { get; set; } = new List<MoviesRegion>();

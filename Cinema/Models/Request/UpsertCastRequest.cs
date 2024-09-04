@@ -9,6 +9,7 @@ namespace CinemaAPI.Models.Request
         public string CastName { get; set; }
         public DateOnly? Birthday { get; set; }
         public string? Description {  get; set; }
+        public DateTime TimeCreated { get; set; }
         [DefaultValue(1)]
         public sbyte Status {  get; set; }
 

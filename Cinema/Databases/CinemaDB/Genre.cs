@@ -11,6 +11,8 @@ public partial class Genre
 
     public string GenreName { get; set; } = null!;
 
+    public DateTime TimeCreated { get; set; }
+
     public sbyte Status { get; set; }
 
     public virtual ICollection<MoviesGenre> MoviesGenre { get; set; } = new List<MoviesGenre>();

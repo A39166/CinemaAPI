@@ -51,6 +51,7 @@ namespace CinemaAPI.Controllers
                         DirectorName = request.DirectorName,
                         Birthday = request.Birthday,
                         Description = request.Description,
+                        TimeCreated = DateTime.Now,
                         Status = 1,
                     };
                     _context.Director.Add(director);
@@ -115,6 +116,7 @@ namespace CinemaAPI.Controllers
                             DirectorName = director.DirectorName,
                             Birthday = director.Birthday,
                             Description = director.Description,
+                            TimeCreated = director.TimeCreated,
                             Status = director.Status,
                         };
                         response.Data.Items.Add(convertItemDTO);
@@ -162,6 +164,7 @@ namespace CinemaAPI.Controllers
                         DirectorName = directordetail.DirectorName,
                         Birthday = directordetail.Birthday,
                         Description = directordetail.Description,
+                        TimeCreated = directordetail.TimeCreated,
                         Status = directordetail.Status,
                     };
 

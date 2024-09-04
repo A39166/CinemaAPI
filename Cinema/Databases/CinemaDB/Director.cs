@@ -15,6 +15,8 @@ public partial class Director
 
     public string? Description { get; set; }
 
+    public DateTime TimeCreated { get; set; }
+
     public sbyte Status { get; set; }
 
     public virtual ICollection<Movies> Movies { get; set; } = new List<Movies>();

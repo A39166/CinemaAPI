@@ -14,7 +14,5 @@ public partial class Language
     /// </summary>
     public sbyte LanguageType { get; set; }
 
-    public sbyte Status { get; set; }
-
     public virtual ICollection<MoviesLanguage> MoviesLanguage { get; set; } = new List<MoviesLanguage>();
 }

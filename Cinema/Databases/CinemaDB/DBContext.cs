@@ -13,6 +13,8 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<Cast> Cast { get; set; }
 
+    public virtual DbSet<Cinemas> Cinemas { get; set; }
+
     public virtual DbSet<Director> Director { get; set; }
 
     public virtual DbSet<Genre> Genre { get; set; }
@@ -32,6 +34,10 @@ public partial class DBContext : DbContext
     public virtual DbSet<MoviesRegion> MoviesRegion { get; set; }
 
     public virtual DbSet<Region> Region { get; set; }
+
+    public virtual DbSet<Screen> Screen { get; set; }
+
+    public virtual DbSet<ScreenType> ScreenType { get; set; }
 
     public virtual DbSet<Sessions> Sessions { get; set; }
 
@@ -62,6 +68,44 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Status)
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
+
+        modelBuilder.Entity<Cinemas>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("cinemas");
+
+            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.Address)
+                .HasMaxLength(50)
+                .HasColumnName("address");
+            entity.Property(e => e.CinemaName)
+                .HasMaxLength(50)
+                .HasColumnName("cinema_name");
+            entity.Property(e => e.Location).HasColumnName("location");
+            entity.Property(e => e.Status)
+                .HasComment("0 - đang khóa, 1 - hoạt động")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
                 .HasDefaultValueSql("uuid()")
@@ -89,6 +133,11 @@ public partial class DBContext : DbContext
                 .HasDefaultValueSql("'1'")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
                 .HasDefaultValueSql("uuid()")
@@ -102,8 +151,6 @@ public partial class DBContext : DbContext
 
             entity.ToTable("genre");
 
-            entity.HasIndex(e => e.GenreName, "genre_name_unq").IsUnique();
-
             entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
 
             entity.Property(e => e.Id)
@@ -115,6 +162,10 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Status)
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
                 .HasDefaultValueSql("uuid()")
@@ -171,10 +222,6 @@ public partial class DBContext : DbContext
                 .HasComment("1-Phụ đề,2-Lồng tiếng")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("language_type");
-            entity.Property(e => e.Status)
-                .HasDefaultValueSql("'1'")
-                .HasColumnType("tinyint(4)")
-                .HasColumnName("status");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
                 .HasDefaultValueSql("uuid()")
@@ -396,6 +443,87 @@ public partial class DBContext : DbContext
                 .HasDefaultValueSql("'1'")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
+
+        modelBuilder.Entity<Screen>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("screen");
+
+            entity.HasIndex(e => e.CinemaUuid, "fk_cinema_uuid_ref");
+
+            entity.HasIndex(e => e.ScreenTypeUuid, "fk_stype_uuid_ref");
+
+            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.Capacity)
+                .HasColumnType("int(11)")
+                .HasColumnName("capacity");
+            entity.Property(e => e.CinemaUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("cinema_uuid");
+            entity.Property(e => e.ScreenName)
+                .HasMaxLength(50)
+                .HasColumnName("screen_name");
+            entity.Property(e => e.ScreenTypeUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("screen_type_uuid");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+
+            entity.HasOne(d => d.CinemaUu).WithMany(p => p.Screen)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.CinemaUuid)
+                .HasConstraintName("fk_cinema_uuid_ref");
+
+            entity.HasOne(d => d.ScreenTypeUu).WithMany(p => p.Screen)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.ScreenTypeUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_stype_uuid_ref");
+        });
+
+        modelBuilder.Entity<ScreenType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("screen_type");
+
+            entity.HasIndex(e => e.Uuid, "uuid").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.Type)
+                .HasComment("1-2D,2-3D,3-IMAX")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("type");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
                 .HasDefaultValueSql("uuid()")

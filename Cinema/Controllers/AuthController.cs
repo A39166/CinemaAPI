@@ -65,6 +65,7 @@ namespace CinemaAPI.Controllers
                         Uuid = user.Uuid,
                         Email = user.Email,
                         Fullname = user.Fullname,
+                        Role = user.Role,
                     };
 
                     TokenManager.addToken(_token);

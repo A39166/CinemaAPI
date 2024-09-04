@@ -43,8 +43,8 @@ namespace CinemaAPI.Controllers
             {
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
-                    var regionName = _context.Region.Where(d => d.RegionName.Trim().ToLower() == request.RegionName.Trim().ToLower()).FirstOrDefault();
-                    if (regionName != null)
+                    var regionName = _context.Region.Any(d => d.RegionName.Trim().ToLower() == request.RegionName.Trim().ToLower() && d.Status == 1);
+                    if (regionName)
                     {
                         response.error.SetErrorCode(ErrorCode.DUPLICATE_REGION);
                         return BadRequest(response);
@@ -55,6 +55,7 @@ namespace CinemaAPI.Controllers
                         {
                             Uuid = Guid.NewGuid().ToString(),
                             RegionName = request.RegionName,
+                            TimeCreated = DateTime.Now,
                             Status = 1,
                         };
                         _context.Region.Add(region);
@@ -118,6 +119,7 @@ namespace CinemaAPI.Controllers
                         {
                             Uuid = region.Uuid,
                             RegionName = region.RegionName,
+                            TimeCreated = region.TimeCreated,
                             Status = region.Status,
                         };
                         response.Data.Items.Add(convertItemDTO);
@@ -163,6 +165,7 @@ namespace CinemaAPI.Controllers
                     {
                         Uuid = regiondetail.Uuid,
                         RegionName = regiondetail.RegionName,
+                        TimeCreated = regiondetail.TimeCreated,
                         Status = regiondetail.Status,
                     };
 

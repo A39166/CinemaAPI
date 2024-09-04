@@ -6,7 +6,8 @@ namespace CinemaAPI.Models.Request
 {
     public class UpsertRegionRequest: UuidRequest
     {
-       public string RegionName { get; set; }
+        public string RegionName { get; set; }
+        public DateTime TimeCreated { get; set; }
 
     }
 }

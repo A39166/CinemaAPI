@@ -15,6 +15,8 @@ public partial class Cast
 
     public string? Description { get; set; }
 
+    public DateTime TimeCreated { get; set; }
+
     public sbyte Status { get; set; }
 
     public virtual ICollection<MoviesCast> MoviesCast { get; set; } = new List<MoviesCast>();

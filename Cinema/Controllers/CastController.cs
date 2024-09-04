@@ -51,6 +51,7 @@ namespace CinemaAPI.Controllers
                         CastName = request.CastName,
                         Birthday = request.Birthday,
                         Description = request.Description,
+                        TimeCreated = DateTime.Now,
                         Status = 1,
                     };
                     _context.Cast.Add(cast);
@@ -115,6 +116,7 @@ namespace CinemaAPI.Controllers
                             CastName = cast.CastName,
                             Birthday = cast.Birthday,
                             Description = cast.Description,
+                            TimeCreated = cast.TimeCreated,
                             Status = cast.Status,
                         };
                         response.Data.Items.Add(convertItemDTO);
@@ -162,6 +164,7 @@ namespace CinemaAPI.Controllers
                         CastName = castdetail.CastName,
                         Birthday = castdetail.Birthday,
                         Description = castdetail.Description,
+                        TimeCreated = castdetail.TimeCreated,
                         Status = castdetail.Status,
                     };
 

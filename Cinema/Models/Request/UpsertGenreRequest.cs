@@ -6,7 +6,8 @@ namespace CinemaAPI.Models.Request
 {
     public class UpsertGenreRequest: UuidRequest
     {
-       public string GenreName { get; set; }
+        public string GenreName { get; set; }
+        public DateTime TimeCreated { get; set; }
 
     }
 }

@@ -43,8 +43,8 @@ namespace CinemaAPI.Controllers
             {
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
-                    var genreName = _context.Genre.Where(d => d.GenreName.Trim().ToLower() == request.GenreName.Trim().ToLower()).FirstOrDefault();
-                    if (genreName != null)
+                    var genreName = _context.Genre.Any(d => d.GenreName.Trim().ToLower() == request.GenreName.Trim().ToLower() && d.Status == 1);
+                    if (genreName)
                     {
                         response.error.SetErrorCode(ErrorCode.DUPLICATE_GENRE);
                         return BadRequest(response);
@@ -55,6 +55,7 @@ namespace CinemaAPI.Controllers
                         {
                             Uuid = Guid.NewGuid().ToString(),
                             GenreName = request.GenreName,
+                            TimeCreated = DateTime.Now,
                             Status = 1,
                         };
                         _context.Genre.Add(genre);
@@ -117,6 +118,7 @@ namespace CinemaAPI.Controllers
                         {
                             Uuid = genre.Uuid,
                             GenreName = genre.GenreName,
+                            TimeCreated = genre.TimeCreated,
                             Status = genre.Status,
                         };
                         response.Data.Items.Add(convertItemDTO);
@@ -162,6 +164,7 @@ namespace CinemaAPI.Controllers
                     {
                         Uuid = genredetail.Uuid,
                         GenreName = genredetail.GenreName,
+                        TimeCreated = genredetail.TimeCreated,
                         Status = genredetail.Status,
                     };
                         
