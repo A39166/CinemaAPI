@@ -14,5 +14,9 @@
         public static int OTP_EXPIRED_MINUTES = 2;
 
         public static readonly string[] IMAGES_UPLOAD_EXTENSIONS = { ".png", ".jpeg", ".jpg" };
+        public static readonly string FOLDER_EXPORT = "resources";
+        public static readonly string SUB_FOLDER_AVATAR = "avatars";
+        public static readonly string SUB_FOLDER_POSTER = "poster";
+        public static readonly string SUB_FOLDER_IMAGE = "images";  
     }
 }

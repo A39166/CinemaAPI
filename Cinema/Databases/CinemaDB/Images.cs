@@ -11,8 +11,10 @@ public partial class Images
 
     public string? OwnerUuid { get; set; }
 
+    public string? OwnerType { get; set; }
+
     /// <summary>
-    /// 1-Avatar,2-poster
+    /// 1-Avatar, 2-poster, 3-Image
     /// </summary>
     public sbyte Type { get; set; }
 

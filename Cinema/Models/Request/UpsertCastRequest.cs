@@ -12,6 +12,7 @@ namespace CinemaAPI.Models.Request
         public DateTime TimeCreated { get; set; }
         [DefaultValue(1)]
         public sbyte Status {  get; set; }
+        public string? ImagesUuid { get; set; }
 
     }
 }

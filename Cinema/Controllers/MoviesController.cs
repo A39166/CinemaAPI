@@ -1,4 +1,4 @@
-﻿using CinemaAPI.Models.Request;
+﻿/*using CinemaAPI.Models.Request;
 using CinemaAPI.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -18,20 +18,20 @@ namespace CinemaAPI.Controllers
     [ApiController]
     [ApiVersion("1")]
     [SwaggerTag("Cast Controller")]
-    public class DirectorController : BaseController
+    public class MoviesController : BaseController
     {
-        private readonly ILogger<DirectorController> _logger;
+        private readonly ILogger<MoviesController> _logger;
         private readonly DBContext _context;
 
-        public DirectorController(DBContext context, ILogger<DirectorController> logger)
+        public MoviesController(DBContext context, ILogger<MoviesController> logger)
         {
 
             _context = context;
             _logger = logger;
         }
-        [HttpPost("upsert_director")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertDirector Response")]
-        public async Task<IActionResult> UpsertDirector(UpsertDirectorRequest request)
+        [HttpPost("upsert_movies")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertMovies Response")]
+        public async Task<IActionResult> UpsertMovies(UpsertMoviesRequest request)
         {
             var response = new BaseResponse();
 
@@ -247,3 +247,4 @@ namespace CinemaAPI.Controllers
         }
     }
 }
+*/

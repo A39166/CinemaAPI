@@ -33,6 +33,8 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<MoviesRegion> MoviesRegion { get; set; }
 
+    public virtual DbSet<News> News { get; set; }
+
     public virtual DbSet<Region> Region { get; set; }
 
     public virtual DbSet<Screen> Screen { get; set; }
@@ -179,9 +181,16 @@ public partial class DBContext : DbContext
 
             entity.ToTable("images");
 
+            entity.HasIndex(e => e.OwnerUuid, "fk_img_news_ref");
+
+            entity.HasIndex(e => e.Uuid, "unq_uuid").IsUnique();
+
             entity.Property(e => e.Id)
                 .HasColumnType("bigint(20)")
                 .HasColumnName("id");
+            entity.Property(e => e.OwnerType)
+                .HasMaxLength(50)
+                .HasColumnName("owner_type");
             entity.Property(e => e.OwnerUuid)
                 .HasMaxLength(36)
                 .IsFixedLength()
@@ -197,7 +206,7 @@ public partial class DBContext : DbContext
                 .HasColumnType("timestamp")
                 .HasColumnName("time_created");
             entity.Property(e => e.Type)
-                .HasComment("1-Avatar,2-poster")
+                .HasComment("1-Avatar, 2-poster, 3-Image")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("type");
             entity.Property(e => e.Uuid)
@@ -310,13 +319,11 @@ public partial class DBContext : DbContext
             entity.HasOne(d => d.CastUu).WithMany(p => p.MoviesCast)
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.CastUuid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_cast_uuid_ref");
 
             entity.HasOne(d => d.MoviesUu).WithMany(p => p.MoviesCast)
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.MoviesUuid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_movies_cast_uuid_ref");
         });
 
@@ -345,13 +352,11 @@ public partial class DBContext : DbContext
             entity.HasOne(d => d.GenreUu).WithMany(p => p.MoviesGenre)
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.GenreUuid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_genre_uuid_ref");
 
             entity.HasOne(d => d.MoviesUu).WithMany(p => p.MoviesGenre)
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.MoviesUuid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_movies_mv_uuid_ref");
         });
 
@@ -380,13 +385,11 @@ public partial class DBContext : DbContext
             entity.HasOne(d => d.LanguageUu).WithMany(p => p.MoviesLanguage)
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.LanguageUuid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_lg_uuid_ref");
 
             entity.HasOne(d => d.MoviesUu).WithMany(p => p.MoviesLanguage)
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.MoviesUuid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_movies_lg_uuid_ref");
         });
 
@@ -415,14 +418,42 @@ public partial class DBContext : DbContext
             entity.HasOne(d => d.MoviesUu).WithMany(p => p.MoviesRegion)
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.MoviesUuid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_movies_region_uuid_ref");
 
             entity.HasOne(d => d.RegionUu).WithMany(p => p.MoviesRegion)
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.RegionUuid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_region_uuid_ref");
+        });
+
+        modelBuilder.Entity<News>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("news");
+
+            entity.HasIndex(e => e.Uuid, "uuid");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.Content).HasColumnName("content");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
+            entity.Property(e => e.Title)
+                .HasMaxLength(50)
+                .HasColumnName("title");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
         });
 
         modelBuilder.Entity<Region>(entity =>

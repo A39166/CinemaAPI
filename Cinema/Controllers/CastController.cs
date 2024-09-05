@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Identity.Data;
 using CinemaAPI.Models.DataInfo;
 using CinemaAPI.Extensions;
 using System.IO;
+using System.Security.Principal;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CinemaAPI.Controllers
 {
@@ -56,6 +58,18 @@ namespace CinemaAPI.Controllers
                     };
                     _context.Cast.Add(cast);
                     _context.SaveChanges();
+                    if (!string.IsNullOrEmpty(request.ImagesUuid))
+                    {
+                        var image = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
+                        if (image != null)
+                        {
+                            image.OwnerUuid = cast.Uuid;
+                            image.OwnerType = "cast";
+                            image.Status = 1;
+                            _context.Images.Update(image);
+                            _context.SaveChanges();
+                        }
+                    }
                 }
                 else
                 //cập nhập dữ liệu
@@ -68,6 +82,23 @@ namespace CinemaAPI.Controllers
                         cast.Description = request.Description;
                         cast.Status = 1;
                         _context.SaveChanges();
+                        if (!string.IsNullOrEmpty(request.ImagesUuid))
+                        {
+                            var newimage = _context.Images.SingleOrDefault(img => img.Uuid == request.ImagesUuid);
+                            if (newimage != null)
+                            {
+                                var oldImage = _context.Images.SingleOrDefault(img => img.OwnerUuid == cast.Uuid);
+                                if (oldImage != null)
+                                {
+                                    _context.Images.Remove(oldImage);
+                                }
+                                newimage.OwnerUuid = cast.Uuid;
+                                newimage.OwnerType = "cast";
+                                newimage.Status = 1;
+                                _context.Images.Update(newimage);
+                                _context.SaveChanges();
+                            }
+                        }
                     }
                     else
                     {
@@ -116,6 +147,7 @@ namespace CinemaAPI.Controllers
                             CastName = cast.CastName,
                             Birthday = cast.Birthday,
                             Description = cast.Description,
+                            ImageUrl = _context.Images.Where(x => cast.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
                             TimeCreated = cast.TimeCreated,
                             Status = cast.Status,
                         };
@@ -164,6 +196,7 @@ namespace CinemaAPI.Controllers
                         CastName = castdetail.CastName,
                         Birthday = castdetail.Birthday,
                         Description = castdetail.Description,
+                        ImageUrl = _context.Images.Where(x => castdetail.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
                         TimeCreated = castdetail.TimeCreated,
                         Status = castdetail.Status,
                     };
