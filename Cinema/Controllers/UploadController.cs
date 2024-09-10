@@ -93,7 +93,7 @@ namespace CinemaAPI.Controllers.v1
                         };
                         _context.Images.Add(newImage);
                         _context.SaveChanges();
-                        response.Data = newUuid;
+                        response.Data = $"{folderSavePath}/{filename}";
                     }
                     else
                     {

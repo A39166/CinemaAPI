@@ -1,4 +1,4 @@
-﻿/*using CinemaAPI.Models.Request;
+﻿using CinemaAPI.Models.Request;
 using CinemaAPI.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -45,24 +45,29 @@ namespace CinemaAPI.Controllers
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
                     
-                    var director = new Director()
+                    var movies = new Movies()
                     {
                         Uuid = Guid.NewGuid().ToString(),
-                        DirectorName = request.DirectorName,
-                        Birthday = request.Birthday,
+                        Title = request.Title,
+                        EngTitle = request.EngTitle,
+                        Trailer = request.Trailer,
                         Description = request.Description,
-                        TimeCreated = DateTime.Now,
+                        Duration = request.Duration,
+                        Rated = request.Rated,
+                        AverageReview = request.AverageReview,
+                        DirectorUuid = string.IsNullOrEmpty(request.DirectorUuid) ? null : request.DirectorUuid,
+                        RealeaseDate = request.RealeaseDate,
                         Status = 1,
                     };
-                    _context.Director.Add(director);
+                    _context.Movies.Add(movies);
                     _context.SaveChanges();
                     if (!string.IsNullOrEmpty(request.ImagesUuid))
                     {
                         var image = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
                         if (image != null)
                         {
-                            image.OwnerUuid = director.Uuid;
-                            image.OwnerType = "director";
+                            image.OwnerUuid = movies.Uuid;
+                            image.OwnerType = "movies";
                             image.Status = 1;
                             _context.Images.Update(image);
                             _context.SaveChanges();
@@ -72,26 +77,31 @@ namespace CinemaAPI.Controllers
                 else
                 //cập nhập dữ liệu
                 {
-                    var director = _context.Director.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-                    if (director != null)
+                    var movies = _context.Movies.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                    if (movies != null)
                     {
-                        director.DirectorName = request.DirectorName;
-                        director.Birthday = request.Birthday;
-                        director.Description = request.Description;
-                        director.Status = 1;
+                        movies.Title = request.Title;
+                        movies.EngTitle = request.EngTitle;
+                        movies.Trailer = request.Trailer;
+                        movies.Description = request.Description;
+                        movies.Duration = request.Duration;
+                        movies.Rated = request.Rated;
+                        movies.AverageReview = request.AverageReview;
+                        movies.DirectorUuid = string.IsNullOrEmpty(request.DirectorUuid) ? null : request.DirectorUuid;
+                        movies.RealeaseDate = request.RealeaseDate;
                         _context.SaveChanges();
                         if (!string.IsNullOrEmpty(request.ImagesUuid))
                         {
                             var newimage = _context.Images.SingleOrDefault(img => img.Uuid == request.ImagesUuid);
                             if (newimage != null)
                             {
-                                var oldImage = _context.Images.SingleOrDefault(img => img.OwnerUuid == director.Uuid);
+                                var oldImage = _context.Images.SingleOrDefault(img => img.OwnerUuid == movies.Uuid);
                                 if (oldImage != null)
                                 {
                                     _context.Images.Remove(oldImage);
                                 }
-                                newimage.OwnerUuid = director.Uuid;
-                                newimage.OwnerType = "director";
+                                newimage.OwnerUuid = movies.Uuid;
+                                newimage.OwnerType = "movies";
                                 newimage.Status = 1;
                                 _context.Images.Update(newimage);
                                 _context.SaveChanges();
@@ -113,11 +123,11 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("page_list_director")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<DirectorDTO>), description: "GetPageListDirector Response")]
-        public async Task<IActionResult> GetPageListDirector(DpsPagingParamBase request)
+        [HttpPost("page_list_movies")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<MoviesDTO>), description: "GetPageListMovies Response")]
+        public async Task<IActionResult> GetPageListMovies(DpsPagingParamBase request)
         {
-            var response = new BaseResponseMessagePage<DirectorDTO>();
+            var response = new BaseResponseMessagePage<MoviesDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -126,28 +136,33 @@ namespace CinemaAPI.Controllers
             }
             try
             {
-                var query = _context.Director;
-                var lstDirector = query.ToList();
+                var query = _context.Movies;
+                var lstMovies = query.ToList();
                 var totalcount = query.Count();
 
-                if (lstDirector != null && lstDirector.Count > 0)
+                if (lstMovies != null && lstMovies.Count > 0)
                 {
-                    var result = lstDirector.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
+                    var result = lstMovies.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
                     if (result != null && result.Count > 0)
                     {
-                        response.Data.Items = new List<DirectorDTO>();
+                        response.Data.Items = new List<MoviesDTO>();
                     }
-                    foreach (var director in result)
+                    foreach (var movies in result)
                     {
-                        var convertItemDTO = new DirectorDTO()
+                        var convertItemDTO = new MoviesDTO()
                         {
-                            Uuid = director.Uuid,
-                            DirectorName = director.DirectorName,
-                            Birthday = director.Birthday,
-                            Description = director.Description,
-                            ImageUrl = _context.Images.Where(x => director.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
-                            TimeCreated = director.TimeCreated,
-                            Status = director.Status,
+                            Uuid = movies.Uuid,
+                            Title = movies.Title,
+                            EngTitle = movies.EngTitle,
+                            Trailer = movies.Trailer,
+                            Description = movies.Description,
+                            Duration = movies.Duration,
+                            Rated = movies.Rated,
+                            AverageReview = movies.AverageReview,
+                            DirectorUuid = movies.DirectorUuid,
+                            RealeaseDate = movies.RealeaseDate,
+                            Status = 1,
+                            ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
                         };
                         response.Data.Items.Add(convertItemDTO);
                     }
@@ -169,11 +184,11 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("director_detail")]
-        [SwaggerResponse(statusCode: 200, type: typeof(DirectorDTO), description: "GetDirectorDetail Response")]
-        public async Task<IActionResult> GetDirectorDetail(UuidRequest request)
+        [HttpPost("movies_detail")]
+        [SwaggerResponse(statusCode: 200, type: typeof(MoviesDTO), description: "GetMoviesDetail Response")]
+        public async Task<IActionResult> GetMoviesDetail(UuidRequest request)
         {
-            var response = new BaseResponseMessage<DirectorDTO>();
+            var response = new BaseResponseMessage<MoviesDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -185,20 +200,24 @@ namespace CinemaAPI.Controllers
             {
                 //TODO: Write code late
 
-                var directordetail = _context.Director.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-                if (directordetail != null)
+                var movies = _context.Movies.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                if (movies != null)
                 {
-                    response.Data = new DirectorDTO()
+                    response.Data = new MoviesDTO()
                     {
-                        Uuid = directordetail.Uuid,
-                        DirectorName = directordetail.DirectorName,
-                        Birthday = directordetail.Birthday,
-                        Description = directordetail.Description,
-                        ImageUrl = _context.Images.Where(x => directordetail.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
-                        TimeCreated = directordetail.TimeCreated,
-                        Status = directordetail.Status,
+                        Uuid = movies.Uuid,
+                        Title = movies.Title,
+                        EngTitle = movies.EngTitle,
+                        Trailer = movies.Trailer,
+                        Description = movies.Description,
+                        Duration = movies.Duration,
+                        Rated = movies.Rated,
+                        AverageReview = movies.AverageReview,
+                        DirectorUuid = movies.DirectorUuid,
+                        RealeaseDate = movies.RealeaseDate,
+                        Status = 1,
+                        ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
                     };
-
                 }
                 return Ok(response);
             }
@@ -209,9 +228,9 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("update_director_status")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateDirectorStatus Response")]
-        public async Task<IActionResult> UpdateDirectorStatus(UpdateStatusRequest request)
+        [HttpPost("update_movies_status")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateMoviesStatus Response")]
+        public async Task<IActionResult> UpdateMoviesStatus(UpdateStatusRequest request)
         {
             var response = new BaseResponse();
 
@@ -223,11 +242,11 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                var directorstatus = _context.Director.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                var moviesstatus = _context.Movies.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
 
-                if (directorstatus != null)
+                if (moviesstatus != null)
                 {
-                    directorstatus.Status = request.Status;
+                    moviesstatus.Status = request.Status;
 
                     _context.SaveChanges();
                 }
@@ -247,4 +266,3 @@ namespace CinemaAPI.Controllers
         }
     }
 }
-*/

@@ -263,10 +263,6 @@ public partial class DBContext : DbContext
             entity.Property(e => e.EngTitle)
                 .HasMaxLength(50)
                 .HasColumnName("eng_title");
-            entity.Property(e => e.Format)
-                .HasComment("0-Chiếu sớm, 1-Chiếu thường")
-                .HasColumnType("tinyint(4)")
-                .HasColumnName("format");
             entity.Property(e => e.Rated)
                 .HasColumnType("int(11)")
                 .HasColumnName("rated");
@@ -274,6 +270,7 @@ public partial class DBContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("realease_date");
             entity.Property(e => e.Status)
+                .HasComment("0-Không còn chiếu,1-Đang chiếu,2-Sắp chiếu,3-Chiếu sớm")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
             entity.Property(e => e.Title)

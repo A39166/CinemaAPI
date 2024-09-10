@@ -11,7 +11,7 @@ namespace CinemaAPI.Models.Request
         public int Duration { get; set; }
         public int Rated { get; set; }
         public float AverageReview { get; set; }
-        public DateOnly? RealeaseDate { get; set; }
+        public DateTime RealeaseDate { get; set; }
         [DefaultValue(2)]
         public sbyte Status {  get; set; }
         public string? ImagesUuid { get; set; }
