@@ -161,7 +161,7 @@ namespace CinemaAPI.Controllers
                             AverageReview = movies.AverageReview,
                             DirectorUuid = movies.DirectorUuid,
                             RealeaseDate = movies.RealeaseDate,
-                            Status = 1,
+                            Status = movies.Status,
                             ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
                         };
                         response.Data.Items.Add(convertItemDTO);
@@ -215,7 +215,7 @@ namespace CinemaAPI.Controllers
                         AverageReview = movies.AverageReview,
                         DirectorUuid = movies.DirectorUuid,
                         RealeaseDate = movies.RealeaseDate,
-                        Status = 1,
+                        Status = movies.Status,
                         ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
                     };
                 }
@@ -228,7 +228,7 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("update_movies_status")]
+        /*[HttpPost("update_movies_status")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateMoviesStatus Response")]
         public async Task<IActionResult> UpdateMoviesStatus(UpdateStatusRequest request)
         {
@@ -263,6 +263,6 @@ namespace CinemaAPI.Controllers
 
                 return BadRequest(response);
             }
-        }
+        }*/
     }
 }
