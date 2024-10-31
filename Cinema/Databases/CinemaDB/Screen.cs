@@ -24,4 +24,6 @@ public partial class Screen
     public virtual Cinemas? CinemaUu { get; set; }
 
     public virtual ScreenType ScreenTypeUu { get; set; } = null!;
+
+    public virtual ICollection<Showtimes> Showtimes { get; set; } = new List<Showtimes>();
 }

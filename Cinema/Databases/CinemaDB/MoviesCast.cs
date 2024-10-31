@@ -11,6 +11,10 @@ public partial class MoviesCast
 
     public string CastUuid { get; set; } = null!;
 
+    public DateTime TimeCreated { get; set; }
+
+    public sbyte Status { get; set; }
+
     public virtual Cast CastUu { get; set; } = null!;
 
     public virtual Movies MoviesUu { get; set; } = null!;

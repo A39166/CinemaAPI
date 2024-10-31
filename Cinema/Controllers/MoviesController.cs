@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using CinemaAPI.Models.DataInfo;
 using CinemaAPI.Extensions;
 using System.IO;
+using System.Data;
 
 namespace CinemaAPI.Controllers
 {
@@ -44,7 +45,7 @@ namespace CinemaAPI.Controllers
             {
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
-                    
+
                     var movies = new Movies()
                     {
                         Uuid = Guid.NewGuid().ToString(),
@@ -60,7 +61,9 @@ namespace CinemaAPI.Controllers
                         Status = 1,
                     };
                     _context.Movies.Add(movies);
-                    _context.SaveChanges();
+                    AddCast(movies.Uuid, request.Cast);
+                    AddGenre(movies.Uuid, request.Genre);
+                    AddRegion(movies.Uuid, request.RegionUuid);
                     if (!string.IsNullOrEmpty(request.ImagesUuid))
                     {
                         var image = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
@@ -70,9 +73,9 @@ namespace CinemaAPI.Controllers
                             image.OwnerType = "movies";
                             image.Status = 1;
                             _context.Images.Update(image);
-                            _context.SaveChanges();
                         }
                     }
+                    _context.SaveChanges();
                 }
                 else
                 //cập nhập dữ liệu
@@ -264,5 +267,46 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }*/
+        private void AddCast(string movieUuid, List<string> CastUuid)
+        {
+            foreach (var cast in CastUuid)
+            {
+                var newMovieCast = new MoviesCast
+                {
+                    MoviesUuid = movieUuid,
+                    CastUuid = cast,
+                    TimeCreated = DateTime.Now,
+                    Status = 1
+                };
+                _context.MoviesCast.Add(newMovieCast);
+            }
+
+
+        }
+        private void AddGenre(string movieUuid, List<string> GenreUuid)
+        {
+            foreach (var genre in GenreUuid)
+            {
+                var newMovieGenre = new MoviesGenre
+                {
+                    MoviesUuid = movieUuid,
+                    GenreUuid = genre,
+                    TimeCreated = DateTime.Now,
+                    Status = 1
+                };
+                _context.MoviesGenre.Add(newMovieGenre);
+            }
+        }
+        private void AddRegion(string movieUuid, string RegionUuid)
+        {
+                var newMovieRegion = new MoviesRegion
+                {
+                    MoviesUuid = movieUuid,
+                    RegionUuid = RegionUuid,
+                    TimeCreated = DateTime.Now,
+                    Status = 1
+                };
+                _context.MoviesRegion.Add(newMovieRegion);
+        }
     }
-}
+    }

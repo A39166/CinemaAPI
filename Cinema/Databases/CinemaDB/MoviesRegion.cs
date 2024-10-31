@@ -11,6 +11,10 @@ public partial class MoviesRegion
 
     public string RegionUuid { get; set; } = null!;
 
+    public DateTime TimeCreated { get; set; }
+
+    public sbyte Status { get; set; }
+
     public virtual Movies MoviesUu { get; set; } = null!;
 
     public virtual Region RegionUu { get; set; } = null!;

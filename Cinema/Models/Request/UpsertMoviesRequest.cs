@@ -9,13 +9,16 @@ namespace CinemaAPI.Models.Request
         public string Trailer { get; set; }
         public string? Description {  get; set; }
         public int Duration { get; set; }
-        public int Rated { get; set; }
+        public sbyte Rated { get; set; }
         public float AverageReview { get; set; }
         public DateTime RealeaseDate { get; set; }
         [DefaultValue(2)]
         public sbyte Status {  get; set; }
         public string? ImagesUuid { get; set; }
         public string? DirectorUuid { get; set; }
+        public List<string> Genre {  get; set; }
+        public List<string> Cast { get; set; }
+        public string? RegionUuid { get; set; }
 
     }
 }

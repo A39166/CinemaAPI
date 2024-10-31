@@ -19,13 +19,18 @@ public partial class Movies
 
     public int Duration { get; set; }
 
-    public int Rated { get; set; }
+    /// <summary>
+    /// 1 - P, 2 - T13, 3- T16, 4- T18
+    /// </summary>
+    public sbyte Rated { get; set; }
 
     public float AverageReview { get; set; }
 
     public string? DirectorUuid { get; set; }
 
     public DateTime RealeaseDate { get; set; }
+
+    public DateTime TimeCreated { get; set; }
 
     /// <summary>
     /// 0-Không còn chiếu,1-Đang chiếu,2-Sắp chiếu,3-Chiếu sớm
@@ -41,4 +46,6 @@ public partial class Movies
     public virtual ICollection<MoviesLanguage> MoviesLanguage { get; set; } = new List<MoviesLanguage>();
 
     public virtual ICollection<MoviesRegion> MoviesRegion { get; set; } = new List<MoviesRegion>();
+
+    public virtual ICollection<Showtimes> Showtimes { get; set; } = new List<Showtimes>();
 }

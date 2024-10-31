@@ -43,6 +43,8 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<Sessions> Sessions { get; set; }
 
+    public virtual DbSet<Showtimes> Showtimes { get; set; }
+
     public virtual DbSet<User> User { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -264,7 +266,8 @@ public partial class DBContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("eng_title");
             entity.Property(e => e.Rated)
-                .HasColumnType("int(11)")
+                .HasComment("1 - P, 2 - T13, 3- T16, 4- T18")
+                .HasColumnType("tinyint(4)")
                 .HasColumnName("rated");
             entity.Property(e => e.RealeaseDate)
                 .HasColumnType("datetime")
@@ -273,6 +276,11 @@ public partial class DBContext : DbContext
                 .HasComment("0-Không còn chiếu,1-Đang chiếu,2-Sắp chiếu,3-Chiếu sớm")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
             entity.Property(e => e.Title)
                 .HasMaxLength(50)
                 .HasColumnName("title");
@@ -301,7 +309,6 @@ public partial class DBContext : DbContext
             entity.HasIndex(e => e.MoviesUuid, "fk_movies_cast_uuid_ref");
 
             entity.Property(e => e.Id)
-                .ValueGeneratedNever()
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
             entity.Property(e => e.CastUuid)
@@ -312,6 +319,14 @@ public partial class DBContext : DbContext
                 .HasMaxLength(36)
                 .IsFixedLength()
                 .HasColumnName("movies_uuid");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
 
             entity.HasOne(d => d.CastUu).WithMany(p => p.MoviesCast)
                 .HasPrincipalKey(p => p.Uuid)
@@ -345,6 +360,14 @@ public partial class DBContext : DbContext
                 .HasMaxLength(36)
                 .IsFixedLength()
                 .HasColumnName("movies_uuid");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
 
             entity.HasOne(d => d.GenreUu).WithMany(p => p.MoviesGenre)
                 .HasPrincipalKey(p => p.Uuid)
@@ -411,6 +434,14 @@ public partial class DBContext : DbContext
                 .HasMaxLength(36)
                 .IsFixedLength()
                 .HasColumnName("region_uuid");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
 
             entity.HasOne(d => d.MoviesUu).WithMany(p => p.MoviesRegion)
                 .HasPrincipalKey(p => p.Uuid)
@@ -549,7 +580,7 @@ public partial class DBContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
             entity.Property(e => e.Type)
-                .HasComment("1-2D,2-3D,3-IMAX")
+                .HasComment("1-2D,2-3D,3-IMAX2D,4-IMAX3D")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("type");
             entity.Property(e => e.Uuid)
@@ -598,6 +629,58 @@ public partial class DBContext : DbContext
                 .HasForeignKey(d => d.UserUuid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_ss_user_uid_ref");
+        });
+
+        modelBuilder.Entity<Showtimes>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("showtimes");
+
+            entity.HasIndex(e => e.MoviesUuid, "fk_movies_st_ref");
+
+            entity.HasIndex(e => e.ScreenUuid, "fk_screen_st_ref");
+
+            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.EndTime)
+                .HasColumnType("datetime")
+                .HasColumnName("end_time");
+            entity.Property(e => e.MoviesUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("movies_uuid");
+            entity.Property(e => e.ScreenUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("screen_uuid");
+            entity.Property(e => e.ShowDate).HasColumnName("show_date");
+            entity.Property(e => e.StartTime)
+                .HasColumnType("datetime")
+                .HasColumnName("start_time");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+
+            entity.HasOne(d => d.MoviesUu).WithMany(p => p.Showtimes)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.MoviesUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_movies_st_ref");
+
+            entity.HasOne(d => d.ScreenUu).WithMany(p => p.Showtimes)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.ScreenUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_screen_st_ref");
         });
 
         modelBuilder.Entity<User>(entity =>

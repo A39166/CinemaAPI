@@ -10,7 +10,7 @@ public partial class ScreenType
     public string Uuid { get; set; } = null!;
 
     /// <summary>
-    /// 1-2D,2-3D,3-IMAX
+    /// 1-2D,2-3D,3-IMAX2D,4-IMAX3D
     /// </summary>
     public sbyte Type { get; set; }
 

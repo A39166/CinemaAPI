@@ -5,6 +5,9 @@ using CinemaAPI.Models.Request;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
+using CinemaAPI.Extensions;
+using CinemaAPI.Models.BaseRequest;
+using CinemaAPI.Models.DataInfo;
 
 namespace CinemaAPI.Controllers
 {
@@ -68,5 +71,65 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+        [HttpPost("page_list_user")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<UserDTO>), description: "GetPageListUser Response")]
+        public async Task<IActionResult> GetPageListUser(DpsPagingParamBase request)
+        {
+            var response = new BaseResponseMessagePage<UserDTO>();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var query = _context.User;
+                var lstUser = query.ToList();
+                var totalcount = query.Count();
+
+                if (lstUser != null && lstUser.Count > 0)
+                {
+                    var result = lstUser.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
+                    if (result != null && result.Count > 0)
+                    {
+                        response.Data.Items = new List<UserDTO>();
+                    }
+                    foreach (var user in result)
+                    {
+                        var convertItemDTO = new UserDTO()
+                        {
+                            Uuid = user.Uuid,
+                            Email = user.Email,
+                            Fullname = user.Fullname,
+                            Gender = user.Gender,
+                            Birthday = user.Birthday,
+                            PhoneNumber = user.PhoneNumber,
+                            ImageUrl = _context.Images.Where(x => user.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
+                            Role = user.Role,
+                            TimeCreated = user.TimeCreated,
+                            Status = user.Status,
+                        };
+                        response.Data.Items.Add(convertItemDTO);
+                    }
+                    // trả về thông tin page
+                    response.Data.Pagination = new Paginations()
+                    {
+                        TotalPage = result.TotalPages,
+                        TotalCount = result.TotalCount,
+                    };
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+
     }
 }
