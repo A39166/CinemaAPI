@@ -269,9 +269,7 @@ public partial class DBContext : DbContext
                 .HasComment("1 - P, 2 - T13, 3- T16, 4- T18")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("rated");
-            entity.Property(e => e.RealeaseDate)
-                .HasColumnType("datetime")
-                .HasColumnName("realease_date");
+            entity.Property(e => e.RealeaseDate).HasColumnName("realease_date");
             entity.Property(e => e.Status)
                 .HasComment("0-Không còn chiếu,1-Đang chiếu,2-Sắp chiếu,3-Chiếu sớm")
                 .HasColumnType("tinyint(4)")

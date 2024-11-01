@@ -28,7 +28,7 @@ public partial class Movies
 
     public string? DirectorUuid { get; set; }
 
-    public DateTime RealeaseDate { get; set; }
+    public DateOnly RealeaseDate { get; set; }
 
     public DateTime TimeCreated { get; set; }
 

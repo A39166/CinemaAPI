@@ -11,14 +11,14 @@ namespace CinemaAPI.Models.Request
         public int Duration { get; set; }
         public sbyte Rated { get; set; }
         public float AverageReview { get; set; }
-        public DateTime RealeaseDate { get; set; }
+        public DateOnly RealeaseDate { get; set; }
         [DefaultValue(2)]
         public sbyte Status {  get; set; }
         public string? ImagesUuid { get; set; }
         public string? DirectorUuid { get; set; }
         public List<string> Genre {  get; set; }
         public List<string> Cast { get; set; }
-        public string? RegionUuid { get; set; }
+        public List<string> RegionUuid { get; set; }
 
     }
 }

@@ -5,7 +5,6 @@ namespace CinemaAPI.Models.DataInfo
 {
     public class MoviesDTO
     {
-
         public string Uuid { get; set; } 
 
         public string Title { get; set; } 
@@ -24,13 +23,16 @@ namespace CinemaAPI.Models.DataInfo
 
         public string? DirectorUuid { get; set; }
 
-        public DateTime RealeaseDate { get; set; }
+        public DateOnly RealeaseDate { get; set; }
 
         /// <summary>
         /// 0-Không còn chiếu,1-Đang chiếu,2-Sắp chiếu,3-Chiếu sớm
         /// </summary>
         public sbyte Status { get; set; }
         public string? ImageUrl { get; set; }
+        public List<CategoryDTO> Genre {  get; set; }
+        public List<CategoryDTO> Cast {  get; set; }
+        public List<CategoryDTO> Region { get; set; }
     }
 }
 

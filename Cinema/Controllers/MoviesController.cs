@@ -12,6 +12,7 @@ using CinemaAPI.Models.DataInfo;
 using CinemaAPI.Extensions;
 using System.IO;
 using System.Data;
+using CinemaAPI.Configuaration;
 
 namespace CinemaAPI.Controllers
 {
@@ -45,7 +46,14 @@ namespace CinemaAPI.Controllers
             {
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
-
+                    var existingMovie = _context.Movies.FirstOrDefault(m =>
+                                        m.Title == request.Title &&
+                                        m.RealeaseDate == request.RealeaseDate &&
+                                        m.DirectorUuid == request.DirectorUuid && m.Status == 1);
+                    if (existingMovie != null)
+                    {
+                        throw new ErrorException(ErrorCode.DUPLICATE_MOVIE);
+                    }
                     var movies = new Movies()
                     {
                         Uuid = Guid.NewGuid().ToString(),
@@ -81,6 +89,9 @@ namespace CinemaAPI.Controllers
                 //cập nhập dữ liệu
                 {
                     var movies = _context.Movies.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                    if (movies == null) {
+                        throw new ErrorException(ErrorCode.MOVIE_NOTFOUND);
+                    }
                     if (movies != null)
                     {
                         movies.Title = request.Title;
@@ -92,7 +103,6 @@ namespace CinemaAPI.Controllers
                         movies.AverageReview = request.AverageReview;
                         movies.DirectorUuid = string.IsNullOrEmpty(request.DirectorUuid) ? null : request.DirectorUuid;
                         movies.RealeaseDate = request.RealeaseDate;
-                        _context.SaveChanges();
                         if (!string.IsNullOrEmpty(request.ImagesUuid))
                         {
                             var newimage = _context.Images.SingleOrDefault(img => img.Uuid == request.ImagesUuid);
@@ -101,7 +111,8 @@ namespace CinemaAPI.Controllers
                                 var oldImage = _context.Images.SingleOrDefault(img => img.OwnerUuid == movies.Uuid);
                                 if (oldImage != null)
                                 {
-                                    _context.Images.Remove(oldImage);
+                                    oldImage.Status = 0;
+                                    _context.Images.Update(oldImage);
                                 }
                                 newimage.OwnerUuid = movies.Uuid;
                                 newimage.OwnerType = "movies";
@@ -110,6 +121,10 @@ namespace CinemaAPI.Controllers
                                 _context.SaveChanges();
                             }
                         }
+                        UpdateCast(movies.Uuid, request.Cast);
+                        UpdateGenre(movies.Uuid, request.Genre);
+                        UpdateRegion(movies.Uuid, request.RegionUuid);
+                        _context.SaveChanges();
                     }
                     else
                     {
@@ -127,10 +142,10 @@ namespace CinemaAPI.Controllers
             }
         }
         [HttpPost("page_list_movies")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<MoviesDTO>), description: "GetPageListMovies Response")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<PageListMoviesDTO>), description: "GetPageListMovies Response")]
         public async Task<IActionResult> GetPageListMovies(DpsPagingParamBase request)
         {
-            var response = new BaseResponseMessagePage<MoviesDTO>();
+            var response = new BaseResponseMessagePage<PageListMoviesDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -148,24 +163,17 @@ namespace CinemaAPI.Controllers
                     var result = lstMovies.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
                     if (result != null && result.Count > 0)
                     {
-                        response.Data.Items = new List<MoviesDTO>();
+                        response.Data.Items = new List<PageListMoviesDTO>();
                     }
                     foreach (var movies in result)
                     {
-                        var convertItemDTO = new MoviesDTO()
+                        var convertItemDTO = new PageListMoviesDTO()
                         {
                             Uuid = movies.Uuid,
                             Title = movies.Title,
-                            EngTitle = movies.EngTitle,
-                            Trailer = movies.Trailer,
-                            Description = movies.Description,
-                            Duration = movies.Duration,
                             Rated = movies.Rated,
-                            AverageReview = movies.AverageReview,
-                            DirectorUuid = movies.DirectorUuid,
                             RealeaseDate = movies.RealeaseDate,
                             Status = movies.Status,
-                            ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
                         };
                         response.Data.Items.Add(convertItemDTO);
                     }
@@ -201,8 +209,6 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                //TODO: Write code late
-
                 var movies = _context.Movies.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
                 if (movies != null)
                 {
@@ -220,6 +226,27 @@ namespace CinemaAPI.Controllers
                         RealeaseDate = movies.RealeaseDate,
                         Status = movies.Status,
                         ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
+                        Genre = _context.MoviesGenre.Where(mg => mg.MoviesUuid == movies.Uuid)
+                        .Select(mg => new CategoryDTO
+                        {
+                            Uuid = mg.GenreUu.Uuid,
+                            Name = mg.GenreUu.GenreName
+                        })
+                        .ToList(),
+                        Cast = _context.MoviesCast.Where(mc => mc.MoviesUuid == movies.Uuid)
+                        .Select(mc => new CategoryDTO
+                        {
+                            Uuid = mc.CastUu.Uuid,
+                            Name = mc.CastUu.CastName
+                        })
+                        .ToList(),
+                        Region = _context.MoviesRegion.Where(mr => mr.MoviesUuid == movies.Uuid)
+                        .Select(mr => new CategoryDTO
+                        {
+                            Uuid = mr.RegionUu.Uuid,
+                            Name = mr.RegionUu.RegionName
+                        })
+                        .ToList()
                     };
                 }
                 return Ok(response);
@@ -231,7 +258,7 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        /*[HttpPost("update_movies_status")]
+        [HttpPost("update_movies_status")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateMoviesStatus Response")]
         public async Task<IActionResult> UpdateMoviesStatus(UpdateStatusRequest request)
         {
@@ -250,7 +277,28 @@ namespace CinemaAPI.Controllers
                 if (moviesstatus != null)
                 {
                     moviesstatus.Status = request.Status;
+                    var relatedCasts = _context.MoviesCast.Where(mc => mc.MoviesUuid == request.Uuid).ToList();
+                    foreach (var cast in relatedCasts)
+                    {
+                        cast.Status = request.Status;
+                    }
 
+                    var relatedGenres = _context.MoviesGenre.Where(mg => mg.MoviesUuid == request.Uuid).ToList();
+                    foreach (var genre in relatedGenres)
+                    {
+                        genre.Status = request.Status;
+                    }
+
+                    var relatedRegions = _context.MoviesRegion.Where(mr => mr.MoviesUuid == request.Uuid).ToList();
+                    foreach (var region in relatedRegions)
+                    {
+                        region.Status = request.Status;
+                    }
+                    var img = _context.Images.Where(x => x.OwnerUuid == request.Uuid).SingleOrDefault();
+                    if (img != null)
+                    {
+                        img.Status = request.Status;
+                    }
                     _context.SaveChanges();
                 }
                 else
@@ -266,7 +314,7 @@ namespace CinemaAPI.Controllers
 
                 return BadRequest(response);
             }
-        }*/
+        }
         private void AddCast(string movieUuid, List<string> CastUuid)
         {
             foreach (var cast in CastUuid)
@@ -297,16 +345,116 @@ namespace CinemaAPI.Controllers
                 _context.MoviesGenre.Add(newMovieGenre);
             }
         }
-        private void AddRegion(string movieUuid, string RegionUuid)
+        private void AddRegion(string movieUuid, List<string> RegionUuid)
         {
+            foreach (var region in RegionUuid)
+            {
                 var newMovieRegion = new MoviesRegion
                 {
                     MoviesUuid = movieUuid,
-                    RegionUuid = RegionUuid,
+                    RegionUuid = region,
                     TimeCreated = DateTime.Now,
                     Status = 1
                 };
                 _context.MoviesRegion.Add(newMovieRegion);
+            }
+        }
+        private void UpdateCast(string movieUuid, List<string> requestCastUuids)
+        {
+            var existingCasts = _context.MoviesCast
+                                        .Where(mc => mc.MoviesUuid == movieUuid)
+                                        .ToList();
+
+            // Xóa các phần tử không có trong request
+            foreach (var existingCast in existingCasts)
+            {
+                if (!requestCastUuids.Contains(existingCast.CastUuid))
+                {
+                    _context.MoviesCast.Remove(existingCast);
+                }
+            }
+
+            // Thêm các phần tử mới từ request
+            foreach (var castUuid in requestCastUuids)
+            {
+                if (!existingCasts.Any(ec => ec.CastUuid == castUuid))
+                {
+                    var newMovieCast = new MoviesCast
+                    {
+                        MoviesUuid = movieUuid,
+                        CastUuid = castUuid,
+                        TimeCreated = DateTime.Now,
+                        Status = 1
+                    };
+                    _context.MoviesCast.Add(newMovieCast);
+                }
+            }
+        }
+
+        // Cập nhật Genre
+        private void UpdateGenre(string movieUuid, List<string> requestGenreUuids)
+        {
+            var existingGenres = _context.MoviesGenre
+                                         .Where(mg => mg.MoviesUuid == movieUuid)
+                                         .ToList();
+
+            // Xóa các phần tử không có trong request
+            foreach (var existingGenre in existingGenres)
+            {
+                if (!requestGenreUuids.Contains(existingGenre.GenreUuid))
+                {
+                    _context.MoviesGenre.Remove(existingGenre);
+                }
+            }
+
+            // Thêm các phần tử mới từ request
+            foreach (var genreUuid in requestGenreUuids)
+            {
+                if (!existingGenres.Any(eg => eg.GenreUuid == genreUuid))
+                {
+                    var newMovieGenre = new MoviesGenre
+                    {
+                        MoviesUuid = movieUuid,
+                        GenreUuid = genreUuid,
+                        TimeCreated = DateTime.Now,
+                        Status = 1
+                    };
+                    _context.MoviesGenre.Add(newMovieGenre);
+                }
+            }
+        }
+
+        // Cập nhật Region
+        private void UpdateRegion(string movieUuid, List<string> requestRegionUuids)
+        {
+            var existingRegions = _context.MoviesRegion
+                                          .Where(mr => mr.MoviesUuid == movieUuid)
+                                          .ToList();
+
+            // Xóa các phần tử không có trong request
+            foreach (var existingRegion in existingRegions)
+            {
+                if (!requestRegionUuids.Contains(existingRegion.RegionUuid))
+                {
+                    _context.MoviesRegion.Remove(existingRegion);
+                }
+            }
+
+            // Thêm các phần tử mới từ request
+            foreach (var regionUuid in requestRegionUuids)
+            {
+                if (!existingRegions.Any(er => er.RegionUuid == regionUuid))
+                {
+                    var newMovieRegion = new MoviesRegion
+                    {
+                        MoviesUuid = movieUuid,
+                        RegionUuid = regionUuid,
+                        TimeCreated = DateTime.Now,
+                        Status = 1
+                    };
+                    _context.MoviesRegion.Add(newMovieRegion);
+                }
+            }
         }
     }
     }

@@ -54,6 +54,12 @@ namespace CinemaAPI.Enums
         [Description("Đã có quốc gia này")]
         DUPLICATE_REGION = 29,
 
+        [Description("Không tìm thấy phim!")]
+        MOVIE_NOTFOUND = 30,
+
+        [Description("Phim đã tồn tại!")]
+        DUPLICATE_MOVIE = 30,
+
 
     }
 }

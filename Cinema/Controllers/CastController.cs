@@ -90,7 +90,8 @@ namespace CinemaAPI.Controllers
                                 var oldImage = _context.Images.SingleOrDefault(img => img.OwnerUuid == cast.Uuid);
                                 if (oldImage != null)
                                 {
-                                    _context.Images.Remove(oldImage);
+                                    oldImage.Status = 0;
+                                    _context.Images.Update(oldImage);
                                 }
                                 newimage.OwnerUuid = cast.Uuid;
                                 newimage.OwnerType = "cast";
@@ -230,7 +231,11 @@ namespace CinemaAPI.Controllers
                 if (caststatus != null)
                 {
                     caststatus.Status = request.Status;
-
+                    var img = _context.Images.Where(x => x.OwnerUuid == request.Uuid).SingleOrDefault();
+                    if (img != null)
+                    {
+                        img.Status = request.Status;
+                    }
                     _context.SaveChanges();
                 }
                 else
