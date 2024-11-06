@@ -234,7 +234,7 @@ namespace CinemaAPI.Controllers
                         DirectorUuid = movies.DirectorUuid,
                         RealeaseDate = movies.RealeaseDate,
                         Status = movies.Status,
-                        ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
+                        ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
                         Genre = _context.MoviesGenre.Where(mg => mg.MoviesUuid == movies.Uuid)
                         .Select(mg => new CategoryDTO
                         {
