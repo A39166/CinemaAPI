@@ -71,7 +71,7 @@ namespace CinemaAPI.Controllers
                     _context.Movies.Add(movies);
                     AddCast(movies.Uuid, request.Cast);
                     AddGenre(movies.Uuid, request.Genre);
-                    AddRegion(movies.Uuid, request.Region);
+                    AddRegion(movies.Uuid, request.RegionUuid);
                     if (!string.IsNullOrEmpty(request.ImagesUuid))
                     {
                         var image = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
@@ -128,7 +128,7 @@ namespace CinemaAPI.Controllers
                         }
                         UpdateCast(movies.Uuid, request.Cast);
                         UpdateGenre(movies.Uuid, request.Genre);
-                        UpdateRegion(movies.Uuid, request.Region);
+                        UpdateRegion(movies.Uuid, request.RegionUuid);
                         _context.SaveChanges();
                     }
                     else
