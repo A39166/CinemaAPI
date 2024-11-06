@@ -200,7 +200,7 @@ namespace CinemaAPI.Controllers
                         DirectorName = directordetail.DirectorName,
                         Birthday = directordetail.Birthday,
                         Description = directordetail.Description,
-                        ImageUrl = _context.Images.Where(x => directordetail.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
+                        ImageUrl = _context.Images.Where(x => directordetail.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
                         TimeCreated = directordetail.TimeCreated,
                         Status = directordetail.Status,
                     };
