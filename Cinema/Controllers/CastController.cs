@@ -237,7 +237,7 @@ namespace CinemaAPI.Controllers
                 if (caststatus != null)
                 {
                     caststatus.Status = request.Status;
-                    var img = _context.Images.Where(x => x.OwnerUuid == request.Uuid).SingleOrDefault();
+                    var img = _context.Images.Where(x => x.OwnerUuid == request.Uuid && x.Status == 1).SingleOrDefault();
                     if (img != null)
                     {
                         img.Status = request.Status;
