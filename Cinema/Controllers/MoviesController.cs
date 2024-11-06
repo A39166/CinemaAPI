@@ -105,20 +105,25 @@ namespace CinemaAPI.Controllers
                         movies.RealeaseDate = request.RealeaseDate;
                         if (!string.IsNullOrEmpty(request.ImagesUuid))
                         {
-                            var newimage = _context.Images.SingleOrDefault(img => img.Uuid == request.ImagesUuid);
-                            if (newimage != null)
+                            var oldImageUuid = _context.Images.Where(x => x.OwnerUuid == request.Uuid).Select(u => u.Path).FirstOrDefault();
+                            if (oldImageUuid != request.ImagesUuid)
                             {
-                                var oldImage = _context.Images.SingleOrDefault(img => img.OwnerUuid == movies.Uuid);
-                                if (oldImage != null)
+                                var newimage = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
+                                if (newimage != null)
                                 {
-                                    oldImage.Status = 0;
-                                    _context.Images.Update(oldImage);
+                                    var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid);
+                                    if (oldImage != null)
+                                    {
+                                        oldImage.Status = 0;
+                                        _context.Images.Update(oldImage);
+                                    }
+                                    newimage.OwnerUuid = movies.Uuid;
+                                    newimage.OwnerType = "movies";
+                                    newimage.Status = 1;
+                                    _context.Images.Update(newimage);
+                                    _context.SaveChanges();
                                 }
-                                newimage.OwnerUuid = movies.Uuid;
-                                newimage.OwnerType = "movies";
-                                newimage.Status = 1;
-                                _context.Images.Update(newimage);
-                                _context.SaveChanges();
+
                             }
                         }
                         UpdateCast(movies.Uuid, request.Cast);

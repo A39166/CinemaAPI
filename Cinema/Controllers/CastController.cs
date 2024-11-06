@@ -87,10 +87,10 @@ namespace CinemaAPI.Controllers
                             var oldImageUuid = _context.Images.Where(x => x.OwnerUuid == request.Uuid).Select(u => u.Path).FirstOrDefault();
                             if(oldImageUuid != request.ImagesUuid)
                             {
-                                var newimage = _context.Images.SingleOrDefault(img => img.Uuid == request.ImagesUuid);
+                                var newimage = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
                                 if (newimage != null)
                                 {
-                                    var oldImage = _context.Images.SingleOrDefault(img => img.OwnerUuid == request.Uuid);
+                                    var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid);
                                     if (oldImage != null)
                                     {
                                         oldImage.Status = 0;

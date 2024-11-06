@@ -82,20 +82,25 @@ namespace CinemaAPI.Controllers
                         _context.SaveChanges();
                         if (!string.IsNullOrEmpty(request.ImagesUuid))
                         {
-                            var newimage = _context.Images.SingleOrDefault(img => img.Uuid == request.ImagesUuid);
-                            if (newimage != null)
+                            var oldImageUuid = _context.Images.Where(x => x.OwnerUuid == request.Uuid).Select(u => u.Path).FirstOrDefault();
+                            if (oldImageUuid != request.ImagesUuid)
                             {
-                                var oldImage = _context.Images.SingleOrDefault(img => img.OwnerUuid == director.Uuid);
-                                if (oldImage != null)
+                                var newimage = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
+                                if (newimage != null)
                                 {
-                                    oldImage.Status = 0;
-                                    _context.Images.Update(oldImage);
+                                    var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid);
+                                    if (oldImage != null)
+                                    {
+                                        oldImage.Status = 0;
+                                        _context.Images.Update(oldImage);
+                                    }
+                                    newimage.OwnerUuid = director.Uuid;
+                                    newimage.OwnerType = "director";
+                                    newimage.Status = 1;
+                                    _context.Images.Update(newimage);
+                                    _context.SaveChanges();
                                 }
-                                newimage.OwnerUuid = director.Uuid;
-                                newimage.OwnerType = "director";
-                                newimage.Status = 1;
-                                _context.Images.Update(newimage);
-                                _context.SaveChanges();
+
                             }
                         }
                     }
