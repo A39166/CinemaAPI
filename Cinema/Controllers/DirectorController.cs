@@ -88,7 +88,7 @@ namespace CinemaAPI.Controllers
                                 var newimage = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
                                 if (newimage != null)
                                 {
-                                    var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid);
+                                    var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid && img.Status == 1);
                                     if (oldImage != null)
                                     {
                                         oldImage.Status = 0;
@@ -151,7 +151,7 @@ namespace CinemaAPI.Controllers
                             DirectorName = director.DirectorName,
                             Birthday = director.Birthday,
                             Description = director.Description,
-                            ImageUrl = _context.Images.Where(x => director.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
+                            ImageUrl = _context.Images.Where(x => director.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
                             TimeCreated = director.TimeCreated,
                             Status = director.Status,
                         };

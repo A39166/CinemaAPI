@@ -111,7 +111,7 @@ namespace CinemaAPI.Controllers
                                 var newimage = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
                                 if (newimage != null)
                                 {
-                                    var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid);
+                                    var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid && img.Status == 1);
                                     if (oldImage != null)
                                     {
                                         oldImage.Status = 0;

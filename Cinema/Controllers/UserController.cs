@@ -189,7 +189,7 @@ namespace CinemaAPI.Controllers
                         PhoneNumber = user.PhoneNumber,
                         Role = user.Role,
                         TimeCreated = user.TimeCreated,
-                        ImageUrl = _context.Images.Where(x => user.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
+                        ImageUrl = _context.Images.Where(x => user.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
                         Status = user.Status,
                     };
                     _context.User.Add(user);
