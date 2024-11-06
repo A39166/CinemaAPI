@@ -18,7 +18,7 @@ namespace CinemaAPI.Models.Request
         public string? DirectorUuid { get; set; }
         public List<string> Genre {  get; set; }
         public List<string> Cast { get; set; }
-        public List<string> RegionUuid { get; set; }
+        public List<string> Region { get; set; }
 
     }
 }
