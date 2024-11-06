@@ -66,7 +66,7 @@ namespace CinemaAPI.Controllers
                 else
                 //cập nhập dữ liệu
                 {
-                    var genre = _context.Genre.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                    var genre = _context.Genre.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
                     if (genre != null)
                     {
                         genre.GenreName = request.GenreName;

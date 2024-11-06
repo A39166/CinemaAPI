@@ -72,7 +72,7 @@ namespace CinemaAPI.Controllers
                 else
                 //cập nhập dữ liệu
                 {
-                    var director = _context.Director.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                    var director = _context.Director.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
                     if (director != null)
                     {
                         director.DirectorName = request.DirectorName;

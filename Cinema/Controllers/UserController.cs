@@ -8,6 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using CinemaAPI.Extensions;
 using CinemaAPI.Models.BaseRequest;
 using CinemaAPI.Models.DataInfo;
+using CinemaAPI.Configuaration;
 
 namespace CinemaAPI.Controllers
 {
@@ -46,7 +47,7 @@ namespace CinemaAPI.Controllers
                 }
                 else
                 {
-                    var user = new Databases.CinemaDB.User()
+                    var user = new User()
                     {
                         Uuid = Guid.NewGuid().ToString(),
                         Email = request.Email,
@@ -72,10 +73,10 @@ namespace CinemaAPI.Controllers
             }
         }
         [HttpPost("page_list_user")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<UserDTO>), description: "GetPageListUser Response")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<GetPageListUserDTO>), description: "GetPageListUser Response")]
         public async Task<IActionResult> GetPageListUser(DpsPagingParamBase request)
         {
-            var response = new BaseResponseMessagePage<UserDTO>();
+            var response = new BaseResponseMessagePage<GetPageListUserDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -93,17 +94,15 @@ namespace CinemaAPI.Controllers
                     var result = lstUser.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
                     if (result != null && result.Count > 0)
                     {
-                        response.Data.Items = new List<UserDTO>();
+                        response.Data.Items = new List<GetPageListUserDTO>();
                     }
                     foreach (var user in result)
                     {
-                        var convertItemDTO = new UserDTO()
+                        var convertItemDTO = new GetPageListUserDTO()
                         {
                             Uuid = user.Uuid,
                             Email = user.Email,
                             Fullname = user.Fullname,
-                            Gender = user.Gender,
-                            Birthday = user.Birthday,
                             PhoneNumber = user.PhoneNumber,
                             ImageUrl = _context.Images.Where(x => user.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
                             Role = user.Role,
@@ -130,6 +129,118 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+        [HttpPost("update_user")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "Update User Response")]
+        public async Task<IActionResult> UpdateUser(UpdateUserRequest request)
+        {
+            var response = new BaseResponse();
 
+            try
+            {
+                var user = _context.User.Where(x => x.Uuid == request.Uuid).FirstOrDefault(); ;
+                if (user == null)
+                {
+                    throw new ErrorException(ErrorCode.USER_NOTFOUND);
+                }
+                else
+                {
+
+                    user.Fullname = request.Fullname;
+                    user.Gender = request.Gender;
+                    user.Birthday = request.Birthday;
+                    user.PhoneNumber = request.PhoneNumber;
+                    user.Role = request.Role;
+                    user.Status = request.Status;
+                    _context.User.Update(user);
+                    _context.SaveChanges();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+        [HttpPost("detail_user")]
+        [SwaggerResponse(statusCode: 200, type: typeof(UserDTO), description: "Detail User Response")]
+        public async Task<IActionResult> DetailUser(UuidRequest request)
+        {
+            var response = new BaseResponseMessage<UserDTO>();
+
+            try
+            {
+                var user = _context.User.Where(x => x.Uuid == request.Uuid).SingleOrDefault(); ;
+                if (user == null)
+                {
+                    throw new ErrorException(ErrorCode.USER_NOTFOUND);
+                }
+                else
+                {
+                    response.Data = new UserDTO()
+                    {
+                        Uuid = user.Uuid,
+                        Email = user.Email,
+                        Fullname = user.Fullname,
+                        Gender = user.Gender,
+                        Birthday = user.Birthday,
+                        PhoneNumber = user.PhoneNumber,
+                        Role = user.Role,
+                        TimeCreated = user.TimeCreated,
+                        ImageUrl = _context.Images.Where(x => user.Uuid == x.OwnerUuid).Select(x => x.Path).FirstOrDefault(),
+                        Status = user.Status,
+                    };
+                    _context.User.Add(user);
+                    _context.SaveChanges();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+        [HttpPost("update_user_status")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateUSerStatus Response")]
+        public async Task<IActionResult> UpdateUserStatus(UpdateStatusRequest request)
+        {
+            var response = new BaseResponse();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var user = _context.User.Where(x => x.Uuid == request.Uuid).SingleOrDefault(); ;
+                if (user == null)
+                {
+                    throw new ErrorException(ErrorCode.USER_NOTFOUND);
+                }
+
+                user.Status = request.Status;
+                var img = _context.Images.Where(x => x.OwnerUuid == request.Uuid).SingleOrDefault();
+                if (img != null)
+                {
+                    img.Status = request.Status;
+                }
+                _context.SaveChanges();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
     }
 }

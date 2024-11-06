@@ -58,7 +58,10 @@ namespace CinemaAPI.Enums
         MOVIE_NOTFOUND = 30,
 
         [Description("Phim đã tồn tại!")]
-        DUPLICATE_MOVIE = 30,
+        DUPLICATE_MOVIE = 31,
+
+        [Description("Không tìm thấy người dùng!")]
+        USER_NOTFOUND = 32,
 
 
     }

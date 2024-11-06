@@ -1,8 +1,9 @@
-﻿using System.ComponentModel;
+﻿using CinemaAPI.Models.BaseRequest;
+using System.ComponentModel;
 
 namespace CinemaAPI.Models.DataInfo
 {
-    public class CastDTO
+    public class CastDTO : DpsPagingParamBase
     {
         public string Uuid { get; set; }
         public string CastName { get; set; }

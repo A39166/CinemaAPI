@@ -1,6 +1,8 @@
-﻿namespace CinemaAPI.Models.DataInfo
+﻿using CinemaAPI.Models.BaseRequest;
+
+namespace CinemaAPI.Models.DataInfo
 {
-    public class GenreDTO
+    public class GenreDTO : DpsPagingParamBase
     {
         public string Uuid { get; set; }
         public string GenreName { get; set; } 

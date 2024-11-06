@@ -61,7 +61,7 @@ namespace CinemaAPI.Controllers
                 else
                 //cập nhập dữ liệu
                 {
-                    var cinema = _context.Cinemas.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                    var cinema = _context.Cinemas.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
                     if (cinema != null)
                     {
                         cinema.CinemaName = request.CinemaName;

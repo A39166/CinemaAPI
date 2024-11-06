@@ -88,7 +88,7 @@ namespace CinemaAPI.Controllers
                 else
                 //cập nhập dữ liệu
                 {
-                    var movies = _context.Movies.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                    var movies = _context.Movies.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
                     if (movies == null) {
                         throw new ErrorException(ErrorCode.MOVIE_NOTFOUND);
                     }
@@ -210,7 +210,11 @@ namespace CinemaAPI.Controllers
             try
             {
                 var movies = _context.Movies.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-                if (movies != null)
+                if (movies == null)
+                {
+                    throw new ErrorException(ErrorCode.MOVIE_NOTFOUND);
+                }
+                else
                 {
                     response.Data = new MoviesDTO()
                     {
