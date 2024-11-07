@@ -84,7 +84,7 @@ namespace CinemaAPI.Controllers
                         
                         if (!string.IsNullOrEmpty(request.ImagesUuid))
                         {
-                            var oldImageUuid = _context.Images.Where(x => x.OwnerUuid == request.Uuid).Select(u => u.Path).FirstOrDefault();
+                            var oldImageUuid = _context.Images.Where(x => x.OwnerUuid == request.Uuid && x.Status == 1).Select(u => u.Path).FirstOrDefault();
                             if(oldImageUuid != request.ImagesUuid)
                             {
                                 var newimage = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
@@ -105,6 +105,16 @@ namespace CinemaAPI.Controllers
                             
                             }
                         }
+                        else
+                        {
+                            var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid && img.Status == 1);
+                            if (oldImage != null)
+                            {
+                                oldImage.Status = 0;
+                                _context.Images.Update(oldImage);
+                                _context.SaveChanges();
+                            }
+                        }    
                         _context.SaveChanges();
                     }
                     else

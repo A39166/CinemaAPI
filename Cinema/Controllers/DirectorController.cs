@@ -103,6 +103,16 @@ namespace CinemaAPI.Controllers
 
                             }
                         }
+                        else
+                        {
+                            var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid && img.Status == 1);
+                            if (oldImage != null)
+                            {
+                                oldImage.Status = 0;
+                                _context.Images.Update(oldImage);
+                                _context.SaveChanges();
+                            }
+                        }
                     }
                     else
                     {
