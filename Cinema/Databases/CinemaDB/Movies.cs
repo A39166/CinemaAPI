@@ -26,18 +26,18 @@ public partial class Movies
 
     public float AverageReview { get; set; }
 
-    public string? DirectorUuid { get; set; }
+    public string DirectorUuid { get; set; } = null!;
 
     public DateOnly RealeaseDate { get; set; }
 
     public DateTime TimeCreated { get; set; }
 
     /// <summary>
-    /// 0-Không còn chiếu,1-Đang chiếu,2-Sắp chiếu,3-Chiếu sớm
+    /// 0-Không sử dụng,1-Đang chiếu,2-Sắp chiếu,3-Chiếu sớm, 4-Không còn chiếu
     /// </summary>
     public sbyte Status { get; set; }
 
-    public virtual Director? DirectorUu { get; set; }
+    public virtual Director DirectorUu { get; set; } = null!;
 
     public virtual ICollection<MoviesCast> MoviesCast { get; set; } = new List<MoviesCast>();
 

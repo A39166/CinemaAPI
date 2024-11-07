@@ -178,6 +178,7 @@ namespace CinemaAPI.Controllers
                             Title = movies.Title,
                             Rated = movies.Rated,
                             RealeaseDate = movies.RealeaseDate,
+                            TimeCreated = movies.TimeCreated,
                             Status = movies.Status,
                         };
                         response.Data.Items.Add(convertItemDTO);

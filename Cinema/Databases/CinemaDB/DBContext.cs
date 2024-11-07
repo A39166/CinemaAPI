@@ -41,6 +41,10 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<ScreenType> ScreenType { get; set; }
 
+    public virtual DbSet<Seat> Seat { get; set; }
+
+    public virtual DbSet<SeatType> SeatType { get; set; }
+
     public virtual DbSet<Sessions> Sessions { get; set; }
 
     public virtual DbSet<Showtimes> Showtimes { get; set; }
@@ -144,7 +148,6 @@ public partial class DBContext : DbContext
                 .HasColumnName("time_created");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
-                .HasDefaultValueSql("uuid()")
                 .IsFixedLength()
                 .HasColumnName("uuid");
         });
@@ -271,7 +274,7 @@ public partial class DBContext : DbContext
                 .HasColumnName("rated");
             entity.Property(e => e.RealeaseDate).HasColumnName("realease_date");
             entity.Property(e => e.Status)
-                .HasComment("0-Không còn chiếu,1-Đang chiếu,2-Sắp chiếu,3-Chiếu sớm")
+                .HasComment("0-Không sử dụng,1-Đang chiếu,2-Sắp chiếu,3-Chiếu sớm, 4-Không còn chiếu")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
             entity.Property(e => e.TimeCreated)
@@ -293,6 +296,7 @@ public partial class DBContext : DbContext
             entity.HasOne(d => d.DirectorUu).WithMany(p => p.Movies)
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.DirectorUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_director_mv_ref");
         });
 
@@ -533,6 +537,12 @@ public partial class DBContext : DbContext
                 .HasMaxLength(36)
                 .IsFixedLength()
                 .HasColumnName("cinema_uuid");
+            entity.Property(e => e.Collumn)
+                .HasColumnType("int(11)")
+                .HasColumnName("collumn");
+            entity.Property(e => e.Row)
+                .HasColumnType("int(11)")
+                .HasColumnName("row");
             entity.Property(e => e.ScreenName)
                 .HasMaxLength(50)
                 .HasColumnName("screen_name");
@@ -581,6 +591,74 @@ public partial class DBContext : DbContext
                 .HasComment("1-2D,2-3D,3-IMAX2D,4-IMAX3D")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("type");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
+
+        modelBuilder.Entity<Seat>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("seat");
+
+            entity.HasIndex(e => e.ScreenUuid, "fk_scr_uuid_ref");
+
+            entity.HasIndex(e => e.SeatTypeUuid, "fk_seat_type_ref");
+
+            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.ScreenUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("screen_uuid");
+            entity.Property(e => e.SeatCollumn)
+                .HasColumnType("int(11)")
+                .HasColumnName("seat_collumn");
+            entity.Property(e => e.SeatRow)
+                .HasMaxLength(10)
+                .HasColumnName("seat_row");
+            entity.Property(e => e.SeatTypeUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("seat_type_uuid");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("time_created");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+
+            entity.HasOne(d => d.ScreenUu).WithMany(p => p.Seat)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.ScreenUuid)
+                .HasConstraintName("fk_scr_uuid_ref");
+        });
+
+        modelBuilder.Entity<SeatType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("seat_type");
+
+            entity.HasIndex(e => e.Uuid, "uuid");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.SeatTypeName)
+                .HasMaxLength(50)
+                .HasColumnName("seat_type_name");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
                 .HasDefaultValueSql("uuid()")
