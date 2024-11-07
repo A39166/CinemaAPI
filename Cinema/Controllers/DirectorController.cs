@@ -144,7 +144,7 @@ namespace CinemaAPI.Controllers
             {
                 var query = _context.Director;
                 var lstDirector = query.ToList();
-                var totalcount = query.Count();
+                var totalcount = lstDirector.Count();
 
                 if (lstDirector != null && lstDirector.Count > 0)
                 {

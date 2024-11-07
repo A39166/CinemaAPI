@@ -19,19 +19,19 @@ namespace CinemaAPI.Controllers
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [ApiVersion("1")]
-    [SwaggerTag("Screen Controller")]
-    public class ScreenController : BaseController
+    [SwaggerTag("News Controller")]
+    public class NewsController : BaseController
     {
-        private readonly ILogger<ScreenController> _logger;
+        private readonly ILogger<NewsController> _logger;
         private readonly DBContext _context;
 
-        public ScreenController(DBContext context, ILogger<ScreenController> logger)
+        public NewsController(DBContext context, ILogger<NewsController> logger)
         {
 
             _context = context;
             _logger = logger;
         }
-        [HttpPost("upsert_screen")]
+        [HttpPost("upsert_news")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertScreen Response")]
         public async Task<IActionResult> UpsertScreen(UpsertScreenRequest request)
         {
@@ -75,6 +75,8 @@ namespace CinemaAPI.Controllers
                         screen.Capacity = request.Capacity;
                         screen.Row = request.Rows;
                         screen.Collumn = request.Columns;
+                        screen.Status = 1;
+
                         _context.SaveChanges();
                     }
                     else

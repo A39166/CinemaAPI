@@ -119,20 +119,22 @@ namespace CinemaAPI.Controllers
                 {
                     TokenManager.removeToken(_token.Token);
 
-                    var oldSessions = _context.Sessions.Where(x => x.UserUuid == _token.UserUuid).ToList();
+                    var oldSessions = _context.Sessions.Where(x => x.Status == 0).Where(x => x.UserUuid == _token.UserUuid).ToList();
 
                     if (oldSessions != null && oldSessions.Count > 0)
                     {
                         foreach (var session in oldSessions)
                         {
                             session.Status = 1;
+                            session.TimeLogout = DateTime.Now;
+                            _context.Sessions.Update(session);
                         }
+                        _context.SaveChanges();                        
                     }
 
-                    _context.SaveChanges();
                 }
-
                 return Ok(response);
+
             }
             catch (Exception ex)
             {

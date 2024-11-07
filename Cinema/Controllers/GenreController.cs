@@ -103,7 +103,7 @@ namespace CinemaAPI.Controllers
             {
                 var query = _context.Genre;
                 var lstGenre = query.ToList();
-                var totalcount = query.Count();
+                var totalcount = lstGenre.Count();
 
                 if (lstGenre != null && lstGenre.Count > 0)
                 {

@@ -66,7 +66,7 @@ namespace CinemaAPI.Controllers
                         AverageReview = request.AverageReview,
                         DirectorUuid = string.IsNullOrEmpty(request.DirectorUuid) ? null : request.DirectorUuid,
                         RealeaseDate = request.RealeaseDate,
-                        Status = 1,
+                        Status = 2,
                     };
                     _context.Movies.Add(movies);
                     AddCast(movies.Uuid, request.Cast);
@@ -103,6 +103,7 @@ namespace CinemaAPI.Controllers
                         movies.AverageReview = request.AverageReview;
                         movies.DirectorUuid = string.IsNullOrEmpty(request.DirectorUuid) ? null : request.DirectorUuid;
                         movies.RealeaseDate = request.RealeaseDate;
+                        movies.Status = request.Status;
                         if (!string.IsNullOrEmpty(request.ImagesUuid))
                         {
                             var oldImageUuid = _context.Images.Where(x => x.OwnerUuid == request.Uuid && x.Status == 1).Select(u => u.Path).FirstOrDefault();
@@ -171,7 +172,7 @@ namespace CinemaAPI.Controllers
             {
                 var query = _context.Movies;
                 var lstMovies = query.ToList();
-                var totalcount = query.Count();
+                var totalcount = lstMovies.Count();
 
                 if (lstMovies != null && lstMovies.Count > 0)
                 {
