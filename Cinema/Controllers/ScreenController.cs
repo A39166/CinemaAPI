@@ -69,7 +69,7 @@ namespace CinemaAPI.Controllers
                 {
                     Uuid = Guid.NewGuid().ToString(),
                     ScreenUuid = screen.Uuid,
-                    SeatCode = seat.SeatName,
+                    SeatCode = seat.SeatCode,
                     SeatTypeUuid = _context.SeatType.Where(t => t.Type == seat.SeatType).Select(up => up.Uuid).FirstOrDefault(),
                     TimeCreated = DateTime.Now,
                     Status = 1
@@ -87,6 +87,70 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost("update_screen")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateScreen Response")]
+        public async Task<IActionResult> UpdateScreen(UpdateScreenRequest request)
+        {
+            var response = new BaseResponse();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var screen = _context.Screen.FirstOrDefault(x => x.Uuid == request.Uuid && x.Status == 1);
+                if (screen == null)
+                {
+                    throw new ErrorException(ErrorCode.SCREEN_NOT_FOUND);
+                }
+                screen.ScreenName = request.ScreenName;
+                screen.ScreenTypeUuid = _context.ScreenType.Where(x => x.Type == request.ScreenType)
+                                                            .Select(up => up.Uuid)
+                                                            .FirstOrDefault();
+                screen.Capacity = request.Capacity;
+                screen.Row = request.Rows;
+                screen.Collumn = request.Columns;
+                foreach(var seat in request.Seats)
+                {
+                    var existingSeat = _context.Seat.FirstOrDefault(s => s.Uuid == seat.SeatUuid && s.ScreenUuid == screen.Uuid);
+                    if(existingSeat != null)
+                    {
+                        existingSeat.SeatCode = seat.SeatCode;
+                        existingSeat.SeatTypeUuid = _context.SeatType.Where(t => t.Type == seat.SeatType).Select(up => up.Uuid).FirstOrDefault();
+                        _context.Seat.Update(existingSeat);
+                    }
+                    else
+                    {
+                        var newSeat = new Seat
+                        {
+                            Uuid = Guid.NewGuid().ToString(),
+                            ScreenUuid = screen.Uuid,
+                            SeatCode = seat.SeatCode,
+                            SeatTypeUuid = _context.SeatType.Where(t => t.Type == seat.SeatType)
+                                                            .Select(up => up.Uuid).FirstOrDefault(),
+                            TimeCreated = DateTime.Now,
+                            Status = 1
+                        };
+                        _context.Seat.Add(newSeat);
+                    }
+                }
+                _context.Screen.Update(screen);
+                _context.SaveChanges();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+
         [HttpPost("page_list_screen")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<PageListScreenDTO>), description: "GetPageListCast Response")]
         public async Task<IActionResult> GetPageListCast(PageListScreenRequest request)
@@ -186,8 +250,8 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("update_cast_status")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateCastStatus Response")]
+        [HttpPost("update_screen_status")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateScreenStatus Response")]
         public async Task<IActionResult> UpdateCastStatus(UpdateStatusRequest request)
         {
             var response = new BaseResponse();
@@ -200,21 +264,24 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                var caststatus = _context.Cast.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                var screen = _context.Screen.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
 
-                if (caststatus != null)
+                if (screen == null)
                 {
-                    caststatus.Status = request.Status;
-                    var img = _context.Images.Where(x => x.OwnerUuid == request.Uuid && x.Status == 1).SingleOrDefault();
-                    if (img != null)
-                    {
-                        img.Status = request.Status;
-                    }
-                    _context.SaveChanges();
+                    throw new ErrorException(ErrorCode.SCREEN_NOT_FOUND);
                 }
                 else
                 {
-                    response.error.SetErrorCode(ErrorCode.NOT_FOUND);
+                    screen.Status = request.Status;
+                    var existingSeats = _context.Seat.Where(x => x.ScreenUuid == request.Uuid).ToList();
+                    foreach(var seat in existingSeats)
+                    {
+                        seat.Status = request.Status;
+                        _context.Seat.Update(seat);
+                    }
+                    _context.Screen.Update(screen);
+                    _context.SaveChanges();
+
                 }
                 return Ok(response);
             }

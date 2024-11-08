@@ -65,5 +65,8 @@ namespace CinemaAPI.Enums
 
         [Description("Đã có rạp chiếu này!")]
         DUPLICATE_SCREEN = 33,
+
+        [Description("Đã có rạp chiếu này!")]
+        SCREEN_NOT_FOUND = 34,
     }
 }

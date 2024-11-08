@@ -4,7 +4,7 @@ using CinemaAPI.Models.BaseRequest;
 
 namespace CinemaAPI.Models.Request
 {
-    public class CreateScreenRequest
+    public class UpdateScreenRequest : UuidRequest
     {
         public string CinemaUuid { get; set; }
         public string ScreenName {  get; set; }
@@ -14,13 +14,5 @@ namespace CinemaAPI.Models.Request
         public int Columns { get; set; }
         public List<SeatForm>? Seats {  get; set; }
         public DateTime TimeCreated { get; set; }
-        public sbyte Status { get; set; }
-
-    }
-    public class SeatForm
-    {
-        public string? SeatUuid { get; set; }
-        public string SeatCode { get; set; }
-        public sbyte SeatType { get; set; }
     }
 }
