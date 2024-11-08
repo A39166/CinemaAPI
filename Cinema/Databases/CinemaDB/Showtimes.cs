@@ -13,6 +13,11 @@ public partial class Showtimes
 
     public string ScreenUuid { get; set; } = null!;
 
+    /// <summary>
+    /// 1-Phụ đề,2-Lồng tiếng
+    /// </summary>
+    public sbyte LanguageType { get; set; }
+
     public DateOnly ShowDate { get; set; }
 
     public DateTime StartTime { get; set; }

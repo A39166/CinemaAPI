@@ -87,7 +87,7 @@ namespace CinemaAPI.Controllers
             {
                 var query = _context.User;
                 var lstUser = query.ToList();
-                var totalcount = query.Count();
+                var totalcount = lstUser.Count();
 
                 if (lstUser != null && lstUser.Count > 0)
                 {

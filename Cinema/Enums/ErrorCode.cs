@@ -63,6 +63,7 @@ namespace CinemaAPI.Enums
         [Description("Không tìm thấy người dùng!")]
         USER_NOTFOUND = 32,
 
-
+        [Description("Đã có rạp chiếu này!")]
+        DUPLICATE_SCREEN = 33,
     }
 }

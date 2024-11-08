@@ -43,8 +43,6 @@ public partial class Movies
 
     public virtual ICollection<MoviesGenre> MoviesGenre { get; set; } = new List<MoviesGenre>();
 
-    public virtual ICollection<MoviesLanguage> MoviesLanguage { get; set; } = new List<MoviesLanguage>();
-
     public virtual ICollection<MoviesRegion> MoviesRegion { get; set; } = new List<MoviesRegion>();
 
     public virtual ICollection<Showtimes> Showtimes { get; set; } = new List<Showtimes>();

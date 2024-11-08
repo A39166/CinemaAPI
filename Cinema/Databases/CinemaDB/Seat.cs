@@ -11,9 +11,7 @@ public partial class Seat
 
     public string ScreenUuid { get; set; } = null!;
 
-    public string SeatRow { get; set; } = null!;
-
-    public int SeatCollumn { get; set; }
+    public string SeatCode { get; set; } = null!;
 
     public string SeatTypeUuid { get; set; } = null!;
 
@@ -22,4 +20,6 @@ public partial class Seat
     public sbyte Status { get; set; }
 
     public virtual Screen ScreenUu { get; set; } = null!;
+
+    public virtual SeatType SeatTypeUu { get; set; } = null!;
 }

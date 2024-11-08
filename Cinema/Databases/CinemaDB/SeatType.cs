@@ -9,5 +9,10 @@ public partial class SeatType
 
     public string Uuid { get; set; } = null!;
 
-    public string SeatTypeName { get; set; } = null!;
+    /// <summary>
+    /// 1-ghế thường,2-ghế vip,3-couple
+    /// </summary>
+    public sbyte Type { get; set; }
+
+    public virtual ICollection<Seat> Seat { get; set; } = new List<Seat>();
 }

@@ -1,4 +1,4 @@
-﻿using CinemaAPI.Models.Request;
+﻿/*using CinemaAPI.Models.Request;
 using CinemaAPI.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -33,7 +33,7 @@ namespace CinemaAPI.Controllers
         }
         [HttpPost("upsert_news")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertScreen Response")]
-        public async Task<IActionResult> UpsertScreen(UpsertScreenRequest request)
+        public async Task<IActionResult> UpsertScreen( request)
         {
             var response = new BaseResponse();
 
@@ -234,3 +234,4 @@ namespace CinemaAPI.Controllers
 
     }
 }
+*/

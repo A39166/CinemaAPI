@@ -13,6 +13,7 @@ using CinemaAPI.Extensions;
 using System.IO;
 using System.Security.Principal;
 using static System.Net.Mime.MediaTypeNames;
+using CinemaAPI.Configuaration;
 
 namespace CinemaAPI.Controllers
 {
@@ -31,9 +32,9 @@ namespace CinemaAPI.Controllers
             _context = context;
             _logger = logger;
         }
-        [HttpPost("upsert_screen")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertScreen Response")]
-        public async Task<IActionResult> UpsertScreen(UpsertScreenRequest request)
+        [HttpPost("create_screen")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "CreateScreen Response")]
+        public async Task<IActionResult> CreateScreen(CreateScreenRequest request)
         {
             var response = new BaseResponse();
 
@@ -44,44 +45,38 @@ namespace CinemaAPI.Controllers
             }
             try
             {
-                if (string.IsNullOrEmpty(request.Uuid))
+                var oldscreen = _context.Screen.Where(x => x.CinemaUuid == request.CinemaUuid 
+                                            && x.ScreenName == request.ScreenName && x.Status == 1).FirstOrDefault();
+                if(oldscreen != null)
                 {
-                    
-                    var screen = new Screen()
-                    {
-                        Uuid = Guid.NewGuid().ToString(),
-                        ScreenName = request.ScreenName,
-                        CinemaUuid = request.CinemaUuid,
-                        ScreenTypeUuid = request.ScreenTypeUuid,
-                        Capacity = request.Capacity,
-                        Row = request.Rows,
-                        Collumn = request.Columns,
-                        TimeCreated = DateTime.Now,
-                        Status = 1,
-                    };
-                    _context.Screen.Add(screen);
-                    _context.SaveChanges();
-                    
+                    throw new ErrorException(ErrorCode.DUPLICATE_SCREEN);
                 }
-                else
-                //cập nhập dữ liệu
+                var screen = new Screen()
                 {
-                    var screen = _context.Screen.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
-                    if (screen != null)
-                    {
-                        screen.ScreenName = request.ScreenName;
-                        screen.CinemaUuid = request.CinemaUuid;
-                        screen.ScreenTypeUuid = request.ScreenTypeUuid;
-                        screen.Capacity = request.Capacity;
-                        screen.Row = request.Rows;
-                        screen.Collumn = request.Columns;
-                        _context.SaveChanges();
-                    }
-                    else
-                    {
-                        response.error.SetErrorCode(ErrorCode.NOT_FOUND);
-                    }
-                }
+                    Uuid = Guid.NewGuid().ToString(),
+                    ScreenName = request.ScreenName,
+                    CinemaUuid = request.CinemaUuid,
+                    ScreenTypeUuid = _context.ScreenType.Where(x => x.Type == request.ScreenType).Select(up => up.Uuid).FirstOrDefault(),
+                    Capacity = request.Capacity,
+                    Row = request.Rows,
+                    Collumn = request.Columns,
+                    TimeCreated = DateTime.Now,
+                    Status = 1,
+
+                };
+                _context.Screen.Add(screen);
+                var seats = request.Seats.Select(seat => new Seat
+                {
+                    Uuid = Guid.NewGuid().ToString(),
+                    ScreenUuid = screen.Uuid,
+                    SeatCode = seat.SeatName,
+                    SeatTypeUuid = _context.SeatType.Where(t => t.Type == seat.SeatType).Select(up => up.Uuid).FirstOrDefault(),
+                    TimeCreated = DateTime.Now,
+                    Status = 1
+                }).ToList();
+                _context.Seat.AddRange(seats);
+                _context.SaveChanges();
+
                 return Ok(response);
             }
             catch (Exception ex)
@@ -150,11 +145,11 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("cast_detail")]
-        [SwaggerResponse(statusCode: 200, type: typeof(CastDTO), description: "GetCastDetail Response")]
-        public async Task<IActionResult> GetCastDetail(UuidRequest request)
+        [HttpPost("screen_detail")]
+        [SwaggerResponse(statusCode: 200, type: typeof(ScreenDTO), description: "GetScreenDetail Response")]
+        public async Task<IActionResult> GetScreenDetail(UuidRequest request)
         {
-            var response = new BaseResponseMessage<CastDTO>();
+            var response = new BaseResponseMessage<ScreenDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -166,18 +161,20 @@ namespace CinemaAPI.Controllers
             {
                 //TODO: Write code late
 
-                var castdetail = _context.Cast.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-                if (castdetail != null)
+                var screendetail = _context.Screen.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                if (screendetail != null)
                 {
-                    response.Data = new CastDTO()
+                    response.Data = new ScreenDTO()
                     {
-                        Uuid = castdetail.Uuid,
-                        CastName = castdetail.CastName,
-                        Birthday = castdetail.Birthday,
-                        Description = castdetail.Description,
-                        ImageUrl = _context.Images.Where(x => castdetail.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
-                        TimeCreated = castdetail.TimeCreated,
-                        Status = castdetail.Status,
+                        Uuid = screendetail.Uuid,
+                        CinemaUuid = screendetail.CinemaUuid,
+                        ScreenName = screendetail.ScreenName,
+                        ScreenType = _context.ScreenType.Where(x => x.Uuid == screendetail.ScreenTypeUuid).Select(p => p.Type).FirstOrDefault(),
+                        Capacity = screendetail.Capacity,
+                        Row = screendetail.Row,
+                        Collumn = screendetail.Collumn,
+                        TimeCreated = screendetail.TimeCreated,
+                        Status = screendetail.Status,
                     };
                 }
                 return Ok(response);

@@ -21,15 +21,11 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<Images> Images { get; set; }
 
-    public virtual DbSet<Language> Language { get; set; }
-
     public virtual DbSet<Movies> Movies { get; set; }
 
     public virtual DbSet<MoviesCast> MoviesCast { get; set; }
 
     public virtual DbSet<MoviesGenre> MoviesGenre { get; set; }
-
-    public virtual DbSet<MoviesLanguage> MoviesLanguage { get; set; }
 
     public virtual DbSet<MoviesRegion> MoviesRegion { get; set; }
 
@@ -221,28 +217,6 @@ public partial class DBContext : DbContext
                 .HasColumnName("uuid");
         });
 
-        modelBuilder.Entity<Language>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("language");
-
-            entity.HasIndex(e => e.Uuid, "uuid_unq").IsUnique();
-
-            entity.Property(e => e.Id)
-                .HasColumnType("int(11)")
-                .HasColumnName("id");
-            entity.Property(e => e.LanguageType)
-                .HasComment("1-Phụ đề,2-Lồng tiếng")
-                .HasColumnType("tinyint(4)")
-                .HasColumnName("language_type");
-            entity.Property(e => e.Uuid)
-                .HasMaxLength(36)
-                .HasDefaultValueSql("uuid()")
-                .IsFixedLength()
-                .HasColumnName("uuid");
-        });
-
         modelBuilder.Entity<Movies>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -380,39 +354,6 @@ public partial class DBContext : DbContext
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.MoviesUuid)
                 .HasConstraintName("fk_movies_mv_uuid_ref");
-        });
-
-        modelBuilder.Entity<MoviesLanguage>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("movies_language");
-
-            entity.HasIndex(e => e.LanguageUuid, "fk_lg_uuid_ref");
-
-            entity.HasIndex(e => e.MoviesUuid, "fk_movies_lg_uuid_ref");
-
-            entity.Property(e => e.Id)
-                .HasColumnType("int(11)")
-                .HasColumnName("id");
-            entity.Property(e => e.LanguageUuid)
-                .HasMaxLength(36)
-                .IsFixedLength()
-                .HasColumnName("language_uuid");
-            entity.Property(e => e.MoviesUuid)
-                .HasMaxLength(36)
-                .IsFixedLength()
-                .HasColumnName("movies_uuid");
-
-            entity.HasOne(d => d.LanguageUu).WithMany(p => p.MoviesLanguage)
-                .HasPrincipalKey(p => p.Uuid)
-                .HasForeignKey(d => d.LanguageUuid)
-                .HasConstraintName("fk_lg_uuid_ref");
-
-            entity.HasOne(d => d.MoviesUu).WithMany(p => p.MoviesLanguage)
-                .HasPrincipalKey(p => p.Uuid)
-                .HasForeignKey(d => d.MoviesUuid)
-                .HasConstraintName("fk_movies_lg_uuid_ref");
         });
 
         modelBuilder.Entity<MoviesRegion>(entity =>
@@ -617,12 +558,9 @@ public partial class DBContext : DbContext
                 .HasMaxLength(36)
                 .IsFixedLength()
                 .HasColumnName("screen_uuid");
-            entity.Property(e => e.SeatCollumn)
-                .HasColumnType("int(11)")
-                .HasColumnName("seat_collumn");
-            entity.Property(e => e.SeatRow)
-                .HasMaxLength(10)
-                .HasColumnName("seat_row");
+            entity.Property(e => e.SeatCode)
+                .HasMaxLength(5)
+                .HasColumnName("seat_code");
             entity.Property(e => e.SeatTypeUuid)
                 .HasMaxLength(36)
                 .IsFixedLength()
@@ -643,6 +581,11 @@ public partial class DBContext : DbContext
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.ScreenUuid)
                 .HasConstraintName("fk_scr_uuid_ref");
+
+            entity.HasOne(d => d.SeatTypeUu).WithMany(p => p.Seat)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.SeatTypeUuid)
+                .HasConstraintName("fk_seat_type_ref");
         });
 
         modelBuilder.Entity<SeatType>(entity =>
@@ -651,14 +594,15 @@ public partial class DBContext : DbContext
 
             entity.ToTable("seat_type");
 
-            entity.HasIndex(e => e.Uuid, "uuid");
+            entity.HasIndex(e => e.Uuid, "uuid").IsUnique();
 
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
-            entity.Property(e => e.SeatTypeName)
-                .HasMaxLength(50)
-                .HasColumnName("seat_type_name");
+            entity.Property(e => e.Type)
+                .HasComment("1-ghế thường,2-ghế vip,3-couple")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("type");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
                 .HasDefaultValueSql("uuid()")
@@ -725,6 +669,10 @@ public partial class DBContext : DbContext
             entity.Property(e => e.EndTime)
                 .HasColumnType("datetime")
                 .HasColumnName("end_time");
+            entity.Property(e => e.LanguageType)
+                .HasComment("1-Phụ đề,2-Lồng tiếng")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("language_type");
             entity.Property(e => e.MoviesUuid)
                 .HasMaxLength(36)
                 .IsFixedLength()
