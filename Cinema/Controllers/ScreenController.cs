@@ -114,16 +114,21 @@ namespace CinemaAPI.Controllers
                 screen.Capacity = request.Capacity;
                 screen.Row = request.Rows;
                 screen.Collumn = request.Columns;
-                foreach(var seat in request.Seats)
+                var seatUuidsInRequest = request.Seats.Select(seat => seat.SeatUuid).ToList();
+                var existingSeats = _context.Seat.Where(s => s.ScreenUuid == screen.Uuid).ToList();
+                
+                var seatsToRemove = existingSeats.Where(s => !seatUuidsInRequest.Contains(s.Uuid)).ToList();
+                _context.Seat.RemoveRange(seatsToRemove);
+                foreach (var seat in request.Seats)
                 {
                     var existingSeat = _context.Seat.FirstOrDefault(s => s.Uuid == seat.SeatUuid && s.ScreenUuid == screen.Uuid);
-                    if(existingSeat != null)
+                    if (existingSeat != null)
                     {
                         existingSeat.SeatCode = seat.SeatCode;
                         existingSeat.SeatTypeUuid = _context.SeatType.Where(t => t.Type == seat.SeatType).Select(up => up.Uuid).FirstOrDefault();
                         _context.Seat.Update(existingSeat);
                     }
-                    else
+                    else if(string.IsNullOrEmpty(seat.SeatUuid))
                     {
                         var newSeat = new Seat
                         {
@@ -136,6 +141,10 @@ namespace CinemaAPI.Controllers
                             Status = 1
                         };
                         _context.Seat.Add(newSeat);
+                    }
+                    else
+                    {
+
                     }
                 }
                 _context.Screen.Update(screen);
@@ -293,6 +302,7 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
 
     }
 }
