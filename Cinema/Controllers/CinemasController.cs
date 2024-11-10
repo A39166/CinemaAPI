@@ -67,6 +67,7 @@ namespace CinemaAPI.Controllers
                         cinema.CinemaName = request.CinemaName;
                         cinema.Address = request.Address;
                         cinema.Location = request.Location;
+                        _context.Cinemas.Update(cinema);
                         _context.SaveChanges();
                     }
                     else
