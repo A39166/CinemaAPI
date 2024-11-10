@@ -68,5 +68,8 @@ namespace CinemaAPI.Enums
 
         [Description("Đã có rạp chiếu này!")]
         SCREEN_NOT_FOUND = 34,
+
+        [Description("Tài khoản này đã bị khóa!")]
+        LOCKED_ACCOUNT = 35,
     }
 }

@@ -9,6 +9,7 @@ using CinemaAPI.Utils;
 using CinemaAPI.Models.BaseRequest;
 using Microsoft.AspNetCore.Identity.Data;
 using CinemaAPI.Models.DataInfo;
+using CinemaAPI.Configuaration;
 
 namespace CinemaAPI.Controllers
 {
@@ -48,7 +49,10 @@ namespace CinemaAPI.Controllers
                                               .Where(x => x.Password == request.Password)
                                               .SingleOrDefault();
 
-
+                if(user.Status == 2)
+                {
+                    throw new ErrorException(ErrorCode.LOCKED_ACCOUNT);
+                }
                 if (user != null)
                 {
                     _token = new TokenInfo()
