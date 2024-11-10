@@ -303,6 +303,42 @@ namespace CinemaAPI.Controllers
             }
         }
 
+        [HttpPost("get_list_seat")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<ShortSeatDTO>), description: "GetListSeat Response")]
+        public async Task<IActionResult> GetListSeat(UuidRequest request)
+        {
+            var response = new BaseResponseMessageItem<ShortSeatDTO>();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                response.Data = _context.Seat.Where(x => x.ScreenUuid == request.Uuid && x.Status == 1)
+               .Select(seat => new ShortSeatDTO
+                {
+                    Uuid = seat.Uuid,
+                    SeatCode = seat.SeatCode,
+                    SeatType = _context.SeatType
+                    .Where(t => t.Uuid == seat.SeatTypeUuid)
+                    .Select(t => t.Type)
+                    .FirstOrDefault()
+                }).ToList();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+
+
 
     }
 }
