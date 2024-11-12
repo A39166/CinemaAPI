@@ -9,7 +9,6 @@ namespace CinemaAPI.Models.Request
         public string Title { get; set; }
         public string ShortTitle { get; set; }
         public string Content { get; set; }
-        public string TimeCreated { get; set; }
         [DefaultValue(1)]
         public sbyte Status {  get; set; }
         public string? ImagesUuid { get; set; }

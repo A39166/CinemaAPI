@@ -124,10 +124,10 @@ namespace CinemaAPI.Controllers
             }
         }
         [HttpPost("page_list_combo")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<PageListNewsDTO>), description: "GetPageListCombo Response")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<PageListComboDTO>), description: "GetPageListCombo Response")]
         public async Task<IActionResult> GetPageListCombo(DpsPagingParamBase request)
         {
-            var response = new BaseResponseMessagePage<PageListNewsDTO>();
+            var response = new BaseResponseMessagePage<PageListComboDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -136,27 +136,27 @@ namespace CinemaAPI.Controllers
             }
             try
             {
-                var lstNews = _context.News.Where(x => x.Status != 0)
+                var lstCombo = _context.Combo.Where(x => x.Status != 0)
                                            .ToList();
 
-                var totalcount = lstNews.Count();
+                var totalcount = lstCombo.Count();
 
-                if (lstNews != null && lstNews.Count > 0)
+                if (lstCombo != null && lstCombo.Count > 0)
                 {
-                    var result = lstNews.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
+                    var result = lstCombo.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
                     if (result != null && result.Count > 0)
                     {
-                        response.Data.Items = new List<PageListNewsDTO>();
+                        response.Data.Items = new List<PageListComboDTO>();
                     }
-                    foreach (var news in result)
+                    foreach (var cb in result)
                     {
-                        var convertItemDTO = new PageListNewsDTO()
+                        var convertItemDTO = new PageListComboDTO()
                         {
-                            Uuid = news.Uuid,
-                            Title = news.Title,
-                            View = news.View,
-                            TimeCreated = news.TimeCreated,
-                            Status = news.Status,
+                            Uuid = cb.Uuid,
+                            ComboName = cb.ComboName,
+                            Price = cb.Price,
+                            TimeCreated = cb.TimeCreated,
+                            Status = cb.Status,
                         };
                         response.Data.Items.Add(convertItemDTO);
                     }
@@ -178,11 +178,11 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("news_detail")]
-        [SwaggerResponse(statusCode: 200, type: typeof(NewsDTO), description: "GetNewsDetail Response")]
-        public async Task<IActionResult> GetNewsDetail(UuidRequest request)
+        [HttpPost("combo_detail")]
+        [SwaggerResponse(statusCode: 200, type: typeof(ComboDTO), description: "GetComboDetail Response")]
+        public async Task<IActionResult> GetComboDetail(UuidRequest request)
         {
-            var response = new BaseResponseMessage<NewsDTO>();
+            var response = new BaseResponseMessage<ComboDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -194,18 +194,18 @@ namespace CinemaAPI.Controllers
             {
                 //TODO: Write code late
 
-                var newsdetail = _context.News.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-                if (newsdetail != null)
+                var combo = _context.Combo.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                if (combo != null)
                 {
-                    response.Data = new NewsDTO()
+                    response.Data = new ComboDTO()
                     {
-                        Uuid = newsdetail.Uuid,
-                        Title = newsdetail.Title,
-                        ShortTitle = newsdetail.ShortTitle,
-                        View = newsdetail.View,
-                        ImageUrl = _context.Images.Where(x => newsdetail.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
-                        TimeCreated = newsdetail.TimeCreated,
-                        Status = newsdetail.Status,
+                        Uuid = combo.Uuid,
+                        ComboName = combo.ComboName,
+                        ComboItems = combo.ComboItems,
+                        Price = combo.Price,
+                        ImageUrl = _context.Images.Where(x => combo.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
+                        TimeCreated = combo.TimeCreated,
+                        Status = combo.Status,
                     };
                 }
                 return Ok(response);
@@ -217,9 +217,9 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("update_news_status")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateNewsStatus Response")]
-        public async Task<IActionResult> UpdateNewsStatus(UpdateStatusRequest request)
+        [HttpPost("update_combo_status")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateComboStatus Response")]
+        public async Task<IActionResult> UpdateComboStatus(UpdateStatusRequest request)
         {
             var response = new BaseResponse();
 
@@ -231,11 +231,11 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                var newsstatus = _context.News.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                var combo = _context.Combo.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
 
-                if (newsstatus != null)
+                if (combo != null)
                 {
-                    newsstatus.Status = request.Status;
+                    combo.Status = request.Status;
                     var img = _context.Images.Where(x => x.OwnerUuid == request.Uuid && x.Status == 1).SingleOrDefault();
                     if (img != null)
                     {

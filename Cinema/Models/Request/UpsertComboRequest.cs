@@ -9,7 +9,6 @@ namespace CinemaAPI.Models.Request
         public string ComboName { get; set; }
         public string ComboItems { get; set; }
         public int Price { get; set; }
-        public string TimeCreated { get; set; }
         [DefaultValue(1)]
         public sbyte Status {  get; set; }
         public string? ImagesUuid { get; set; }

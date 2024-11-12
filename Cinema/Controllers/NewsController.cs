@@ -203,6 +203,7 @@ namespace CinemaAPI.Controllers
                         Uuid = newsdetail.Uuid,
                         Title = newsdetail.Title,
                         ShortTitle = newsdetail.ShortTitle,
+                        Content = newsdetail.Content,
                         View = newsdetail.View,
                         ImageUrl = _context.Images.Where(x => newsdetail.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
                         TimeCreated = newsdetail.TimeCreated,
