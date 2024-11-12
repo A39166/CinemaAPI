@@ -26,6 +26,8 @@ public partial class Showtimes
 
     public sbyte Status { get; set; }
 
+    public virtual ICollection<Bill> Bill { get; set; } = new List<Bill>();
+
     public virtual Movies MoviesUu { get; set; } = null!;
 
     public virtual Screen ScreenUu { get; set; } = null!;

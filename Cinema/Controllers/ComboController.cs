@@ -19,21 +19,21 @@ namespace CinemaAPI.Controllers
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [ApiVersion("1")]
-    [SwaggerTag("News Controller")]
-    public class NewsController : BaseController
+    [SwaggerTag("Combo Controller")]
+    public class ComboController : BaseController
     {
-        private readonly ILogger<NewsController> _logger;
+        private readonly ILogger<ComboController> _logger;
         private readonly DBContext _context;
 
-        public NewsController(DBContext context, ILogger<NewsController> logger)
+        public ComboController(DBContext context, ILogger<ComboController> logger)
         {
 
             _context = context;
             _logger = logger;
         }
-        [HttpPost("upsert_news")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertNews Response")]
-        public async Task<IActionResult> UpsertNews(UpsertNewsRequest request)
+        [HttpPost("upsert_combo")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertCombo Response")]
+        public async Task<IActionResult> UpsertCombo(UpsertComboRequest request)
         {
             var response = new BaseResponse();
 
@@ -47,25 +47,24 @@ namespace CinemaAPI.Controllers
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
 
-                    var news = new News()
+                    var combo = new Combo()
                     {
                         Uuid = Guid.NewGuid().ToString(),
-                        Title = request.Title,
-                        ShortTitle = request.ShortTitle,
-                        Content = request.Content,
-                        View = 0,
+                        ComboName = request.ComboName,
+                        ComboItems = request.ComboItems,
+                        Price = request.Price,
                         TimeCreated = DateTime.Now,
-                        Status = request.Status,
+                        Status = 1,
                     };
-                    _context.News.Add(news);
+                    _context.Combo.Add(combo);
                     _context.SaveChanges();
                     if (!string.IsNullOrEmpty(request.ImagesUuid))
                     {
                         var image = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
                         if (image != null)
                         {
-                            image.OwnerUuid = news.Uuid;
-                            image.OwnerType = "news";
+                            image.OwnerUuid = combo.Uuid;
+                            image.OwnerType = "combo";
                             image.Status = 1;
                             _context.Images.Update(image);
                             _context.SaveChanges();
@@ -75,15 +74,15 @@ namespace CinemaAPI.Controllers
                 else
                 //cập nhập dữ liệu
                 {
-                    var news = _context.News.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
-                    if (news != null)
+                    var combo = _context.Combo.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
+                    if (combo != null)
                     {
-                        news.Title = request.Title;
-                        news.ShortTitle = request.ShortTitle;
-                        news.Content = request.Content;
-                        news.TimeCreated = DateTime.Now;
-                        news.Status = request.Status;
-                        _context.News.Update(news);
+                        combo.ComboName = request.ComboName;
+                        combo.ComboItems = request.ComboItems;
+                        combo.Price = request.Price;
+                        combo.TimeCreated = DateTime.Now;
+                        combo.Status = request.Status;
+                        _context.Combo.Update(combo);
                         _context.SaveChanges();
                         if (!string.IsNullOrEmpty(request.ImagesUuid))
                         {
@@ -99,8 +98,8 @@ namespace CinemaAPI.Controllers
                                         oldImage.Status = 0;
                                         _context.Images.Update(oldImage);
                                     }
-                                    newimage.OwnerUuid = news.Uuid;
-                                    newimage.OwnerType = "news";
+                                    newimage.OwnerUuid = combo.Uuid;
+                                    newimage.OwnerType = "combo";
                                     newimage.Status = 1;
                                     _context.Images.Update(newimage);
                                     _context.SaveChanges();
@@ -124,9 +123,9 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("page_list_news")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<PageListNewsDTO>), description: "GetPageListNews Response")]
-        public async Task<IActionResult> GetPageListNews(DpsPagingParamBase request)
+        [HttpPost("page_list_combo")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<PageListNewsDTO>), description: "GetPageListCombo Response")]
+        public async Task<IActionResult> GetPageListCombo(DpsPagingParamBase request)
         {
             var response = new BaseResponseMessagePage<PageListNewsDTO>();
 

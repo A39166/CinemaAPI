@@ -3,25 +3,28 @@ using System.Collections.Generic;
 
 namespace CinemaAPI.Databases.CinemaDB;
 
-public partial class Seat
+public partial class Ticket
 {
     public int Id { get; set; }
 
     public string Uuid { get; set; } = null!;
 
-    public string ScreenUuid { get; set; } = null!;
-
-    public string SeatCode { get; set; } = null!;
+    public string ScreenTypeUuid { get; set; } = null!;
 
     public string SeatTypeUuid { get; set; } = null!;
 
-    public DateTime TimeCreated { get; set; }
+    /// <summary>
+    /// 1-Trong tuần,2-Cuối tuần
+    /// </summary>
+    public sbyte DateState { get; set; }
+
+    public int Price { get; set; }
 
     public sbyte Status { get; set; }
 
     public virtual ICollection<Booking> Booking { get; set; } = new List<Booking>();
 
-    public virtual Screen ScreenUu { get; set; } = null!;
+    public virtual ScreenType ScreenTypeUu { get; set; } = null!;
 
     public virtual SeatType SeatTypeUu { get; set; } = null!;
 }

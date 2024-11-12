@@ -11,9 +11,16 @@ public partial class News
 
     public string Title { get; set; } = null!;
 
+    public string ShortTitle { get; set; } = null!;
+
     public string? Content { get; set; }
+
+    public int? View { get; set; }
 
     public DateTime TimeCreated { get; set; }
 
+    /// <summary>
+    /// 0-không sử dụng,1-Xuất bản,2-Nháp
+    /// </summary>
     public sbyte Status { get; set; }
 }

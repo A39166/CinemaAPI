@@ -36,5 +36,7 @@ public partial class User
     /// </summary>
     public sbyte Status { get; set; }
 
+    public virtual ICollection<Bill> Bill { get; set; } = new List<Bill>();
+
     public virtual ICollection<Sessions> Sessions { get; set; } = new List<Sessions>();
 }

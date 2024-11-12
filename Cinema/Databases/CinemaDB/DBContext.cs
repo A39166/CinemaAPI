@@ -11,9 +11,17 @@ public partial class DBContext : DbContext
     {
     }
 
+    public virtual DbSet<Bill> Bill { get; set; }
+
+    public virtual DbSet<BillCombo> BillCombo { get; set; }
+
+    public virtual DbSet<Booking> Booking { get; set; }
+
     public virtual DbSet<Cast> Cast { get; set; }
 
     public virtual DbSet<Cinemas> Cinemas { get; set; }
+
+    public virtual DbSet<Combo> Combo { get; set; }
 
     public virtual DbSet<Director> Director { get; set; }
 
@@ -45,6 +53,8 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<Showtimes> Showtimes { get; set; }
 
+    public virtual DbSet<Ticket> Ticket { get; set; }
+
     public virtual DbSet<User> User { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -52,6 +62,159 @@ public partial class DBContext : DbContext
         modelBuilder
             .UseCollation("utf8mb4_unicode_520_ci")
             .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<Bill>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("bill");
+
+            entity.HasIndex(e => e.ShowtimeUuid, "fk_showtime_uuid_bill_ref");
+
+            entity.HasIndex(e => e.UserUuid, "fk_user_uuid_bill_ref");
+
+            entity.HasIndex(e => e.Uuid, "unq_uuid").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.CouponUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("coupon_uuid");
+            entity.Property(e => e.ShowtimeUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("showtime_uuid");
+            entity.Property(e => e.State)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("state");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("time_created");
+            entity.Property(e => e.TotalPrice)
+                .HasColumnType("int(11)")
+                .HasColumnName("total_price");
+            entity.Property(e => e.UserUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("user_uuid");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+
+            entity.HasOne(d => d.ShowtimeUu).WithMany(p => p.Bill)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.ShowtimeUuid)
+                .HasConstraintName("fk_showtime_uuid_bill_ref");
+
+            entity.HasOne(d => d.UserUu).WithMany(p => p.Bill)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.UserUuid)
+                .HasConstraintName("fk_user_uuid_bill_ref");
+        });
+
+        modelBuilder.Entity<BillCombo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("bill_combo");
+
+            entity.HasIndex(e => e.BillUuid, "fk_bill_uuid_ref");
+
+            entity.HasIndex(e => e.ComboUuid, "fk_combo_uuid_ref");
+
+            entity.HasIndex(e => e.Uuid, "unq_uuid").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.BillUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("bill_uuid");
+            entity.Property(e => e.ComboUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("combo_uuid");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+
+            entity.HasOne(d => d.BillUu).WithMany(p => p.BillCombo)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.BillUuid)
+                .HasConstraintName("fk_bill_uuid_ref");
+
+            entity.HasOne(d => d.ComboUu).WithMany(p => p.BillCombo)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.ComboUuid)
+                .HasConstraintName("fk_combo_uuid_ref");
+        });
+
+        modelBuilder.Entity<Booking>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("booking");
+
+            entity.HasIndex(e => e.BillUuid, "fk_bill_uuid_bk_ref");
+
+            entity.HasIndex(e => e.SeatUuid, "fk_seat_uuid_bk_ref");
+
+            entity.HasIndex(e => e.TicketUuid, "fk_ticket_uuid_bk_ref");
+
+            entity.HasIndex(e => e.Uuid, "unq_uuid").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.BillUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("bill_uuid");
+            entity.Property(e => e.SeatUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("seat_uuid");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TicketUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("ticket_uuid");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+
+            entity.HasOne(d => d.BillUu).WithMany(p => p.Booking)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.BillUuid)
+                .HasConstraintName("fk_bill_uuid_bk_ref");
+
+            entity.HasOne(d => d.SeatUu).WithMany(p => p.Booking)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.SeatUuid)
+                .HasConstraintName("fk_seat_uuid_bk_ref");
+
+            entity.HasOne(d => d.TicketUu).WithMany(p => p.Booking)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.TicketUuid)
+                .HasConstraintName("fk_ticket_uuid_bk_ref");
+        });
 
         modelBuilder.Entity<Cast>(entity =>
         {
@@ -103,6 +266,41 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Location).HasColumnName("location");
             entity.Property(e => e.Status)
                 .HasComment("0 - đang khóa, 1 - hoạt động")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
+                .HasColumnName("time_created");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
+
+        modelBuilder.Entity<Combo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("combo");
+
+            entity.HasIndex(e => e.Uuid, "unq_uuid").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.ComboItems)
+                .HasMaxLength(255)
+                .HasColumnName("combo_items");
+            entity.Property(e => e.ComboName)
+                .HasMaxLength(50)
+                .HasColumnName("combo_name");
+            entity.Property(e => e.Price)
+                .HasColumnType("int(11)")
+                .HasColumnName("price");
+            entity.Property(e => e.Status)
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
             entity.Property(e => e.TimeCreated)
@@ -409,7 +607,11 @@ public partial class DBContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
             entity.Property(e => e.Content).HasColumnName("content");
+            entity.Property(e => e.ShortTitle)
+                .HasMaxLength(50)
+                .HasColumnName("short_title");
             entity.Property(e => e.Status)
+                .HasComment("0-không sử dụng,1-Xuất bản,2-Nháp")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
             entity.Property(e => e.TimeCreated)
@@ -425,6 +627,9 @@ public partial class DBContext : DbContext
                 .HasDefaultValueSql("uuid()")
                 .IsFixedLength()
                 .HasColumnName("uuid");
+            entity.Property(e => e.View)
+                .HasColumnType("int(11)")
+                .HasColumnName("view");
         });
 
         modelBuilder.Entity<Region>(entity =>
@@ -600,7 +805,7 @@ public partial class DBContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
             entity.Property(e => e.Type)
-                .HasComment("1-ghế thường,2-ghế vip,3-couple")
+                .HasComment("1-ghế thường,2-ghế vip,3-couple,4-Không khả dụng")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("type");
             entity.Property(e => e.Uuid)
@@ -705,6 +910,56 @@ public partial class DBContext : DbContext
                 .HasForeignKey(d => d.ScreenUuid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_screen_st_ref");
+        });
+
+        modelBuilder.Entity<Ticket>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("ticket");
+
+            entity.HasIndex(e => e.ScreenTypeUuid, "fk_screen_type_tk_ref");
+
+            entity.HasIndex(e => e.SeatTypeUuid, "fk_seat_type_tk_ref");
+
+            entity.HasIndex(e => e.Uuid, "unq_uuid").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.DateState)
+                .HasComment("1-Trong tuần,2-Cuối tuần")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("date_state");
+            entity.Property(e => e.Price)
+                .HasColumnType("int(11)")
+                .HasColumnName("price");
+            entity.Property(e => e.ScreenTypeUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("screen_type_uuid");
+            entity.Property(e => e.SeatTypeUuid)
+                .HasMaxLength(36)
+                .IsFixedLength()
+                .HasColumnName("seat_type_uuid");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+
+            entity.HasOne(d => d.ScreenTypeUu).WithMany(p => p.Ticket)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.ScreenTypeUuid)
+                .HasConstraintName("fk_screen_type_tk_ref");
+
+            entity.HasOne(d => d.SeatTypeUu).WithMany(p => p.Ticket)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.SeatTypeUuid)
+                .HasConstraintName("fk_seat_type_tk_ref");
         });
 
         modelBuilder.Entity<User>(entity =>
