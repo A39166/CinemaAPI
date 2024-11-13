@@ -81,7 +81,6 @@ namespace CinemaAPI.Controllers
                         combo.ComboItems = request.ComboItems;
                         combo.Price = request.Price;
                         combo.TimeCreated = DateTime.Now;
-                        combo.Status = request.Status;
                         _context.Combo.Update(combo);
                         _context.SaveChanges();
                         if (!string.IsNullOrEmpty(request.ImagesUuid))
@@ -105,6 +104,16 @@ namespace CinemaAPI.Controllers
                                     _context.SaveChanges();
                                 }
 
+                            }
+                        }
+                        else
+                        {
+                            var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid && img.Status == 1);
+                            if (oldImage != null)
+                            {
+                                oldImage.Status = 0;
+                                _context.Images.Update(oldImage);
+                                _context.SaveChanges();
                             }
                         }
                     }
