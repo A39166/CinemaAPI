@@ -18,11 +18,16 @@ public partial class Showtimes
     /// </summary>
     public sbyte LanguageType { get; set; }
 
+    /// <summary>
+    /// 0-Sắp chiếu,1-Đang chiếu,2-Đã chiếu
+    /// </summary>
+    public sbyte State { get; set; }
+
     public DateOnly ShowDate { get; set; }
 
-    public DateTime StartTime { get; set; }
+    public TimeOnly StartTime { get; set; }
 
-    public DateTime EndTime { get; set; }
+    public TimeOnly EndTime { get; set; }
 
     public sbyte Status { get; set; }
 

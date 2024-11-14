@@ -71,5 +71,8 @@ namespace CinemaAPI.Enums
 
         [Description("Tài khoản này đã bị khóa!")]
         LOCKED_ACCOUNT = 35,
+
+        [Description("Tài khoản này đã bị khóa!")]
+        DUPLICATED_SHOWTIME = 36,
     }
 }

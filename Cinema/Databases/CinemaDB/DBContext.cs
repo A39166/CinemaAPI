@@ -872,7 +872,7 @@ public partial class DBContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
             entity.Property(e => e.EndTime)
-                .HasColumnType("datetime")
+                .HasColumnType("time")
                 .HasColumnName("end_time");
             entity.Property(e => e.LanguageType)
                 .HasComment("1-Phụ đề,2-Lồng tiếng")
@@ -888,8 +888,12 @@ public partial class DBContext : DbContext
                 .HasColumnName("screen_uuid");
             entity.Property(e => e.ShowDate).HasColumnName("show_date");
             entity.Property(e => e.StartTime)
-                .HasColumnType("datetime")
+                .HasColumnType("time")
                 .HasColumnName("start_time");
+            entity.Property(e => e.State)
+                .HasComment("0-Sắp chiếu,1-Đang chiếu,2-Đã chiếu")
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("state");
             entity.Property(e => e.Status)
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
