@@ -152,6 +152,7 @@ namespace CinemaAPI.Controllers
                                 ScreenName = screen.ScreenName,
                                 Showtimes = screen.Showtimes.Select(showtime => new FormShowtimesDTO
                                 {
+                                    Uuid = showtime.Uuid,
                                     MoviesName = _context.Movies.Where(m => m.Uuid == showtime.MoviesUuid).Select(m => m.Title).FirstOrDefault(),
                                     ScreenType = _context.ScreenType.Where(x => x.Uuid == screen.ScreenTypeUuid).Select(t => t.Type).FirstOrDefault(),
                                     LanguageType = showtime.LanguageType,
@@ -200,7 +201,8 @@ namespace CinemaAPI.Controllers
             {
                 //TODO: Write code late
 
-                var st = _context.Showtimes.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                var st = _context.Showtimes.Include(x => x.ScreenUu)
+                    .Where(x => x.Uuid == request.Uuid).SingleOrDefault();
                 if (st != null)
                 {
                     var scr = _context.Screen.Where(x => x.Uuid == st.ScreenUuid).Select(up => up.ScreenTypeUuid).FirstOrDefault();
@@ -210,6 +212,7 @@ namespace CinemaAPI.Controllers
                         Uuid = st.Uuid,
                         MoviesUuid = st.MoviesUuid,
                         ScreenUuid = st.ScreenUuid,
+                        CinemaUuid = _context.Cinemas.Where(x => x.Uuid == st.ScreenUu.CinemaUuid).Select(up => up.Uuid).FirstOrDefault(),
                         ScreenType = scrtype,
                         LanguageType = st.LanguageType,
                         ShowDate = st.ShowDate,
