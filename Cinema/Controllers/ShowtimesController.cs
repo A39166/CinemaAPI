@@ -114,12 +114,12 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
         [HttpPost("page_list_showtime")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<PageListShowtimesDTO>), description: "GetPageListShowtimes Response")]
         public async Task<IActionResult> GetPageListShowtimes(PageListShowtimesRequest request)
         {
             var response = new BaseResponseMessagePage<PageListShowtimesDTO>();
-
             var validToken = validateToken(_context);
             if (validToken is null)
             {
