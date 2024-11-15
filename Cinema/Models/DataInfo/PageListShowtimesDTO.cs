@@ -10,6 +10,7 @@ namespace CinemaAPI.Models.DataInfo
         public string MoviesName { get; set; } 
         public sbyte ScreenType { get; set; }
         public sbyte LanguageType { get; set; }
+        public DateOnly ShowDate {  get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public sbyte State { get; set; }

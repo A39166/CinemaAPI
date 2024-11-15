@@ -156,6 +156,7 @@ namespace CinemaAPI.Controllers
                                     MoviesName = _context.Movies.Where(m => m.Uuid == showtime.MoviesUuid).Select(m => m.Title).FirstOrDefault(),
                                     ScreenType = _context.ScreenType.Where(x => x.Uuid == screen.ScreenTypeUuid).Select(t => t.Type).FirstOrDefault(),
                                     LanguageType = showtime.LanguageType,
+                                    ShowDate =showtime.ShowDate,
                                     StartTime = showtime.StartTime,
                                     EndTime = showtime.EndTime,
                                     State = showtime.State,
