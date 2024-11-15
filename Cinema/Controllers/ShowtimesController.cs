@@ -142,30 +142,44 @@ namespace CinemaAPI.Controllers
                     {
                         response.Data.Items = new List<PageListShowtimesDTO>();
                     }
-                    foreach (var st in result)
+                    foreach (var cinema in result)
                     {
-                        var convertItemDTO = new PageListShowtimesDTO()
+                        var convertItemDTO = new PageListShowtimesDTO
                         {
-                            CinemaName = st.CinemaName,
-                            Screens = st.Screen.Select(screen => new FormSCreenDTO
-                            {
-                                ScreenName = screen.ScreenName,
-                                Showtimes = screen.Showtimes.Select(showtime => new FormShowtimesDTO
+                            CinemaName = cinema.CinemaName,
+                            Screens = cinema.Screen
+                                .Where(screen => string.IsNullOrEmpty(request.ScreenUuid) || screen.Uuid == request.ScreenUuid)
+                                .Select(screen => new FormSCreenDTO
                                 {
-                                    Uuid = showtime.Uuid,
-                                    MoviesName = _context.Movies.Where(m => m.Uuid == showtime.MoviesUuid).Select(m => m.Title).FirstOrDefault(),
-                                    ScreenType = _context.ScreenType.Where(x => x.Uuid == screen.ScreenTypeUuid).Select(t => t.Type).FirstOrDefault(),
-                                    LanguageType = showtime.LanguageType,
-                                    ShowDate =showtime.ShowDate,
-                                    StartTime = showtime.StartTime,
-                                    EndTime = showtime.EndTime,
-                                    State = showtime.State,
-                                    Status = showtime.Status
-
-                                }).ToList()
-                            }).ToList()
+                                    ScreenName = screen.ScreenName,
+                                    Showtimes = screen.Showtimes
+                                        .Where(showtime =>
+                                            (!request.FindDate.HasValue || showtime.ShowDate == request.FindDate) &&
+                                            (!request.Status.HasValue || showtime.Status == request.Status))
+                                        .Select(showtime => new FormShowtimesDTO
+                                        {
+                                            Uuid = showtime.Uuid,
+                                            MoviesName = _context.Movies
+                                                .Where(m => m.Uuid == showtime.MoviesUuid)
+                                                .Select(m => m.Title)
+                                                .FirstOrDefault(),
+                                            ScreenType = _context.ScreenType
+                                                .Where(x => x.Uuid == screen.ScreenTypeUuid)
+                                                .Select(t => t.Type)
+                                                .FirstOrDefault(),
+                                            LanguageType = showtime.LanguageType,
+                                            ShowDate = showtime.ShowDate,
+                                            StartTime = showtime.StartTime,
+                                            EndTime = showtime.EndTime,
+                                            State = showtime.State,
+                                            Status = showtime.Status
+                                        })
+                                        .ToList()
+                                })
+                                .Where(screen => screen.Showtimes.Any()) // Chỉ lấy các screen có lịch chiếu phù hợp
+                                .ToList()
                         };
-                    
+
                         response.Data.Items.Add(convertItemDTO);
                     }
                     // trả về thông tin page
