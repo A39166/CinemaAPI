@@ -14,6 +14,8 @@ public partial class ScreenType
     /// </summary>
     public sbyte Type { get; set; }
 
+    public string? Name { get; set; }
+
     public virtual ICollection<Screen> Screen { get; set; } = new List<Screen>();
 
     public virtual ICollection<Ticket> Ticket { get; set; } = new List<Ticket>();

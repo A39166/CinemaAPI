@@ -11,7 +11,5 @@ namespace CinemaAPI.Models.Request
         public string? CinemaUuid { get; set; }
         public string? ScreenUuid { get; set; }
         public DateOnly? FindDate {  get; set; }
-        [DefaultValue(1)]
-        public sbyte? Status { get; set; }
     }
 }

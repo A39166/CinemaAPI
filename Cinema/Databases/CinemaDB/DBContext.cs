@@ -733,6 +733,9 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .HasColumnName("name");
             entity.Property(e => e.Type)
                 .HasComment("1-2D,2-3D,3-IMAX2D,4-IMAX3D")
                 .HasColumnType("tinyint(4)")
@@ -804,6 +807,9 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(255)
+                .HasColumnName("name");
             entity.Property(e => e.Type)
                 .HasComment("1-ghế thường,2-ghế vip,3-couple,4-Không khả dụng")
                 .HasColumnType("tinyint(4)")

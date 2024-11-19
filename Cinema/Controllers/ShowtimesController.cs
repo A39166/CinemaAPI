@@ -58,7 +58,8 @@ namespace CinemaAPI.Controllers
                 bool exists = _context.Showtimes.Any(s =>
                                                         s.MoviesUuid == request.MoviesUuid &&
                                                         s.ScreenUuid == request.ScreenUuid &&
-                                                        s.StartTime == request.StartTime
+                                                        s.StartTime == request.StartTime &&
+                                                        s.ShowDate == request.ShowDate
                                                     );
 
                 if (exists)
@@ -131,7 +132,7 @@ namespace CinemaAPI.Controllers
                                                   .Where(x => string.IsNullOrEmpty(request.CinemaUuid) || x.Uuid == request.CinemaUuid)
                                                   .Where(x => string.IsNullOrEmpty(request.ScreenUuid) || x.Screen.Any(s => s.Uuid == request.ScreenUuid))
                                                   .Where(x => !request.FindDate.HasValue || x.Screen.Any(s => s.Showtimes.Any(st => st.ShowDate == request.FindDate)))
-                                                  .Where(x => !request.Status.HasValue || x.Screen.Any(s => s.Showtimes.Any(st => st.Status == request.Status)))
+                                                  .Where(x => x.Screen.Any(s => s.Showtimes.Any(st => st.Status == 1)))
                                                   .ToList();
                 var totalcount = lstShowtime.Count();
 
@@ -155,7 +156,7 @@ namespace CinemaAPI.Controllers
                                     Showtimes = screen.Showtimes
                                         .Where(showtime =>
                                             (!request.FindDate.HasValue || showtime.ShowDate == request.FindDate) &&
-                                            (!request.Status.HasValue || showtime.Status == request.Status))
+                                            (showtime.Status == 1))
                                         .Select(showtime => new FormShowtimesDTO
                                         {
                                             Uuid = showtime.Uuid,

@@ -66,13 +66,13 @@ namespace CinemaAPI.Enums
         [Description("Đã có rạp chiếu này!")]
         DUPLICATE_SCREEN = 33,
 
-        [Description("Đã có rạp chiếu này!")]
+        [Description("Không tìm thấy phòng chiếu!")]
         SCREEN_NOT_FOUND = 34,
 
         [Description("Tài khoản này đã bị khóa!")]
         LOCKED_ACCOUNT = 35,
 
-        [Description("Tài khoản này đã bị khóa!")]
+        [Description("Đã có suất chiếu này!")]
         DUPLICATED_SHOWTIME = 36,
     }
 }

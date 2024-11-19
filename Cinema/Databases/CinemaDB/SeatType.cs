@@ -14,6 +14,8 @@ public partial class SeatType
     /// </summary>
     public sbyte Type { get; set; }
 
+    public string? Name { get; set; }
+
     public virtual ICollection<Seat> Seat { get; set; } = new List<Seat>();
 
     public virtual ICollection<Ticket> Ticket { get; set; } = new List<Ticket>();
