@@ -92,10 +92,10 @@ namespace CinemaAPI.Controllers
             }
         }
         [HttpPost("page_list_ticket_price")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<TicketDTO>), description: "GetPageListTicket Response")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<PageListTicketDTO>), description: "GetPageListTicket Response")]
         public async Task<IActionResult> GetPageListTicket(DpsPagingParamBase request)
         {
-            var response = new BaseResponseMessagePage<TicketDTO>();
+            var response = new BaseResponseMessagePage<PageListTicketDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -112,11 +112,11 @@ namespace CinemaAPI.Controllers
                     var result = lstTicket.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
                     if (result != null && result.Count > 0)
                     {
-                        response.Data.Items = new List<TicketDTO>();
+                        response.Data.Items = new List<PageListTicketDTO>();
                     }
                     foreach (var ticket in result)
                     {
-                        var convertItemDTO = new TicketDTO()
+                        var convertItemDTO = new PageListTicketDTO()
                         {
                             Uuid = ticket.Uuid,
                             SeatType = _context.SeatType.Where(x => x.Uuid == ticket.SeatTypeUuid).Select(x => x.Type).FirstOrDefault(),

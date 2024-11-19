@@ -33,7 +33,7 @@ namespace CinemaAPI.Controllers
         }
         [HttpPost("upsert_coupon")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertCoupon Response")]
-        public async Task<IActionResult> UpsertCoupon(UpsertCastRequest request)
+        public async Task<IActionResult> UpsertCoupon(UpsertCouponRequest request)
         {
             var response = new BaseResponse();
 
