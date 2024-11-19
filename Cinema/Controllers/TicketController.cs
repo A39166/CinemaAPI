@@ -165,8 +165,8 @@ namespace CinemaAPI.Controllers
                     response.Data = new TicketDTO()
                     {
                         Uuid = ticket.Uuid,
-                        SeatType = _context.SeatType.Where(x => x.Uuid == ticket.SeatTypeUuid).Select(x => x.Type).FirstOrDefault(),
-                        ScreenType = _context.ScreenType.Where(x => x.Uuid == ticket.ScreenTypeUuid).Select(x => x.Type).FirstOrDefault(),
+                        SeatTypeUuid = ticket.SeatTypeUuid,
+                        ScreenTypeUuid = ticket.ScreenTypeUuid,
                         DateState = ticket.DateState,
                         Price = ticket.Price,
                         Status = ticket.Status,
