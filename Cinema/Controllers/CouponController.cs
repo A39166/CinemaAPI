@@ -13,6 +13,8 @@ using CinemaAPI.Extensions;
 using System.IO;
 using System.Security.Principal;
 using static System.Net.Mime.MediaTypeNames;
+using CinemaAPI.Configuaration;
+using System.Net.Sockets;
 
 namespace CinemaAPI.Controllers
 {
@@ -47,74 +49,38 @@ namespace CinemaAPI.Controllers
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
                     
-                    var cast = new Cast()
+                    var coupon = new Coupon()
                     {
                         Uuid = Guid.NewGuid().ToString(),
-                        CastName = request.CastName,
-                        Birthday = request.Birthday,
-                        Description = request.Description,
+                        Code = request.Code,
+                        Quantity = request.Quantity,
+                        Used = 0,
+                        Discount = request.Discount,
+                        StartDate = request.StartDate,
+                        EndDate = request.EndDate,
                         TimeCreated = DateTime.Now,
-                        Status = 1,
+                        Status = request.Status,
                     };
-                    _context.Cast.Add(cast);
+                    _context.Coupon.Add(coupon);
                     _context.SaveChanges();
-                    if (!string.IsNullOrEmpty(request.ImagesUuid))
-                    {
-                        var image = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
-                        if (image != null)
-                        {
-                            image.OwnerUuid = cast.Uuid;
-                            image.OwnerType = "cast";
-                            image.Status = 1;
-                            _context.Images.Update(image);
-                            _context.SaveChanges();
-                        }
-                    }
                 }
                 else
                 //cập nhập dữ liệu
                 {
-                    var cast = _context.Cast.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
-                    if (cast != null)
+                    var coupon = _context.Coupon.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
+                    if (coupon == null)
                     {
-                        cast.CastName = request.CastName;
-                        cast.Birthday = request.Birthday;
-                        cast.Description = request.Description;
-                        cast.Status = 1;
-                        
-                        if (!string.IsNullOrEmpty(request.ImagesUuid))
-                        {
-                            var oldImageUuid = _context.Images.Where(x => x.OwnerUuid == request.Uuid && x.Status == 1).Select(u => u.Path).FirstOrDefault();
-                            if(oldImageUuid != request.ImagesUuid)
-                            {
-                                var newimage = _context.Images.FirstOrDefault(img => img.Uuid == request.ImagesUuid);
-                                if (newimage != null)
-                                {
-                                    var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid && img.Status == 1);
-                                    if (oldImage != null)
-                                    {
-                                        oldImage.Status = 0;
-                                        _context.Images.Update(oldImage);
-                                    }
-                                    newimage.OwnerUuid = cast.Uuid;
-                                    newimage.OwnerType = "cast";
-                                    newimage.Status = 1;
-                                    _context.Images.Update(newimage);
-                                    _context.SaveChanges();
-                                }
-                            
-                            }
-                        }
-                        else
-                        {
-                            var oldImage = _context.Images.FirstOrDefault(img => img.OwnerUuid == request.Uuid && img.Status == 1);
-                            if (oldImage != null)
-                            {
-                                oldImage.Status = 0;
-                                _context.Images.Update(oldImage);
-                                _context.SaveChanges();
-                            }
-                        }    
+                        throw new ErrorException(ErrorCode.NOT_FOUND);
+                    }
+                    if (coupon != null)
+                    {
+                        coupon.Code = request.Code;
+                        coupon.Quantity = request.Quantity;
+                        coupon.Discount = request.Discount;
+                        coupon.StartDate = request.StartDate;
+                        coupon.EndDate = request.EndDate;
+                        coupon.Status = request.Status;
+                        _context.Coupon.Update(coupon);
                         _context.SaveChanges();
                     }
                     else
@@ -132,11 +98,11 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("page_list_cast")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<CastDTO>), description: "GetPageListCast Response")]
-        public async Task<IActionResult> GetPageListCast(DpsPagingParamBase request)
+        [HttpPost("page_list_coupon")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<CouponDTO>), description: "GetPageListCoupon Response")]
+        public async Task<IActionResult> GetPageListCoupon(DpsPagingParamBase request)
         {
-            var response = new BaseResponseMessagePage<CastDTO>();
+            var response = new BaseResponseMessagePage<CouponDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -145,28 +111,30 @@ namespace CinemaAPI.Controllers
             }
             try
             {
-                var query = _context.Cast;
-                var lstCast = query.ToList();
+                var query = _context.Coupon;
+                var lstCoupon = query.Where(x => x.Status != 0).ToList();
                 var totalcount = query.Count();
 
-                if (lstCast != null && lstCast.Count > 0)
+                if (lstCoupon != null && lstCoupon.Count > 0)
                 {
-                    var result = lstCast.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
+                    var result = lstCoupon.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
                     if (result != null && result.Count > 0)
                     {
-                        response.Data.Items = new List<CastDTO>();
+                        response.Data.Items = new List<CouponDTO>();
                     }
-                    foreach (var cast in result)
+                    foreach (var coupon in result)
                     {
-                        var convertItemDTO = new CastDTO()
+                        var convertItemDTO = new CouponDTO()
                         {
-                            Uuid = cast.Uuid,
-                            CastName = cast.CastName,
-                            Birthday = cast.Birthday,
-                            Description = cast.Description,
-                            ImageUrl = _context.Images.Where(x => cast.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
-                            TimeCreated = cast.TimeCreated,
-                            Status = cast.Status,
+                            Uuid = coupon.Uuid,
+                            Code = coupon.Code,
+                            Quantity = coupon.Quantity,
+                            Used = coupon.Used,
+                            Discount = coupon.Discount,
+                            StartDate = coupon.StartDate, 
+                            EndDate = coupon.EndDate,
+
+                            Status = coupon.Status,
                         };
                         response.Data.Items.Add(convertItemDTO);
                     }
@@ -188,11 +156,11 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("cast_detail")]
-        [SwaggerResponse(statusCode: 200, type: typeof(CastDTO), description: "GetCastDetail Response")]
-        public async Task<IActionResult> GetCastDetail(UuidRequest request)
+        [HttpPost("coupon_detail")]
+        [SwaggerResponse(statusCode: 200, type: typeof(CouponDTO), description: "GetCouponDetail Response")]
+        public async Task<IActionResult> GetCouponDetail(UuidRequest request)
         {
-            var response = new BaseResponseMessage<CastDTO>();
+            var response = new BaseResponseMessage<CouponDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -202,20 +170,22 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                //TODO: Write code late
-
-                var castdetail = _context.Cast.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-                if (castdetail != null)
+                var coupondetail = _context.Coupon.Where(x => x.Uuid == request.Uuid && x.Status != 0).SingleOrDefault();
+                if (coupondetail == null)
                 {
-                    response.Data = new CastDTO()
+                    throw new ErrorException(ErrorCode.NOT_FOUND);
+                }
+                if (coupondetail != null)
+                {
+                    response.Data = new CouponDTO()
                     {
-                        Uuid = castdetail.Uuid,
-                        CastName = castdetail.CastName,
-                        Birthday = castdetail.Birthday,
-                        Description = castdetail.Description,
-                        ImageUrl = _context.Images.Where(x => castdetail.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
-                        TimeCreated = castdetail.TimeCreated,
-                        Status = castdetail.Status,
+                        Uuid = coupondetail.Uuid,
+                        Code = coupondetail.Code,
+                        Quantity = coupondetail.Quantity,
+                        Discount = coupondetail.Discount,
+                        StartDate = coupondetail.StartDate,
+                        EndDate = coupondetail.EndDate,
+                        Status = coupondetail.Status,
                     };
 
                 }
@@ -228,9 +198,9 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("update_cast_status")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateCastStatus Response")]
-        public async Task<IActionResult> UpdateCastStatus(UpdateStatusRequest request)
+        [HttpPost("update_coupon_status")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateCouponStatus Response")]
+        public async Task<IActionResult> UpdateCouponStatus(UpdateStatusRequest request)
         {
             var response = new BaseResponse();
 
@@ -242,16 +212,11 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                var caststatus = _context.Cast.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                var couponstatus = _context.Coupon.Where(x => x.Uuid == request.Uuid && x.Status != 0).SingleOrDefault();
 
-                if (caststatus != null)
+                if (couponstatus != null)
                 {
-                    caststatus.Status = request.Status;
-                    var img = _context.Images.Where(x => x.OwnerUuid == request.Uuid && x.Status == 1).SingleOrDefault();
-                    if (img != null)
-                    {
-                        img.Status = request.Status;
-                    }
+                    couponstatus.Status = request.Status;
                     _context.SaveChanges();
                 }
                 else

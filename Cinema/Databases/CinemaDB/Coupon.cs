@@ -17,10 +17,15 @@ public partial class Coupon
 
     public int Discount { get; set; }
 
-    public DateTime ExpiredDate { get; set; }
+    public DateTime StartDate { get; set; }
+
+    public DateTime EndDate { get; set; }
 
     public DateTime TimeCreated { get; set; }
 
+    /// <summary>
+    /// 0-Không sử dụng,1-Kích hoạt,2-Ẩn
+    /// </summary>
     public sbyte Status { get; set; }
 
     public virtual ICollection<Bill> Bill { get; set; } = new List<Bill>();

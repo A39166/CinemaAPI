@@ -342,13 +342,17 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Discount)
                 .HasColumnType("int(11)")
                 .HasColumnName("discount");
-            entity.Property(e => e.ExpiredDate)
+            entity.Property(e => e.EndDate)
                 .HasColumnType("datetime")
-                .HasColumnName("expired_date");
+                .HasColumnName("end_date");
             entity.Property(e => e.Quantity)
                 .HasColumnType("int(11)")
                 .HasColumnName("quantity");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("start_date");
             entity.Property(e => e.Status)
+                .HasComment("0-Không sử dụng,1-Kích hoạt,2-Ẩn")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
             entity.Property(e => e.TimeCreated)

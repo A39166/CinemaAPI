@@ -6,13 +6,13 @@ namespace CinemaAPI.Models.Request
 {
     public class UpsertCouponRequest: UuidRequest
     {
-        public string CastName { get; set; }
-        public DateOnly? Birthday { get; set; }
-        public string? Description {  get; set; }
-        public DateTime TimeCreated { get; set; }
+        public string Code { get; set; }
+        public int Quantity { get; set; }
+        public int Discount {  get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         [DefaultValue(1)]
         public sbyte Status {  get; set; }
-        public string? ImagesUuid { get; set; }
 
     }
 }

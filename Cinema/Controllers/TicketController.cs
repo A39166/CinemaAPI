@@ -62,7 +62,7 @@ namespace CinemaAPI.Controllers
                 else
                 //cập nhập dữ liệu
                 {
-                    var ticket = _context.Ticket.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
+                    var ticket = _context.Ticket.Where(x => x.Uuid == request.Uuid && x.Status != 0).FirstOrDefault();
                     if(ticket == null)
                     {
                         throw new ErrorException(ErrorCode.NOT_FOUND);
@@ -159,7 +159,7 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                var ticket = _context.Ticket.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                var ticket = _context.Ticket.Where(x => x.Uuid == request.Uuid && x.Status != 0).SingleOrDefault();
                 if (ticket != null)
                 {
                     response.Data = new TicketDTO()
@@ -195,7 +195,7 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                var ticket = _context.Ticket.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                var ticket = _context.Ticket.Where(x => x.Uuid == request.Uuid && x.Status != 0).SingleOrDefault();
 
                 if (ticket != null)
                 {
