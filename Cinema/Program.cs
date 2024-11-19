@@ -3,6 +3,7 @@ using CinemaAPI.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,23 @@ builder.Services.AddCors(options =>
                   .AllowAnyMethod();
         });
 });
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+
+    // Đăng ký công việc
+    var jobKey = new JobKey("UpdateShowtimeStateJob");
+    q.AddJob<UpdateShowtimeStateJob>(opts => opts.WithIdentity(jobKey));
+
+    // Lên lịch công việc
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("UpdateShowtimeStateTrigger")
+        .StartNow()
+        .WithCronSchedule("0 0/1 * * * ?") 
+    );
+});
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

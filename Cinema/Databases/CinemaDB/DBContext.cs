@@ -23,6 +23,8 @@ public partial class DBContext : DbContext
 
     public virtual DbSet<Combo> Combo { get; set; }
 
+    public virtual DbSet<Coupon> Coupon { get; set; }
+
     public virtual DbSet<Director> Director { get; set; }
 
     public virtual DbSet<Genre> Genre { get; set; }
@@ -69,6 +71,8 @@ public partial class DBContext : DbContext
 
             entity.ToTable("bill");
 
+            entity.HasIndex(e => e.CouponUuid, "fk_cp_uuid_bill_ref");
+
             entity.HasIndex(e => e.ShowtimeUuid, "fk_showtime_uuid_bill_ref");
 
             entity.HasIndex(e => e.UserUuid, "fk_user_uuid_bill_ref");
@@ -107,6 +111,12 @@ public partial class DBContext : DbContext
                 .HasDefaultValueSql("uuid()")
                 .IsFixedLength()
                 .HasColumnName("uuid");
+
+            entity.HasOne(d => d.CouponUu).WithMany(p => p.Bill)
+                .HasPrincipalKey(p => p.Uuid)
+                .HasForeignKey(d => d.CouponUuid)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("fk_cp_uuid_bill_ref");
 
             entity.HasOne(d => d.ShowtimeUu).WithMany(p => p.Bill)
                 .HasPrincipalKey(p => p.Uuid)
@@ -308,6 +318,45 @@ public partial class DBContext : DbContext
                 .HasDefaultValueSql("current_timestamp()")
                 .HasColumnType("timestamp")
                 .HasColumnName("time_created");
+            entity.Property(e => e.Uuid)
+                .HasMaxLength(36)
+                .HasDefaultValueSql("uuid()")
+                .IsFixedLength()
+                .HasColumnName("uuid");
+        });
+
+        modelBuilder.Entity<Coupon>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("coupon");
+
+            entity.HasIndex(e => e.Uuid, "unq_uuid").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.Code)
+                .HasMaxLength(50)
+                .HasColumnName("code");
+            entity.Property(e => e.Discount)
+                .HasColumnType("int(11)")
+                .HasColumnName("discount");
+            entity.Property(e => e.ExpiredDate)
+                .HasColumnType("datetime")
+                .HasColumnName("expired_date");
+            entity.Property(e => e.Quantity)
+                .HasColumnType("int(11)")
+                .HasColumnName("quantity");
+            entity.Property(e => e.Status)
+                .HasColumnType("tinyint(4)")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("time_created");
+            entity.Property(e => e.Used)
+                .HasColumnType("int(11)")
+                .HasColumnName("used");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
                 .HasDefaultValueSql("uuid()")

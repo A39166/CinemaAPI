@@ -88,6 +88,10 @@ namespace CinemaAPI.Controllers
                 //cập nhập dữ liệu
                 {
                     var showtime = _context.Showtimes.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
+                    if(showtime.State != 0)
+                    {
+                        throw new ErrorException(ErrorCode.CANT_UPDATE_SHOWTIME);
+                    }
                     if (showtime != null)
                     {
                         showtime.MoviesUuid = request.MoviesUuid;
@@ -235,6 +239,7 @@ namespace CinemaAPI.Controllers
                         StartTime = st.StartTime,
                         EndTime = st.EndTime,
                         Status = st.Status,
+                        State = st.State,
                     };
                 }
                 return Ok(response);
@@ -281,6 +286,52 @@ namespace CinemaAPI.Controllers
 
                 return BadRequest(response);
             }
+        }
+        [HttpPost("update_showtime_state")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "Update Showtime State Response")]
+        public async Task<IActionResult> UpdateShowtimeState()
+        {
+            var response = new BaseResponse();
+            try
+            {
+                var currentTime = DateTime.Now;
+
+                // Lấy danh sách suất chiếu cần cập nhật
+                var lstShowtimes = _context.Showtimes
+                                           .Where(st => st.Status != 2) // Chỉ cập nhật các suất chưa kết thúc
+                                           .ToList();
+
+                if (lstShowtimes != null && lstShowtimes.Count > 0)
+                {
+                    foreach (var showtime in lstShowtimes)
+                    {
+                        if (showtime.StartTime <= TimeOnly.FromDateTime(currentTime) && TimeOnly.FromDateTime(currentTime) <= showtime.EndTime)
+                        {
+                            showtime.Status = 1; // Đang diễn ra
+                        }
+                        else if (TimeOnly.FromDateTime(currentTime) > showtime.EndTime)
+                        {
+                            showtime.Status = 2; // Đã kết thúc
+                        }
+                    }
+
+                    // Lưu thay đổi vào cơ sở dữ liệu
+                    await _context.SaveChangesAsync();
+
+                    response.error.SetErrorCode(ErrorCode.SUCCESS);
+                }
+                else
+                {
+                    response.error.SetErrorCode(ErrorCode.NO_DATA);
+                }
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+            }
+
+            return Ok(response);
         }
     }
 }

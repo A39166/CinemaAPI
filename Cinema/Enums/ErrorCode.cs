@@ -74,5 +74,14 @@ namespace CinemaAPI.Enums
 
         [Description("Đã có suất chiếu này!")]
         DUPLICATED_SHOWTIME = 36,
+
+        [Description("Không có dữ liệu cần update!")]
+        NO_DATA = 37,
+
+        [Description("Chỉ được cập nhật suất chiếu khi trạng thái là Sắp chiếu!")]
+        CANT_UPDATE_SHOWTIME = 38,
+
+        [Description("Phòng chiếu đang có suất chiếu đang chiếu!")]
+        CANT_UPDATE_SCREEN = 39,
     }
 }

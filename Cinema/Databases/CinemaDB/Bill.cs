@@ -27,6 +27,8 @@ public partial class Bill
 
     public virtual ICollection<Booking> Booking { get; set; } = new List<Booking>();
 
+    public virtual Coupon? CouponUu { get; set; }
+
     public virtual Showtimes ShowtimeUu { get; set; } = null!;
 
     public virtual User UserUu { get; set; } = null!;

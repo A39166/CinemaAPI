@@ -1,5 +1,4 @@
-﻿using CinemaAPI.Models.BaseRequest;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace CinemaAPI.Models.DataInfo
 {
@@ -10,6 +9,7 @@ namespace CinemaAPI.Models.DataInfo
         public string ScreenUuid { get; set; }
         public sbyte ScreenType { get; set; }
         public sbyte LanguageType { get; set; }
+        public sbyte State { get; set; }
         public DateOnly ShowDate { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }

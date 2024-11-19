@@ -1,5 +1,4 @@
-﻿using CinemaAPI.Models.BaseRequest;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace CinemaAPI.Models.DataInfo
 {
