@@ -376,43 +376,7 @@ namespace CinemaAPI.Controllers
             }
         }
 
-        [HttpPost("category-screen-type")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<CategoryDTO>), description: "GetCategoryScreenType Response")]
-        public async Task<IActionResult> GetCategoryScreenType(BaseCategoryRequest request)
-        {
-            var response = new BaseResponseMessageItem<CategoryDTO>();
-
-            var validToken = validateToken(_context);
-            if (validToken is null)
-            {
-                return Unauthorized();
-            }
-
-            try
-            {
-                var screentype = _context.ScreenType.Where(x => string.IsNullOrEmpty(request.Keyword)
-                                                        || EF.Functions.Like(x.Type + " " + x.Name, $"%{request.Keyword}%"))
-                                                 .ToList();
-                if (screentype != null)
-                {
-                    response.Data = screentype.Select(st => new CategoryDTO
-                    {
-                        Uuid = st.Uuid,
-                        Name = st.Name,
-                        Type = st.Type,
-                    }).ToList();
-                }
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
-                _logger.LogError(ex.Message);
-
-                return BadRequest(response);
-            }
-        }
+        
 
         [HttpPost("category-seat-type")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<CategoryDTO>), description: "GetCategorySeatType Response")]
