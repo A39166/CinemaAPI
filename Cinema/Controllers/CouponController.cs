@@ -19,21 +19,21 @@ namespace CinemaAPI.Controllers
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [ApiVersion("1")]
-    [SwaggerTag("Cast Controller")]
-    public class CastController : BaseController
+    [SwaggerTag("Coupon Controller")]
+    public class CouponController : BaseController
     {
-        private readonly ILogger<CastController> _logger;
+        private readonly ILogger<CouponController> _logger;
         private readonly DBContext _context;
 
-        public CastController(DBContext context, ILogger<CastController> logger)
+        public CouponController(DBContext context, ILogger<CouponController> logger)
         {
 
             _context = context;
             _logger = logger;
         }
-        [HttpPost("upsert_cast")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertCast Response")]
-        public async Task<IActionResult> UpsertCast(UpsertCastRequest request)
+        [HttpPost("upsert_coupon")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpsertCoupon Response")]
+        public async Task<IActionResult> UpsertCoupon(UpsertCastRequest request)
         {
             var response = new BaseResponse();
 
