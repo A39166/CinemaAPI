@@ -55,22 +55,29 @@ namespace CinemaAPI.Controllers
                 {
                     throw new ErrorException(ErrorCode.NOT_FOUND);
                 }
-                bool exists = _context.Showtimes.Any(s =>
+                
+                if (string.IsNullOrEmpty(request.Uuid))
+                {
+                    bool exists = _context.Showtimes.Any(s =>
                                                         s.MoviesUuid == request.MoviesUuid &&
                                                         s.ScreenUuid == request.ScreenUuid &&
                                                         s.StartTime == request.StartTime &&
                                                         s.ShowDate == request.ShowDate &&
                                                         s.State != 0 &&
-                                                        s.Status == 1
+                                                        s.Status == 1 && (
+                                                        (
+                                                        // Kiểm tra nếu thời gian bắt đầu hoặc kết thúc của suất chiếu bị trùng
+                                                        (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) ||
+                                                        (request.EndTime > s.StartTime && request.EndTime <= s.EndTime) ||
+                                                        // Hoặc suất chiếu hiện tại nằm trong khoảng của một suất chiếu khác
+                                                        (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime)
+    ))
                                                     );
 
-                if (exists)
-                {
-                    throw new ErrorException(ErrorCode.DUPLICATED_SHOWTIME);
-                }
-                if (string.IsNullOrEmpty(request.Uuid))
-                {
-                    
+                    if (exists)
+                    {
+                        throw new ErrorException(ErrorCode.DUPLICATED_SHOWTIME);
+                    }
                     var st = new Showtimes()
                     {
                         Uuid = Guid.NewGuid().ToString(),
@@ -94,6 +101,24 @@ namespace CinemaAPI.Controllers
                     {
                         throw new ErrorException(ErrorCode.CANT_UPDATE_SHOWTIME);
                     }
+                    bool exists = _context.Showtimes.Any(s =>
+                                    s.Uuid != request.Uuid && // Loại trừ suất chiếu đang cập nhật
+                                    s.MoviesUuid == request.MoviesUuid &&
+                                    s.ScreenUuid == request.ScreenUuid &&
+                                    s.ShowDate == request.ShowDate &&
+                                    s.State != 0 &&
+                                    s.Status == 1 &&
+                                    (
+                                        (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) || // Trùng thời gian bắt đầu
+                                        (request.EndTime > s.StartTime && request.EndTime <= s.EndTime) ||    // Trùng thời gian kết thúc
+                                        (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime)    // Bao phủ toàn bộ suất chiếu khác
+        )
+    );
+
+                    if (exists)
+                    {
+                        throw new ErrorException(ErrorCode.DUPLICATED_SHOWTIME, "Showtime overlaps with an existing schedule.");
+                    }
                     if (showtime != null)
                     {
                         showtime.MoviesUuid = request.MoviesUuid;
@@ -112,6 +137,11 @@ namespace CinemaAPI.Controllers
                     }
                 }
                 return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
             }
             catch (Exception ex)
             {
@@ -199,6 +229,11 @@ namespace CinemaAPI.Controllers
 
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -246,6 +281,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -280,6 +320,11 @@ namespace CinemaAPI.Controllers
                     response.error.SetErrorCode(ErrorCode.NOT_FOUND);
                 }
                 return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
             }
             catch (Exception ex)
             {
@@ -326,6 +371,11 @@ namespace CinemaAPI.Controllers
                 {
                     response.error.SetErrorCode(ErrorCode.NO_DATA);
                 }
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
             }
             catch (Exception ex)
             {

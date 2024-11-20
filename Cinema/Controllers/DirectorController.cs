@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using CinemaAPI.Models.DataInfo;
 using CinemaAPI.Extensions;
 using System.IO;
+using CinemaAPI.Configuaration;
 
 namespace CinemaAPI.Controllers
 {
@@ -119,6 +120,11 @@ namespace CinemaAPI.Controllers
                         response.error.SetErrorCode(ErrorCode.NOT_FOUND);
                     }
                 }
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
                 return Ok(response);
             }
             catch (Exception ex)

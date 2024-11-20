@@ -272,6 +272,14 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response = new BaseResponseMessage<MoviesDTO>();
+                response.error.SetErrorCode(ex.Code);
+
+
+                return Ok(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);

@@ -44,16 +44,16 @@ namespace CinemaAPI.Controllers
             }
             try
             {
-                var ticketcheck = _context.Ticket.Where(x => x.DateState == request.DateState &&
-                                                   x.SeatTypeUu.Uuid == request.SeatTypeUuid &&
-                                                   x.ScreenTypeUu.Uuid == request.ScreenTypeUuid).FirstOrDefault();
-                if(ticketcheck != null)
-                {
-                    throw new ErrorException(ErrorCode.DUPLICATE_TICKET_PRICE);
-                }
+                
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
-
+                    var ticketcheck = _context.Ticket.Where(x => x.DateState == request.DateState &&
+                                                   x.SeatTypeUu.Uuid == request.SeatTypeUuid &&
+                                                   x.ScreenTypeUu.Uuid == request.ScreenTypeUuid).FirstOrDefault();
+                    if (ticketcheck != null)
+                    {
+                        throw new ErrorException(ErrorCode.DUPLICATE_TICKET_PRICE);
+                    }
                     var ticket = new Ticket()
                     {
                         Uuid = Guid.NewGuid().ToString(),
@@ -89,6 +89,11 @@ namespace CinemaAPI.Controllers
                     }
                 }
                 return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
             }
             catch (Exception ex)
             {
@@ -144,6 +149,11 @@ namespace CinemaAPI.Controllers
 
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -181,6 +191,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -215,6 +230,11 @@ namespace CinemaAPI.Controllers
                     response.error.SetErrorCode(ErrorCode.NOT_FOUND);
                 }
                 return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
             }
             catch (Exception ex)
             {

@@ -90,6 +90,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -148,6 +153,11 @@ namespace CinemaAPI.Controllers
 
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -191,6 +201,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -223,6 +238,11 @@ namespace CinemaAPI.Controllers
                 {
                     response.error.SetErrorCode(ErrorCode.NOT_FOUND);
                 }
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
                 return Ok(response);
             }
             catch (Exception ex)

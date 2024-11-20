@@ -12,6 +12,7 @@ using CinemaAPI.Models.DataInfo;
 using CinemaAPI.Extensions;
 using System.IO;
 using System.Net;
+using CinemaAPI.Configuaration;
 
 namespace CinemaAPI.Controllers
 {
@@ -77,6 +78,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -132,6 +138,11 @@ namespace CinemaAPI.Controllers
 
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -169,6 +180,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -202,6 +218,11 @@ namespace CinemaAPI.Controllers
                 {
                     response.error.SetErrorCode(ErrorCode.NOT_FOUND);
                 }
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
                 return Ok(response);
             }
             catch (Exception ex)
