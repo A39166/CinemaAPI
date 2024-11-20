@@ -188,6 +188,7 @@ namespace CinemaAPI.Controllers
                             Uuid = movies.Uuid,
                             Title = movies.Title,
                             Rated = movies.Rated,
+                            Duration = movies.Duration,
                             RealeaseDate = movies.RealeaseDate,
                             TimeCreated = movies.TimeCreated,
                             Status = movies.Status,

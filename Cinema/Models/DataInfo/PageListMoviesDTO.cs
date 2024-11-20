@@ -10,6 +10,7 @@ namespace CinemaAPI.Models.DataInfo
 
         public string Title { get; set; } 
         public int Rated { get; set; }
+        public int Duration { get; set; }
         public DateOnly RealeaseDate { get; set; }
         public DateTime TimeCreated { get; set; }
 
