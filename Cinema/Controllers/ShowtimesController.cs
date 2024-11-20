@@ -59,7 +59,9 @@ namespace CinemaAPI.Controllers
                                                         s.MoviesUuid == request.MoviesUuid &&
                                                         s.ScreenUuid == request.ScreenUuid &&
                                                         s.StartTime == request.StartTime &&
-                                                        s.ShowDate == request.ShowDate
+                                                        s.ShowDate == request.ShowDate &&
+                                                        s.State != 0 &&
+                                                        s.Status == 1
                                                     );
 
                 if (exists)

@@ -19,7 +19,7 @@ namespace CinemaAPI.Models.DataInfo
 
         public int Rated { get; set; }
 
-        public float AverageReview { get; set; }
+        public double AverageReview { get; set; }
 
         public string? DirectorUuid { get; set; }
 

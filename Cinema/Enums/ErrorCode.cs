@@ -83,5 +83,8 @@ namespace CinemaAPI.Enums
 
         [Description("Phòng chiếu đang có suất chiếu đang chiếu!")]
         CANT_UPDATE_SCREEN = 39,
+
+        [Description("Đã có giá vé này!")]
+        DUPLICATE_TICKET_PRICE = 40,
     }
 }

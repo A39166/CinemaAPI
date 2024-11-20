@@ -82,6 +82,9 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
+            entity.Property(e => e.Code)
+                .HasMaxLength(255)
+                .HasColumnName("code");
             entity.Property(e => e.CouponUuid)
                 .HasMaxLength(36)
                 .IsFixedLength()

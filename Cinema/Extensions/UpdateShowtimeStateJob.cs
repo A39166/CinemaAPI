@@ -23,6 +23,7 @@ public class UpdateShowtimeStateJob : IJob
              .Where(st => st.State == 0)  // Suất chiếu có trạng thái là chưa bắt đầu
              .AsEnumerable()  // Chuyển sang client-side để sử dụng TimeOnly và các phương thức không hỗ trợ trong LINQ to Entities
              .Where(st => st.StartTime.ToTimeSpan() <= currentTime)  // So sánh StartTime với currentTime
+             .Where(st => st.ShowDate == DateOnly.FromDateTime(currentDateTime))
              .ToList();
 
             foreach (var showtime in upcomingShowtimes)
@@ -35,6 +36,7 @@ public class UpdateShowtimeStateJob : IJob
                 .Where(st => st.State == 1)  // Suất chiếu đang chiếu
                 .AsEnumerable()  // Chuyển sang client-side
                 .Where(st => st.EndTime.ToTimeSpan() <= currentTime)  // So sánh EndTime với currentTime
+                .Where(st => st.ShowDate == DateOnly.FromDateTime(currentDateTime))
                 .ToList();
 
             foreach (var showtime in ongoingShowtimes)
@@ -43,8 +45,6 @@ public class UpdateShowtimeStateJob : IJob
             }
 
             // Lưu thay đổi vào cơ sở dữ liệu
-            await _context.SaveChangesAsync();
-
             await _context.SaveChangesAsync();
         }
         catch (Exception ex)

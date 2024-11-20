@@ -24,7 +24,7 @@ public partial class Movies
     /// </summary>
     public sbyte Rated { get; set; }
 
-    public float AverageReview { get; set; }
+    public double AverageReview { get; set; }
 
     public string DirectorUuid { get; set; } = null!;
 

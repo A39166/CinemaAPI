@@ -44,6 +44,13 @@ namespace CinemaAPI.Controllers
             }
             try
             {
+                var ticketcheck = _context.Ticket.Where(x => x.DateState == request.DateState &&
+                                                   x.SeatTypeUu.Uuid == request.SeatTypeUuid &&
+                                                   x.ScreenTypeUu.Uuid == request.ScreenTypeUuid).FirstOrDefault();
+                if(ticketcheck != null)
+                {
+                    throw new ErrorException(ErrorCode.DUPLICATE_TICKET_PRICE);
+                }
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
 

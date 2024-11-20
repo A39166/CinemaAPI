@@ -9,6 +9,8 @@ public partial class Bill
 
     public string Uuid { get; set; } = null!;
 
+    public string Code { get; set; } = null!;
+
     public string UserUuid { get; set; } = null!;
 
     public string ShowtimeUuid { get; set; } = null!;

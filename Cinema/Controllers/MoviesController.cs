@@ -171,7 +171,7 @@ namespace CinemaAPI.Controllers
             try
             {
                 var query = _context.Movies;
-                var lstMovies = query.ToList();
+                var lstMovies = query.Where(x => x.Status != 0).ToList();
                 var totalcount = lstMovies.Count();
 
                 if (lstMovies != null && lstMovies.Count > 0)
@@ -336,6 +336,49 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost("page_list_movies_home")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListMoviesHomeDTO>), description: "GetPageListMoviesHome Response")]
+        public async Task<IActionResult> GetPageListMoviesHome()
+        {
+            var response = new BaseResponseMessageItem<PageListMoviesHomeDTO>();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                response.Data = _context.Movies.Where(x => x.Status == 1 && x.Status == 3).Select(movies => new PageListMoviesHomeDTO
+                {
+                    Uuid = movies.Uuid,
+                    Title = movies.Title,
+                    Rated = movies.Rated,
+                    Trailer = movies.Trailer,
+                    AverageReview = movies.AverageReview,
+                    ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
+                    Genre = _context.MoviesGenre.Where(mg => mg.MoviesUuid == movies.Uuid)
+                            .Select(mg => new ShortCategoryDTO
+                            {
+                                Uuid = mg.GenreUu.Uuid,
+                                Name = mg.GenreUu.GenreName
+                            })
+                            .ToList(),
+                    Status = movies.Status,
+                }).ToList();
+                
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+
         private void AddCast(string movieUuid, List<string> CastUuid)
         {
             foreach (var cast in CastUuid)
@@ -477,5 +520,7 @@ namespace CinemaAPI.Controllers
                 }
             }
         }
+        
+
     }
     }

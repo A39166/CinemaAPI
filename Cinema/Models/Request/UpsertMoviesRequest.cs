@@ -10,7 +10,7 @@ namespace CinemaAPI.Models.Request
         public string? Description {  get; set; }
         public int Duration { get; set; }
         public sbyte Rated { get; set; }
-        public float AverageReview { get; set; }
+        public double AverageReview { get; set; }
         public DateOnly RealeaseDate { get; set; }
         [DefaultValue(2)]
         public sbyte Status {  get; set; }
