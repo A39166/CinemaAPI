@@ -49,10 +49,11 @@ namespace CinemaAPI.Controllers
                         Email = request.Email,
                         Fullname = request.Fullname,
                         Gender = request.Gender,
+                        PhoneNumber = request.PhoneNumber,
                         Birthday = request.Birthday,
                         Password = request.Password,
-                        Role = request.Role,
-                        Status = request.Status,
+                        Role =1,
+                        Status = 1,
                     };
                     _context.User.Add(user);
                     _context.SaveChanges();

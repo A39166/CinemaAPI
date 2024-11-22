@@ -414,34 +414,36 @@ namespace CinemaAPI.Controllers
             }
             try
             {
-                response.Data = _context.Cinemas.Include(c => c.Screen).ThenInclude(s => s.Showtimes).ThenInclude(m => m.MoviesUu)
-                                                  .Where(x => string.IsNullOrEmpty(request.MoviesUuid) ||
-                                                  x.Screen.Any(s => s.Showtimes.Any(st => st.MoviesUu.Uuid == request.MoviesUuid)))
-                                                  .Where(x => !request.FindDate.HasValue || x.Screen.Any(s => s.Showtimes.Any(st => st.ShowDate == request.FindDate)))
-                                                  .Where(x => x.Screen.Any(s => s.Showtimes.Any(st => st.Status == 1)))
-                .Select(showtime => new PageListShowtimesByMoviesDTO
+                var cinemas = _context.Cinemas
+                .Include(c => c.Screen)
+                .ThenInclude(s => s.Showtimes)
+                .ThenInclude(st => st.MoviesUu)
+                .Where(x => string.IsNullOrEmpty(request.MoviesUuid) ||
+                            x.Screen.Any(s => s.Showtimes.Any(st => st.MoviesUu.Uuid == request.MoviesUuid)))
+                .Where(x => !request.FindDate.HasValue || x.Screen.Any(s => s.Showtimes.Any(st => st.ShowDate == request.FindDate)))
+                .Where(x => x.Screen.Any(s => s.Showtimes.Any(st => st.Status == 1)))
+                .Select(cinema => new PageListShowtimesByMoviesDTO
                 {
-                    CinemaName = showtime.CinemaName,
-                    Address = showtime.Address,
-                    Location = showtime.Location,
-                    Screens = _context.Showtimes.Where(s => s.MoviesUuid == request.MoviesUuid && s.Status == 2)
-                    .GroupBy(s => new
+                    CinemaName = cinema.CinemaName,
+                    Address = cinema.Address,
+                    Location = cinema.Location,
+                    Screens = cinema.Screen.Select(screen => new ScreenGroupDTO
                     {
-                        ScreenTypeLanguage = s.ScreenUu.ScreenTypeUu.Name + " - " +
-                         (s.LanguageType == 1 ? "Phụ đề" : "Lồng tiếng")
-                    }).Select(group => new ScreenGroupDTO
-                    {
-                        ScreenTypeLanguage = group.Key.ScreenTypeLanguage,
-                        Showtimes = group.Select(showtime => new FormShowtimesByMoviesDTO
+                        ScreenTypeName = screen.ScreenTypeUu != null ? screen.ScreenTypeUu.Name : "Không có thông tin", // Kiểm tra null trước khi truy cập
+                        LanguageType = screen.Showtimes != null && screen.Showtimes.Any() ?
+               (screen.Showtimes.FirstOrDefault() != null && screen.Showtimes.FirstOrDefault().LanguageType == 1 ? "Phụ đề" : "Lồng tiếng") : "Không có thông tin",
+
+                        Showtimes = screen.Showtimes != null ? screen.Showtimes.Select(showtime => new FormShowtimesByMoviesDTO
                         {
                             StartTime = showtime.StartTime,
                             EndTime = showtime.EndTime,
                             ShowDate = showtime.ShowDate,
-                            Status = showtime.Status
-                        }).ToList()
+                            Status = showtime.Status,
+                            Uuid = showtime.Uuid
+                        }).ToList() : new List<FormShowtimesByMoviesDTO>() // Nếu Showtimes là null, trả về danh sách rỗng
                     }).ToList()
                 }).ToList();
-                    
+                response.Data = cinemas;
                 return Ok(response);
             }
             catch (ErrorException ex)

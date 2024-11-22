@@ -15,11 +15,12 @@ namespace CinemaAPI.Models.DataInfo
         public string CinemaName { get; set; }
         public string Address { get; set; }
         public string Location { get; set; }
-        public List<ScreenGroupDTO> Screens { get; set; }
+        public List<ScreenGroupDTO>? Screens { get; set; }
     }
     public class ScreenGroupDTO
     {
-        public string ScreenTypeLanguage {get; set; }
+        public string ScreenTypeName {get; set; }
+        public string LanguageType { get; set; }
         public List<FormShowtimesByMoviesDTO>? Showtimes { get; set; }
     }
 }
