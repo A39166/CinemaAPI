@@ -61,9 +61,7 @@ namespace CinemaAPI.Controllers
                     bool exists = _context.Showtimes.Any(s =>
                                                         s.MoviesUuid == request.MoviesUuid &&
                                                         s.ScreenUuid == request.ScreenUuid &&
-                                                        s.StartTime == request.StartTime &&
                                                         s.ShowDate == request.ShowDate &&
-                                                        s.State != 0 &&
                                                         s.Status == 1 && (
                                                         (
                                                         // Kiểm tra nếu thời gian bắt đầu hoặc kết thúc của suất chiếu bị trùng
@@ -77,6 +75,14 @@ namespace CinemaAPI.Controllers
                     if (exists)
                     {
                         throw new ErrorException(ErrorCode.DUPLICATED_SHOWTIME);
+                    }
+                    var duration = _context.Movies.Where(x => x.Uuid == request.MoviesUuid).Select(m => m.Duration).FirstOrDefault();
+                    var movieDuration = TimeSpan.FromMinutes(duration);
+
+                    // Kiểm tra điều kiện
+                    if ((request.EndTime - request.StartTime) < movieDuration)
+                    {
+                        throw new ErrorException(ErrorCode.INVALID_TIME);
                     }
                     var st = new Showtimes()
                     {
@@ -106,7 +112,6 @@ namespace CinemaAPI.Controllers
                                     s.MoviesUuid == request.MoviesUuid &&
                                     s.ScreenUuid == request.ScreenUuid &&
                                     s.ShowDate == request.ShowDate &&
-                                    s.State != 0 &&
                                     s.Status == 1 &&
                                     (
                                         (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) || // Trùng thời gian bắt đầu
@@ -117,7 +122,15 @@ namespace CinemaAPI.Controllers
 
                     if (exists)
                     {
-                        throw new ErrorException(ErrorCode.DUPLICATED_SHOWTIME, "Showtime overlaps with an existing schedule.");
+                        throw new ErrorException(ErrorCode.DUPLICATED_SHOWTIME);
+                    }
+                    var duration = _context.Movies.Where(x => x.Uuid == request.MoviesUuid).Select(m => m.Duration).FirstOrDefault();
+                    var movieDuration = TimeSpan.FromMinutes(duration);
+
+                    // Kiểm tra điều kiện
+                    if ((request.EndTime - request.StartTime) < movieDuration)
+                    {
+                        throw new ErrorException(ErrorCode.INVALID_TIME);
                     }
                     if (showtime != null)
                     {
@@ -307,8 +320,11 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                var showtime = _context.Showtimes.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-
+                var showtime = _context.Showtimes.Where(x => x.Uuid == request.Uuid && x.Status != 0).SingleOrDefault();
+                if(showtime.State != 0)
+                {
+                    throw new ErrorException(ErrorCode.BAD_REQUEST);
+                }
                 if (showtime != null)
                 {
                     showtime.Status = request.Status;
@@ -384,6 +400,62 @@ namespace CinemaAPI.Controllers
             }
 
             return Ok(response);
+        }
+
+        [HttpPost("page_list_showtime_by_movies")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListShowtimesByMoviesDTO>), description: "GetPageListShowtimesByMovies Response")]
+        public async Task<IActionResult> GetPageListShowtimesByMovies(PageListShowtimesByMoviesRequest request)
+        {
+            var response = new BaseResponseMessageItem<PageListShowtimesByMoviesDTO>();
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                response.Data = _context.Cinemas.Include(c => c.Screen).ThenInclude(s => s.Showtimes).ThenInclude(m => m.MoviesUu)
+                                                  .Where(x => string.IsNullOrEmpty(request.MoviesUuid) ||
+                                                  x.Screen.Any(s => s.Showtimes.Any(st => st.MoviesUu.Uuid == request.MoviesUuid)))
+                                                  .Where(x => !request.FindDate.HasValue || x.Screen.Any(s => s.Showtimes.Any(st => st.ShowDate == request.FindDate)))
+                                                  .Where(x => x.Screen.Any(s => s.Showtimes.Any(st => st.Status == 1)))
+                .Select(showtime => new PageListShowtimesByMoviesDTO
+                {
+                    CinemaName = showtime.CinemaName,
+                    Address = showtime.Address,
+                    Location = showtime.Location,
+                    Screens = _context.Showtimes.Where(s => s.MoviesUuid == request.MoviesUuid && s.Status == 2)
+                    .GroupBy(s => new
+                    {
+                        ScreenTypeLanguage = s.ScreenUu.ScreenTypeUu.Name + " - " +
+                         (s.LanguageType == 1 ? "Phụ đề" : "Lồng tiếng")
+                    }).Select(group => new ScreenGroupDTO
+                    {
+                        ScreenTypeLanguage = group.Key.ScreenTypeLanguage,
+                        Showtimes = group.Select(showtime => new FormShowtimesByMoviesDTO
+                        {
+                            StartTime = showtime.StartTime,
+                            EndTime = showtime.EndTime,
+                            ShowDate = showtime.ShowDate,
+                            Status = showtime.Status
+                        }).ToList()
+                    }).ToList()
+                }).ToList();
+                    
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
         }
     }
 }

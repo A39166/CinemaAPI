@@ -72,7 +72,7 @@ namespace CinemaAPI.Enums
         [Description("Tài khoản này đã bị khóa!")]
         LOCKED_ACCOUNT = 35,
 
-        [Description("Đã có suất chiếu này!")]
+        [Description("Suất chiếu bị trùng lịch!")]
         DUPLICATED_SHOWTIME = 36,
 
         [Description("Không có dữ liệu cần update!")]
@@ -86,5 +86,9 @@ namespace CinemaAPI.Enums
 
         [Description("Đã có giá vé này!")]
         DUPLICATE_TICKET_PRICE = 40,
+
+        [Description("Tổng thời gian chiếu ít hơn thời lượng phim!")]
+        INVALID_TIME = 41,
+
     }
 }

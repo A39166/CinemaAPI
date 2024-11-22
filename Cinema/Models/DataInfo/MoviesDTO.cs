@@ -21,7 +21,6 @@ namespace CinemaAPI.Models.DataInfo
 
         public double AverageReview { get; set; }
 
-        public string? DirectorUuid { get; set; }
 
         public DateOnly RealeaseDate { get; set; }
 
@@ -30,6 +29,7 @@ namespace CinemaAPI.Models.DataInfo
         /// </summary>
         public sbyte Status { get; set; }
         public string? ImageUrl { get; set; }
+        public CategoryDTO Director { get; set; }
         public List<CategoryDTO> Genre {  get; set; }
         public List<CategoryDTO> Cast {  get; set; }
         public List<CategoryDTO> Region { get; set; }

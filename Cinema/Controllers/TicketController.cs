@@ -70,9 +70,17 @@ namespace CinemaAPI.Controllers
                 //cập nhập dữ liệu
                 {
                     var ticket = _context.Ticket.Where(x => x.Uuid == request.Uuid && x.Status != 0).FirstOrDefault();
-                    if(ticket == null)
+                    var ticketcheck = _context.Ticket.Where(x => x.Uuid != request.Uuid &&
+                                                   x.DateState == request.DateState &&
+                                                   x.SeatTypeUu.Uuid == request.SeatTypeUuid &&
+                                                   x.ScreenTypeUu.Uuid == request.ScreenTypeUuid).FirstOrDefault();
+                    if (ticket == null)
                     {
                         throw new ErrorException(ErrorCode.NOT_FOUND);
+                    }
+                    if (ticketcheck != null)
+                    {
+                        throw new ErrorException(ErrorCode.DUPLICATE_TICKET_PRICE);
                     }
                     if (ticket != null)
                     {

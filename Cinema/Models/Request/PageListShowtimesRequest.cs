@@ -12,4 +12,10 @@ namespace CinemaAPI.Models.Request
         public string? ScreenUuid { get; set; }
         public DateOnly? FindDate {  get; set; }
     }
+    public class PageListShowtimesByMoviesRequest
+    {
+
+        public string? MoviesUuid { get; set; }
+        public DateOnly? FindDate { get; set; }
+    }
 }

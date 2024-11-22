@@ -149,6 +149,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -244,7 +249,11 @@ namespace CinemaAPI.Controllers
                         Duration = movies.Duration,
                         Rated = movies.Rated,
                         AverageReview = movies.AverageReview,
-                        DirectorUuid = movies.DirectorUuid,
+                        Director = _context.Director.Where(md => md.Uuid == movies.DirectorUuid)
+                        .Select(md => new CategoryDTO{
+                            Uuid = md.Uuid,
+                            Name = md.DirectorName,
+                        }).FirstOrDefault(),
                         RealeaseDate = movies.RealeaseDate,
                         Status = movies.Status,
                         ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
@@ -273,6 +282,7 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+
             catch (ErrorException ex)
             {
                 response = new BaseResponseMessage<MoviesDTO>();
@@ -337,6 +347,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -348,7 +363,7 @@ namespace CinemaAPI.Controllers
 
         [HttpPost("page_list_movies_home")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListMoviesHomeDTO>), description: "GetPageListMoviesHome Response")]
-        public async Task<IActionResult> GetPageListMoviesHome()
+        public async Task<IActionResult> GetPageListMoviesHome(PageListMoviesHomeRequest request)
         {
             var response = new BaseResponseMessageItem<PageListMoviesHomeDTO>();
 
@@ -359,13 +374,24 @@ namespace CinemaAPI.Controllers
             }
             try
             {
-                response.Data = _context.Movies.Where(x => x.Status == 1 && x.Status == 3).Select(movies => new PageListMoviesHomeDTO
+                var query = _context.Movies.AsQueryable();
+
+                if (request.Status == 1)
+                {
+                    query = query.Where(x => x.Status == 1 || x.Status == 3);
+                }
+                else if (request.Status == 2)
+                {
+                    query = query.Where(x => x.Status == 2);
+                }
+                response.Data = query.Select(movies => new PageListMoviesHomeDTO
                 {
                     Uuid = movies.Uuid,
                     Title = movies.Title,
                     Rated = movies.Rated,
                     Trailer = movies.Trailer,
                     AverageReview = movies.AverageReview,
+                    Description = movies.Description,
                     ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
                     Genre = _context.MoviesGenre.Where(mg => mg.MoviesUuid == movies.Uuid)
                             .Select(mg => new ShortCategoryDTO
@@ -378,6 +404,67 @@ namespace CinemaAPI.Controllers
                 }).ToList();
                 
                 return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost("page_list_movies_for_client")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListMoviesClientDTO>), description: "GetPageListMoviesForClient Response")]
+        public async Task<IActionResult> GetPageListMoviesForClient(PageListMoviesHomeRequest request)
+        {
+            var response = new BaseResponseMessageItem<PageListMoviesClientDTO>();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                var query = _context.Movies.AsQueryable();
+
+                if (request.Status == 1)
+                {
+                    query = query.Where(x => x.Status == 1 || x.Status == 3);
+                }
+                else if (request.Status == 2)
+                {
+                    query = query.Where(x => x.Status == 2);
+                }
+                response.Data = query.Select(movies => new PageListMoviesClientDTO
+                {
+                    Uuid = movies.Uuid,
+                    Title = movies.Title,
+                    Rated = movies.Rated,
+                    Duration = movies.Duration,
+                    ImageUrl = _context.Images.Where(x => movies.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
+                    Genre = _context.MoviesGenre.Where(mg => mg.MoviesUuid == movies.Uuid)
+                            .Select(mg => new ShortCategoryDTO
+                            {
+                                Uuid = mg.GenreUu.Uuid,
+                                Name = mg.GenreUu.GenreName
+                            })
+                            .ToList(),
+                    Status = movies.Status,
+                }).ToList();
+
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
             }
             catch (Exception ex)
             {

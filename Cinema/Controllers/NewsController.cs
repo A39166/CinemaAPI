@@ -13,6 +13,7 @@ using CinemaAPI.Extensions;
 using System.IO;
 using System.Security.Principal;
 using static System.Net.Mime.MediaTypeNames;
+using CinemaAPI.Configuaration;
 
 namespace CinemaAPI.Controllers
 {
@@ -126,6 +127,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -181,6 +187,11 @@ namespace CinemaAPI.Controllers
 
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -222,6 +233,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -260,6 +276,48 @@ namespace CinemaAPI.Controllers
                     response.error.SetErrorCode(ErrorCode.NOT_FOUND);
                 }
                 return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+        [HttpPost("page_list_news_home")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListNewsHomeDTO>), description: "GetPageListNewsHome Response")]
+        public async Task<IActionResult> GetPageListNewsHome(/*DpsPagingParamBase request*/)
+        {
+            var response = new BaseResponseMessageItem<PageListNewsHomeDTO>();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                response.Data = _context.News.Where(x => x.Status == 1)
+                .Select(news => new PageListNewsHomeDTO
+                {
+                    Uuid = news.Uuid,
+                    Title = news.Title,
+                    ShortTitle = news.ShortTitle,
+                    ImageUrl = _context.Images.Where(x => news.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
+                    Status = news.Status,
+                }).ToList();
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
             }
             catch (Exception ex)
             {

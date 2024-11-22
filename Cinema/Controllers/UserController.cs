@@ -41,10 +41,6 @@ namespace CinemaAPI.Controllers
                     response.error.SetErrorCode(ErrorCode.DUPLICATE_EMAIL);
                     return BadRequest(response);
                 }
-                else if (request.Password2 != request.Password) {
-                    response.error.SetErrorCode(ErrorCode.MATCH_PASS);
-                    return BadRequest(response);
-                }
                 else
                 {
                     var user = new User()
@@ -54,7 +50,6 @@ namespace CinemaAPI.Controllers
                         Fullname = request.Fullname,
                         Gender = request.Gender,
                         Birthday = request.Birthday,
-                        PhoneNumber = request.PhoneNumber,
                         Password = request.Password,
                         Role = request.Role,
                         Status = request.Status,
@@ -121,6 +116,11 @@ namespace CinemaAPI.Controllers
 
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -155,6 +155,11 @@ namespace CinemaAPI.Controllers
                     _context.SaveChanges();
                 }
                 return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
             }
             catch (Exception ex)
             {
@@ -195,6 +200,11 @@ namespace CinemaAPI.Controllers
                 }
                 return Ok(response);
             }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
@@ -231,6 +241,11 @@ namespace CinemaAPI.Controllers
                 }
                 _context.SaveChanges();
                 return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
             }
             catch (Exception ex)
             {
