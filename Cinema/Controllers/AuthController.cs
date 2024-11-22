@@ -70,6 +70,7 @@ namespace CinemaAPI.Controllers
                         Email = user.Email,
                         Fullname = user.Fullname,
                         Gender = user.Gender,
+                        Birthday = user.Birthday,
                         ImageUrl = _context.Images.Where(x => user.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
                         Role = user.Role,
                     };
