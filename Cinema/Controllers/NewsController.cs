@@ -297,10 +297,7 @@ namespace CinemaAPI.Controllers
             var response = new BaseResponseMessageItem<PageListNewsHomeDTO>();
 
             var validToken = validateToken(_context);
-            if (validToken is null)
-            {
-                return Unauthorized();
-            }
+           
             try
             {
                 response.Data = _context.News.Where(x => x.Status == 1)

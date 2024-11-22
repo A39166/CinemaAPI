@@ -367,11 +367,7 @@ namespace CinemaAPI.Controllers
         {
             var response = new BaseResponseMessageItem<PageListMoviesHomeDTO>();
 
-            var validToken = validateToken(_context);
-            if (validToken is null)
-            {
-                return Unauthorized();
-            }
+            
             try
             {
                 var query = _context.Movies.AsQueryable();
@@ -426,10 +422,7 @@ namespace CinemaAPI.Controllers
             var response = new BaseResponseMessageItem<PageListMoviesClientDTO>();
 
             var validToken = validateToken(_context);
-            if (validToken is null)
-            {
-                return Unauthorized();
-            }
+            
             try
             {
                 var query = _context.Movies.AsQueryable();
