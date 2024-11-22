@@ -66,7 +66,7 @@ namespace CinemaAPI.Controllers
                         AverageReview = request.AverageReview,
                         DirectorUuid = string.IsNullOrEmpty(request.DirectorUuid) ? null : request.DirectorUuid,
                         RealeaseDate = request.RealeaseDate,
-                        Status = 2,
+                        Status = request.Status,
                     };
                     _context.Movies.Add(movies);
                     AddCast(movies.Uuid, request.Cast);
