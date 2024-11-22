@@ -321,6 +321,74 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+        [HttpPost("page_list_news_all_client")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListNewsClientDTO>), description: "GetPageListNewsAllClient Response")]
+        public async Task<IActionResult> GetPageListNewsClient(/*DpsPagingParamBase request*/)
+        {
+            var response = new BaseResponseMessageItem<PageListNewsClientDTO>();
+            try
+            {
+                response.Data = _context.News.Where(x => x.Status == 1).OrderByDescending(news => news.TimeCreated)
+                .Select(news => new PageListNewsClientDTO
+                {
+                    Uuid = news.Uuid,
+                    ShortTitle = news.ShortTitle,
+                    ImageUrl = _context.Images.Where(x => news.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
+                    Status = news.Status,
+                }).ToList();
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
 
+                return BadRequest(response);
+            }
+        }
+        [HttpPost("news_detail_client")]
+        [SwaggerResponse(statusCode: 200, type: typeof(NewsClientDTO), description: "GetNewsDetailClient Response")]
+        public async Task<IActionResult> GetNewsDetailClient(UuidRequest request)
+        {
+            var response = new BaseResponseMessage<NewsClientDTO>();
+            try
+            {
+                var newsdetail = _context.News.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                if (newsdetail != null)
+                {
+                    response.Data = new NewsClientDTO()
+                    {
+                        Uuid = newsdetail.Uuid,
+                        Title = newsdetail.Title,
+                        Content = newsdetail.Content,
+                        ImageUrl = _context.Images.Where(x => newsdetail.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
+                        TimeCreated = newsdetail.TimeCreated,
+                        Status = newsdetail.Status,
+                    };
+                    newsdetail.View += 1;
+                    _context.News.Update(newsdetail);
+                    await _context.SaveChangesAsync();
+                }
+                _context.News.Update(newsdetail);
+
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+                return BadRequest(response);
+            }
+        }
     }
 }
