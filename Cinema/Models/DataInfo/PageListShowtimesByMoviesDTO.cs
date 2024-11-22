@@ -15,7 +15,7 @@ namespace CinemaAPI.Models.DataInfo
         public string CinemaName { get; set; }
         public string Address { get; set; }
         public string Location { get; set; }
-        public List<ScreenGroupDTO>? Screens { get; set; }
+        public List<ScreenGroupDTO> Screens { get; set; }
     }
     public class ScreenGroupDTO
     {

@@ -420,20 +420,22 @@ namespace CinemaAPI.Controllers
                 .ThenInclude(st => st.MoviesUu)
                 .Where(x => string.IsNullOrEmpty(request.MoviesUuid) ||
                             x.Screen.Any(s => s.Showtimes.Any(st => st.MoviesUu.Uuid == request.MoviesUuid)))
-                .Where(x => !request.FindDate.HasValue || x.Screen.Any(s => s.Showtimes.Any(st => st.ShowDate == request.FindDate)))
-                .Where(x => x.Screen.Any(s => s.Showtimes.Any(st => st.Status == 1)))
+                .Where(x => x.Screen.Any(s => s.Showtimes.Any(st => st.ShowDate == request.FindDate)))
+                .Where(x => x.Screen.Any(s => s.Showtimes.Any(st => st.Status == 1 && st.State == 0)))
                 .Select(cinema => new PageListShowtimesByMoviesDTO
                 {
                     CinemaName = cinema.CinemaName,
                     Address = cinema.Address,
                     Location = cinema.Location,
-                    Screens = cinema.Screen.Select(screen => new ScreenGroupDTO
+                    Screens = cinema.Screen.Where(screen => screen.Showtimes != null && screen.Showtimes.Any())
+                    .Select(screen => new ScreenGroupDTO
                     {
                         ScreenTypeName = screen.ScreenTypeUu != null ? screen.ScreenTypeUu.Name : "Không có thông tin", // Kiểm tra null trước khi truy cập
                         LanguageType = screen.Showtimes != null && screen.Showtimes.Any() ?
                (screen.Showtimes.FirstOrDefault() != null && screen.Showtimes.FirstOrDefault().LanguageType == 1 ? "Phụ đề" : "Lồng tiếng") : "Không có thông tin",
 
-                        Showtimes = screen.Showtimes != null ? screen.Showtimes.Select(showtime => new FormShowtimesByMoviesDTO
+                        Showtimes = screen.Showtimes != null ? screen.Showtimes.Where(showtime => showtime.Status == 1 && showtime.State == 0)
+                        .Select(showtime => new FormShowtimesByMoviesDTO
                         {
                             StartTime = showtime.StartTime,
                             EndTime = showtime.EndTime,
