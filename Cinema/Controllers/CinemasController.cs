@@ -156,13 +156,6 @@ namespace CinemaAPI.Controllers
         public async Task<IActionResult> GetCinemaDetail(UuidRequest request)
         {
             var response = new BaseResponseMessage<CinemasDTO>();
-
-            var validToken = validateToken(_context);
-            if (validToken is null)
-            {
-                return Unauthorized();
-            }
-
             try
             {
                 var cinemas = _context.Cinemas.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
@@ -192,6 +185,7 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
         [HttpPost("update_cinema_status")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateCinemaStatus Response")]
         public async Task<IActionResult> UpdateCinemaStatus(UpdateStatusRequest request)
@@ -218,6 +212,40 @@ namespace CinemaAPI.Controllers
                 {
                     response.error.SetErrorCode(ErrorCode.NOT_FOUND);
                 }
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost("page_list_cinema_client")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<CinemasClientDTO>), description: "GetPageListCinemaClient Response")]
+        public async Task<IActionResult> GetPageListCinemaClient(BaseKeywordRequest request)
+        {
+            var response = new BaseResponseMessageItem<CinemasClientDTO>();
+            try
+            {
+                var query = _context.Cinemas;
+                response.Data = query.Where(x => string.IsNullOrEmpty(request.Keyword)
+                                                        || EF.Functions.Like(x.CinemaName+ "", $"%{request.Keyword}%"))
+                    .Select(cinemas => new CinemasClientDTO
+                    {
+                        Uuid = cinemas.Uuid,
+                        CinemaName = cinemas.CinemaName,
+                        Status = cinemas.Status,
+                    })
+                    .ToList();
+               
                 return Ok(response);
             }
             catch (ErrorException ex)

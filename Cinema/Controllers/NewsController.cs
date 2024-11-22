@@ -322,16 +322,17 @@ namespace CinemaAPI.Controllers
             }
         }
         [HttpPost("page_list_news_all_client")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListNewsClientDTO>), description: "GetPageListNewsAllClient Response")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListNewsHomeDTO>), description: "GetPageListNewsAllClient Response")]
         public async Task<IActionResult> GetPageListNewsClient(/*DpsPagingParamBase request*/)
         {
-            var response = new BaseResponseMessageItem<PageListNewsClientDTO>();
+            var response = new BaseResponseMessageItem<PageListNewsHomeDTO>();
             try
             {
                 response.Data = _context.News.Where(x => x.Status == 1).OrderByDescending(news => news.TimeCreated)
-                .Select(news => new PageListNewsClientDTO
+                .Select(news => new PageListNewsHomeDTO
                 {
                     Uuid = news.Uuid,
+                    Title = news.Title,
                     ShortTitle = news.ShortTitle,
                     ImageUrl = _context.Images.Where(x => news.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
                     Status = news.Status,

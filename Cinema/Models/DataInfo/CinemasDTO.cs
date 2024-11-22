@@ -20,5 +20,15 @@ namespace CinemaAPI.Models.DataInfo
         /// </summary>
         public sbyte Status { get; set; }
     }
+    public class CinemasClientDTO
+    {
+        public string Uuid { get; set; }
+
+        public string CinemaName { get; set; }
+        /// <summary>
+        /// 0 - đang khóa, 1 - hoạt động
+        /// </summary>
+        public sbyte Status { get; set; }
+    }
 }
 
