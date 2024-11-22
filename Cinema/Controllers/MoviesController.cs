@@ -223,13 +223,6 @@ namespace CinemaAPI.Controllers
         public async Task<IActionResult> GetMoviesDetail(UuidRequest request)
         {
             var response = new BaseResponseMessage<MoviesDTO>();
-
-            var validToken = validateToken(_context);
-            if (validToken is null)
-            {
-                return Unauthorized();
-            }
-
             try
             {
                 var movies = _context.Movies.Where(x => x.Uuid == request.Uuid).SingleOrDefault();

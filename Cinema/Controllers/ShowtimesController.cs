@@ -407,11 +407,6 @@ namespace CinemaAPI.Controllers
         public async Task<IActionResult> GetPageListShowtimesByMovies(PageListShowtimesByMoviesRequest request)
         {
             var response = new BaseResponseMessageItem<PageListShowtimesByMoviesDTO>();
-            var validToken = validateToken(_context);
-            if (validToken is null)
-            {
-                return Unauthorized();
-            }
             try
             {
                 var cinemas = _context.Cinemas

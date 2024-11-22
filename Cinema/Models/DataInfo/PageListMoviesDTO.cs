@@ -19,7 +19,7 @@ namespace CinemaAPI.Models.DataInfo
         /// </summary>
         public sbyte Status { get; set; }
     }
-    public class PageListMoviesHomeDTO : DpsPagingParamBase
+    public class PageListMoviesHomeDTO
     {
         public string Uuid { get; set; }
         public string Title { get; set; }
@@ -34,7 +34,7 @@ namespace CinemaAPI.Models.DataInfo
         /// </summary>
         public sbyte Status { get; set; }
     }
-    public class PageListMoviesClientDTO : DpsPagingParamBase
+    public class PageListMoviesClientDTO
     {
         public string Uuid { get; set; }
         public string Title { get; set; }

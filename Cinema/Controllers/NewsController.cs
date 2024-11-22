@@ -295,12 +295,9 @@ namespace CinemaAPI.Controllers
         public async Task<IActionResult> GetPageListNewsHome(/*DpsPagingParamBase request*/)
         {
             var response = new BaseResponseMessageItem<PageListNewsHomeDTO>();
-
-            var validToken = validateToken(_context);
-           
             try
             {
-                response.Data = _context.News.Where(x => x.Status == 1)
+                response.Data = _context.News.Where(x => x.Status == 1).OrderByDescending(news => news.TimeCreated)
                 .Select(news => new PageListNewsHomeDTO
                 {
                     Uuid = news.Uuid,
@@ -308,7 +305,7 @@ namespace CinemaAPI.Controllers
                     ShortTitle = news.ShortTitle,
                     ImageUrl = _context.Images.Where(x => news.Uuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
                     Status = news.Status,
-                }).ToList();
+                }).Take(4).ToList();
                 return Ok(response);
             }
             catch (ErrorException ex)
