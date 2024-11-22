@@ -90,5 +90,8 @@ namespace CinemaAPI.Enums
         [Description("Tổng thời gian chiếu ít hơn thời lượng phim!")]
         INVALID_TIME = 41,
 
+        [Description("Sai mật khẩu cũ!")]
+        WRONG_OLD_PASS = 42,
+
     }
 }
