@@ -7,6 +7,7 @@ namespace CinemaAPI.Models.DataInfo
     { 
         public DateOnly ShowDate {  get; set; }
         public TimeOnly StartTime { get; set; }
+        public sbyte LanguageType { get; set; }
         public TimeOnly EndTime { get; set; }
         public sbyte Status { get; set; }
     }
@@ -19,9 +20,19 @@ namespace CinemaAPI.Models.DataInfo
     }
     public class ScreenGroupDTO
     {
-        public string ScreenTypeName {get; set; }
-        public string LanguageType { get; set; }
+        public string ScreenTypeName { get; set; }
         public List<FormShowtimesByMoviesDTO>? Showtimes { get; set; }
     }
+    /*public class SubDTO
+    {
+        public string LanguageType { get; set; }
+        
+    }
+    public class DubDTO
+    {
+        public string LanguageType { get; set; }
+        public List<FormShowtimesByMoviesDTO>? Showtimes { get; set; }
+    }*/
+
 }
 

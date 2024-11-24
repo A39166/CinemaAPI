@@ -17,5 +17,6 @@ namespace CinemaAPI.Models.Request
 
         public string? MoviesUuid { get; set; }
         public DateOnly? FindDate { get; set; }
+        public sbyte LanguageType { get; set; }
     }
 }

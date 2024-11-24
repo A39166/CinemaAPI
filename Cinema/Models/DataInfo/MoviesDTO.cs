@@ -34,5 +34,11 @@ namespace CinemaAPI.Models.DataInfo
         public List<CategoryDTO> Cast {  get; set; }
         public List<CategoryDTO> Region { get; set; }
     }
+    public class ShortMoviesDTO
+    {
+        public string Uuid { get; set; }
+        public string Title { get; set; }
+        public sbyte Rated { get; set; }
+    }
 }
 

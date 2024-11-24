@@ -20,4 +20,9 @@ namespace CinemaAPI.Models.DataInfo
 
         public sbyte Status { get; set; }
     }
+    public class ShortScreenDTO : BaseDTO
+    {
+        public string ScreenName  {get; set; }
+        public string ScreenTypeName { get; set;}
+    }
 }

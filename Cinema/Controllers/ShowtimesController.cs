@@ -306,6 +306,7 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
         [HttpPost("update_showtime_status")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateShowtimeStatus Response")]
         public async Task<IActionResult> UpdateShowtimeStatus(UpdateStatusRequest request)
@@ -409,38 +410,73 @@ namespace CinemaAPI.Controllers
             var response = new BaseResponseMessageItem<PageListShowtimesByMoviesDTO>();
             try
             {
+                // Bước 1: Lọc các rạp có suất chiếu phù hợp và lấy dữ liệu cơ bản
                 var cinemas = _context.Cinemas
                 .Include(c => c.Screen)
-                .ThenInclude(s => s.Showtimes)
-                .ThenInclude(st => st.MoviesUu)
-                .Where(x => string.IsNullOrEmpty(request.MoviesUuid) ||
-                            x.Screen.Any(s => s.Showtimes.Any(st => st.MoviesUu.Uuid == request.MoviesUuid)))
-                .Where(x => x.Screen.Any(s => s.Showtimes.Any(st => st.ShowDate == request.FindDate)))
-                .Where(x => x.Screen.Any(s => s.Showtimes.Any(st => st.Status == 1 && st.State == 0)))
-                .Select(cinema => new PageListShowtimesByMoviesDTO
+                    .ThenInclude(s => s.Showtimes)
+                .Include(c => c.Screen)
+                    .ThenInclude(s => s.ScreenTypeUu)
+                .Where(c => c.Screen.Any(screen => screen.Showtimes.Any(showtime =>
+                    showtime.MoviesUuid == request.MoviesUuid &&
+                    showtime.ShowDate == request.FindDate &&
+                    showtime.LanguageType == request.LanguageType &&
+                    showtime.Status == 1 &&
+                    showtime.State == 0)))
+                .ToList(); // Chuyển về bộ nhớ sau bước lọc cơ bản
+
+                            // Bước 2: Thực hiện GroupBy và xử lý logic phức tạp phía client
+                 var cinemaDTOs = cinemas.Select(cinema => new PageListShowtimesByMoviesDTO
                 {
                     CinemaName = cinema.CinemaName,
                     Address = cinema.Address,
                     Location = cinema.Location,
-                    Screens = cinema.Screen.Where(screen => screen.Showtimes != null && screen.Showtimes.Any())
-                    .Select(screen => new ScreenGroupDTO
-                    {
-                        ScreenTypeName = screen.ScreenTypeUu != null ? screen.ScreenTypeUu.Name : "Không có thông tin", // Kiểm tra null trước khi truy cập
-                        LanguageType = screen.Showtimes != null && screen.Showtimes.Any() ?
-               (screen.Showtimes.FirstOrDefault() != null && screen.Showtimes.FirstOrDefault().LanguageType == 1 ? "Phụ đề" : "Lồng tiếng") : "Không có thông tin",
-
-                        Showtimes = screen.Showtimes != null ? screen.Showtimes.Where(showtime => showtime.Status == 1 && showtime.State == 0)
-                        .Select(showtime => new FormShowtimesByMoviesDTO
+                    Screens = cinema.Screen
+                        .Where(screen => screen.Showtimes.Any(showtime =>
+                            showtime.MoviesUuid == request.MoviesUuid &&
+                            showtime.ShowDate == request.FindDate &&
+                            showtime.LanguageType == request.LanguageType &&
+                            showtime.Status == 1 &&
+                            showtime.State == 0))
+                        .Select(screen => new ScreenGroupDTO
                         {
-                            StartTime = showtime.StartTime,
-                            EndTime = showtime.EndTime,
-                            ShowDate = showtime.ShowDate,
-                            Status = showtime.Status,
-                            Uuid = showtime.Uuid
-                        }).ToList() : new List<FormShowtimesByMoviesDTO>() // Nếu Showtimes là null, trả về danh sách rỗng
-                    }).ToList()
-                }).ToList();
-                response.Data = cinemas;
+                            ScreenTypeName = screen.ScreenTypeUu.Name,
+                            Showtimes = screen.Showtimes
+                                .Where(showtime =>
+                                    showtime.MoviesUuid == request.MoviesUuid &&
+                                    showtime.ShowDate == request.FindDate &&
+                                    showtime.LanguageType == request.LanguageType &&
+                                    showtime.Status == 1 &&
+                                    showtime.State == 0)
+                                .Select(showtime => new FormShowtimesByMoviesDTO
+                                {
+                                    StartTime = showtime.StartTime,
+                                    EndTime = showtime.EndTime,
+                                    LanguageType = showtime.LanguageType,
+                                    ShowDate = showtime.ShowDate,
+                                    Status = showtime.Status,
+                                    Uuid = showtime.Uuid
+                                })
+                                .ToList()
+                        })
+                        .ToList()
+                })
+                .ToList();
+                cinemaDTOs.ForEach(cinema =>
+                {
+                    cinema.Screens = cinema.Screens
+                        .GroupBy(screen => screen.ScreenTypeName)
+                        .Select(group => new ScreenGroupDTO
+                        {
+                            ScreenTypeName = group.Key,
+                            Showtimes = group.SelectMany(screen => screen.Showtimes).ToList()
+                        })
+                        .Where(screenGroup => screenGroup.Showtimes.Any()) // Loại bỏ màn hình không có suất chiếu
+                        .ToList();
+                });
+
+
+
+                response.Data = cinemaDTOs;
                 return Ok(response);
             }
             catch (ErrorException ex)
@@ -456,5 +492,6 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
     }
 }

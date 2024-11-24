@@ -93,5 +93,9 @@ namespace CinemaAPI.Enums
         [Description("Sai mật khẩu cũ!")]
         WRONG_OLD_PASS = 42,
 
+        [Description("Không thể đặt vé trong vòng 5 phút trước giờ chiếu!")]
+        BOOKING_NOT_ALLOWED = 43,
+        
+
     }
 }

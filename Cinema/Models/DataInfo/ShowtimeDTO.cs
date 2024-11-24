@@ -15,4 +15,14 @@ namespace CinemaAPI.Models.DataInfo
         public TimeOnly EndTime { get; set; }
         public sbyte Status { get; set; }
     }
+    public class ShowtimeClientDTO : BaseDTO
+    {
+        public ShortMoviesDTO Movies { get; set; }
+        public ShortScreenDTO Screen { get; set; }
+        public sbyte LanguageType { get; set; }
+        public DateOnly ShowDate { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public sbyte Status { get; set; }
+    }
 }
