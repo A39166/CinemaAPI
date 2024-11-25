@@ -210,6 +210,7 @@ namespace CinemaAPI.Controllers
                             ScreenName = screen.ScreenName,
                             Capacity = screen.Capacity,
                             ScreenType = _context.ScreenType.Where(x => x.Uuid == screen.ScreenTypeUuid).Select(t => t.Type).FirstOrDefault(),
+                            CinemaName = _context.Cinemas.Where(x => x.Uuid == screen.CinemaUuid).Select(x => x.CinemaName).FirstOrDefault(),
                             TimeCreated = screen.TimeCreated,
                             Status = screen.Status,
                         };

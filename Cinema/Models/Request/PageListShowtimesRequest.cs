@@ -19,4 +19,11 @@ namespace CinemaAPI.Models.Request
         public DateOnly? FindDate { get; set; }
         public sbyte LanguageType { get; set; }
     }
+
+    public class PageListShowtimesByCinemaRequest
+    {
+        public string? CinemaUuid { get; set; }
+        public DateOnly? FindDate { get; set; }
+    }
+
 }

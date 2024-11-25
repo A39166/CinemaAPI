@@ -58,21 +58,22 @@ namespace CinemaAPI.Controllers
                 
                 if (string.IsNullOrEmpty(request.Uuid))
                 {
-                    bool exists = _context.Showtimes.Any(s =>
-                                                        s.MoviesUuid == request.MoviesUuid &&
-                                                        s.ScreenUuid == request.ScreenUuid &&
-                                                        s.ShowDate == request.ShowDate &&
-                                                        s.Status == 1 && (
-                                                        (
-                                                        // Kiểm tra nếu thời gian bắt đầu hoặc kết thúc của suất chiếu bị trùng
-                                                        (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) ||
-                                                        (request.EndTime > s.StartTime && request.EndTime <= s.EndTime) ||
-                                                        // Hoặc suất chiếu hiện tại nằm trong khoảng của một suất chiếu khác
-                                                        (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime)
-    ))
-                                                    );
 
-                    if (exists)
+                    var showtime = _context.Showtimes.Where(s =>
+                                                         s.MoviesUuid == request.MoviesUuid &&
+                                                         s.ScreenUuid == request.ScreenUuid &&
+                                                         s.ShowDate == request.ShowDate &&
+                                                         s.State == 0 &&
+                                                         s.Status == 1 && (
+                                                         (
+                                                         (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) ||
+                                                         (request.EndTime > s.StartTime && request.EndTime <= s.EndTime) ||
+                                                         (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime && s.StartTime <s.EndTime) ||
+                                                         (request.StartTime < s.EndTime.AddHours(24) && request.StartTime >= s.StartTime) ||
+                                                         (request.EndTime > s.StartTime && request.EndTime <= s.EndTime.AddHours(24))
+                                                         ))).FirstOrDefault();
+                    
+                    if (showtime != null)
                     {
                         throw new ErrorException(ErrorCode.DUPLICATED_SHOWTIME);
                     }
@@ -116,7 +117,10 @@ namespace CinemaAPI.Controllers
                                     (
                                         (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) || // Trùng thời gian bắt đầu
                                         (request.EndTime > s.StartTime && request.EndTime <= s.EndTime) ||    // Trùng thời gian kết thúc
-                                        (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime)    // Bao phủ toàn bộ suất chiếu khác
+                                        (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime)  ||  // Bao phủ toàn bộ suất chiếu khác
+                                        (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime && s.StartTime < s.EndTime) ||
+                                        (request.StartTime < s.EndTime.AddHours(24) && request.StartTime >= s.StartTime) ||
+                                        (request.EndTime > s.StartTime && request.EndTime <= s.EndTime.AddHours(24))
         )
     );
 
@@ -477,6 +481,118 @@ namespace CinemaAPI.Controllers
 
 
                 response.Data = cinemaDTOs;
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost("page_list_showtime_by_cinema")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListShowtimesByCinemaDTO>), description: "GetPageListShowtimesByCinema Response")]
+        public async Task<IActionResult> GetPageListShowtimesByCinema(PageListShowtimesByCinemaRequest request)
+        {
+            var response = new BaseResponseMessageItem<PageListShowtimesByCinemaDTO>();
+            try
+            {
+                var validShowtimes = _context.Showtimes
+                    .Include(x => x.MoviesUu)
+                    .Include(x => x.ScreenUu).ThenInclude(x => x.ScreenTypeUu)
+                    .Include(x => x.ScreenUu).ThenInclude(x => x.CinemaUu)
+                    .Where(showtime =>
+                        showtime.ScreenUu.CinemaUu.Uuid == request.CinemaUuid &&
+                        showtime.ShowDate == request.FindDate &&
+                        showtime.Status == 1 &&
+                        showtime.State == 0)
+                    .ToList();
+
+                // 2. Lấy danh sách màn hình có suất chiếu hợp lệ
+                var screensWithShowtimes = _context.Screen
+                    .Where(screen => screen.Showtimes.Any(st => validShowtimes.Select(vs => vs.Uuid).Contains(st.Uuid)))
+                    .ToList();
+
+                // 3. Nhóm các suất chiếu theo thông tin phim
+                var groupedShowtimesByMovies = validShowtimes
+                    .GroupBy(showtime => new
+                    {
+                        MoviesUuid = showtime.MoviesUu.Uuid,
+                        MoviesName = showtime.MoviesUu.Title,
+                        Rated = showtime.MoviesUu.Rated
+                    })
+                    .ToList();
+
+                // 4. Lấy thông tin thể loại phim
+                var movieGenres = groupedShowtimesByMovies
+                    .Select(group => new
+                    {
+                        group.Key.MoviesUuid,
+                        Genre = _context.MoviesGenre
+                            .Where(mg => mg.MoviesUuid == group.Key.MoviesUuid)
+                            .Select(mg => new CategoryDTO
+                            {
+                                Uuid = mg.GenreUu.Uuid,
+                                Name = mg.GenreUu.GenreName
+                            })
+                            .ToList()
+                    })
+                    .ToList();
+
+                // 5. Nhóm suất chiếu theo loại màn hình
+                var screenGroups = groupedShowtimesByMovies
+                    .Select(group => new
+                    {
+                        group.Key.MoviesUuid,
+                        Screens = group
+                            .GroupBy(showtime => new
+                            {
+                                ScreenTypeName = showtime.ScreenUu.ScreenTypeUu.Name,
+                                LanguageType = showtime.LanguageType == 1? "Phụ đề" : "Lồng tiếng",
+                            }
+                            
+                            )
+                            .Select(screenGroup => new ScreenGroupDTO
+                            {
+                                ScreenTypeName = screenGroup.Key.ScreenTypeName,
+                                LanguageType = screenGroup.Key.LanguageType,
+                                Showtimes = screenGroup.Select(showtime => new FormShowtimesByMoviesDTO
+                                {
+                                    ShowDate = showtime.ShowDate,
+                                    StartTime = showtime.StartTime,
+                                    EndTime = showtime.EndTime,
+                                    LanguageType = showtime.LanguageType,
+                                    Status = showtime.Status,
+                                    Uuid = showtime.Uuid
+                                }).ToList()
+                            })
+                            .ToList()
+                    })
+                    .ToList();
+
+                // 6. Tạo danh sách DTO hoàn chỉnh
+                var cinemaShowtimes = groupedShowtimesByMovies
+                    .Select(group => new PageListShowtimesByCinemaDTO
+                    {
+                        MoviesUuid = group.Key.MoviesUuid,
+                        MoviesName = group.Key.MoviesName,
+                        Rated = group.Key.Rated,
+                        Genre = movieGenres
+                            .FirstOrDefault(mg => mg.MoviesUuid == group.Key.MoviesUuid)?.Genre,
+                        Screens = screenGroups
+                            .FirstOrDefault(sg => sg.MoviesUuid == group.Key.MoviesUuid)?.Screens
+                    })
+                    .ToList();
+
+                
+                response.Data = cinemaShowtimes;
                 return Ok(response);
             }
             catch (ErrorException ex)

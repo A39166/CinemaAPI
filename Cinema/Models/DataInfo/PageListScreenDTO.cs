@@ -8,6 +8,7 @@ namespace CinemaAPI.Models.DataInfo
         public string ScreenName { get; set; } 
         public int Capacity { get; set; }
         public sbyte ScreenType {  get; set; }
+        public string CinemaName { get; set; }
         public DateTime TimeCreated { get; set; }
         public sbyte Status { get; set; }
     }

@@ -3,14 +3,6 @@ using System.Collections.Generic;
 
 namespace CinemaAPI.Models.DataInfo
 {
-    public class FormShowtimesByMoviesDTO : BaseDTO
-    { 
-        public DateOnly ShowDate {  get; set; }
-        public TimeOnly StartTime { get; set; }
-        public sbyte LanguageType { get; set; }
-        public TimeOnly EndTime { get; set; }
-        public sbyte Status { get; set; }
-    }
     public class PageListShowtimesByMoviesDTO
     {
         public string CinemaName { get; set; }
@@ -21,18 +13,25 @@ namespace CinemaAPI.Models.DataInfo
     public class ScreenGroupDTO
     {
         public string ScreenTypeName { get; set; }
-        public List<FormShowtimesByMoviesDTO>? Showtimes { get; set; }
-    }
-    /*public class SubDTO
-    {
-        public string LanguageType { get; set; }
-        
-    }
-    public class DubDTO
-    {
         public string LanguageType { get; set; }
         public List<FormShowtimesByMoviesDTO>? Showtimes { get; set; }
-    }*/
+    }
+    public class PageListShowtimesByCinemaDTO
+    {
+        public string MoviesUuid { get; set; }
+        public string MoviesName { get; set; }
+        public List<CategoryDTO> Genre { get; set; }
+        public sbyte Rated { get; set; }
+        public List<ScreenGroupDTO> Screens { get; set; }
 
+    }
+    public class FormShowtimesByMoviesDTO : BaseDTO
+    {
+        public DateOnly ShowDate { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public sbyte LanguageType { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public sbyte Status { get; set; }
+    }
 }
 
