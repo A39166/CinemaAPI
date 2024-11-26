@@ -13,7 +13,6 @@ namespace CinemaAPI.Models.DataInfo
     public class ScreenGroupDTO
     {
         public string ScreenTypeName { get; set; }
-        public string LanguageType { get; set; }
         public List<FormShowtimesByMoviesDTO>? Showtimes { get; set; }
     }
     public class PageListShowtimesByCinemaDTO
@@ -22,6 +21,7 @@ namespace CinemaAPI.Models.DataInfo
         public string MoviesName { get; set; }
         public List<CategoryDTO> Genre { get; set; }
         public sbyte Rated { get; set; }
+        public string ImageUrl { get; set; }
         public List<ScreenGroupDTO> Screens { get; set; }
 
     }

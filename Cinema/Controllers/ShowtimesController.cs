@@ -583,7 +583,9 @@ namespace CinemaAPI.Controllers
                     {
                         MoviesUuid = group.Key.MoviesUuid,
                         MoviesName = group.Key.MoviesName,
+                        ImageUrl = _context.Images.Where(x => group.Key.MoviesUuid == x.OwnerUuid && x.Status == 1).Select(x => x.Path).FirstOrDefault(),
                         Rated = group.Key.Rated,
+
                         Genre = movieGenres
                             .FirstOrDefault(mg => mg.MoviesUuid == group.Key.MoviesUuid)?.Genre,
                         Screens = screenGroups
