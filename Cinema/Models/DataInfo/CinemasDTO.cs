@@ -25,6 +25,9 @@ namespace CinemaAPI.Models.DataInfo
         public string Uuid { get; set; }
 
         public string CinemaName { get; set; }
+        public string Address { get; set; }
+
+        public string? Location { get; set; }
         /// <summary>
         /// 0 - đang khóa, 1 - hoạt động
         /// </summary>

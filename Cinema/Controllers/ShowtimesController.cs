@@ -504,6 +504,7 @@ namespace CinemaAPI.Controllers
             var response = new BaseResponseMessageItem<PageListShowtimesByCinemaDTO>();
             try
             {
+                var cinema = _context.Cinemas.Where(x => x.Uuid == request.CinemaUuid).FirstOrDefault();
                 var validShowtimes = _context.Showtimes
                     .Include(x => x.MoviesUu)
                     .Include(x => x.ScreenUu).ThenInclude(x => x.ScreenTypeUu)
@@ -592,8 +593,6 @@ namespace CinemaAPI.Controllers
                             .FirstOrDefault(sg => sg.MoviesUuid == group.Key.MoviesUuid)?.Screens
                     })
                     .ToList();
-
-                
                 response.Data = cinemaShowtimes;
                 return Ok(response);
             }

@@ -242,6 +242,8 @@ namespace CinemaAPI.Controllers
                     {
                         Uuid = cinemas.Uuid,
                         CinemaName = cinemas.CinemaName,
+                        Address = cinemas.Address,
+                        Location = cinemas.Location,
                         Status = cinemas.Status,
                     })
                     .ToList();
