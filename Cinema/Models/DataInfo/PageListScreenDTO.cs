@@ -12,5 +12,11 @@ namespace CinemaAPI.Models.DataInfo
         public DateTime TimeCreated { get; set; }
         public sbyte Status { get; set; }
     }
+
+    public class PageListScreenForClientDTO : BaseDTO
+    {
+        public string ScreenName { get; set; }
+        public sbyte Status { get; set; }
+    }
 }
 

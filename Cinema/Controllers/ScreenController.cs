@@ -442,6 +442,40 @@ namespace CinemaAPI.Controllers
             }
         }
 
+        /*[HttpPost("page_list_screen_for_client")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListScreenForClientDTO>), description: "GetPageListScreenForClient Response")]
+        public async Task<IActionResult> GetPageListScreenForClient(BaseKeywordRequest request)
+        {
+            var response = new BaseResponseMessageItem<PageListScreenForClientDTO>();
+            try
+            {
+               
+               response.Data = _context.Screen.Include(p => p.CinemaUu).Where(x => string.IsNullOrEmpty(request.Keyword)
+                                                        || EF.Functions.Like(x.ScreenName + " ", $"%{request.Keyword}%"))
+                                                              .Where(x => x.Status != 0)
+                                .Select(scr => new PageListScreenForClientDTO
+                                {
+                                    Uuid = scr.Uuid,
+                                    ScreenName = scr.ScreenName,
+                                    Status = scr.Status
+                                }).ToList();
+
+
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }*/
 
 
     }
