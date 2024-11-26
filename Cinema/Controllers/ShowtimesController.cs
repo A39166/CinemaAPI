@@ -456,6 +456,7 @@ namespace CinemaAPI.Controllers
                                     StartTime = showtime.StartTime,
                                     EndTime = showtime.EndTime,
                                     LanguageType = showtime.LanguageType,
+                                    ScreenName = _context.Screen.Where(c => c.Uuid == showtime.ScreenUuid).Select(c => c.ScreenName).FirstOrDefault(),
                                     ShowDate = showtime.ShowDate,
                                     Status = showtime.Status,
                                     Uuid = showtime.Uuid
@@ -570,6 +571,7 @@ namespace CinemaAPI.Controllers
                                     StartTime = showtime.StartTime,
                                     EndTime = showtime.EndTime,
                                     LanguageType = showtime.LanguageType,
+                                    ScreenName = _context.Screen.Where(c => c.Uuid == showtime.ScreenUuid).Select(c => c.ScreenName).FirstOrDefault(),
                                     Status = showtime.Status,
                                     Uuid = showtime.Uuid
                                 }).ToList()

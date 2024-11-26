@@ -30,8 +30,9 @@ namespace CinemaAPI.Models.DataInfo
     {
         public DateOnly ShowDate { get; set; }
         public TimeOnly StartTime { get; set; }
-        public sbyte LanguageType { get; set; }
         public TimeOnly EndTime { get; set; }
+        public string ScreenName { get; set; }
+        public sbyte LanguageType { get; set; }
         public sbyte Status { get; set; }
     }
 }

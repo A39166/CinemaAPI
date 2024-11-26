@@ -100,10 +100,10 @@ namespace CinemaAPI.Controllers
         }
 
         [HttpPost("get_list_seat_for_booking")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<SeatForBookingDTO>), description: "GetListSeatForBooking Response")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessage<ScreenSeatForBookingDTO>), description: "GetListSeatForBooking Response")]
         public async Task<IActionResult> GetListSeat(UuidRequest request)
         {
-            var response = new BaseResponseMessageItem<SeatForBookingDTO>();
+            var response = new BaseResponseMessage<ScreenSeatForBookingDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
@@ -118,23 +118,23 @@ namespace CinemaAPI.Controllers
                 var dateState = (DateTime.Now.DayOfWeek == DayOfWeek.Saturday || DateTime.Now.DayOfWeek == DayOfWeek.Sunday)
             ? 2
             : 1;
-                response.Data = _context.Seat.Where(x => x.ScreenUuid == st.ScreenUuid && x.Status == 1)
-               .Select(seat => new SeatForBookingDTO
-               {
-                   Uuid = seat.Uuid,
-                   SeatCode = seat.SeatCode,
-                   SeatType = _context.SeatType
-                    .Where(t => t.Uuid == seat.SeatTypeUuid)
-                    .Select(t => t.Type)
-                    .FirstOrDefault(),
-                   Price = _context.Ticket.Where(p => p.ScreenTypeUuid == st.ScreenUu.ScreenTypeUu.Uuid &&
-                                                 p.SeatTypeUuid == seat.SeatTypeUuid &&
-                                                 p.DateState == dateState).Select(t => t.Price).FirstOrDefault(),
-                   isBooked = _context.Booking
-                    .Any(b => b.SeatUuid == seat.Uuid && b.BillUu.ShowtimeUuid == request.Uuid)
-
-
-               }).ToList();
+                var ScreenSeatDTO = _context.Screen.Where(x => x.Uuid == st.ScreenUuid && x.Status == 1)
+                    .Select(screen => new ScreenSeatForBookingDTO
+                    {
+                        Row = screen.Row,
+                        Collumn = screen.Collumn,
+                        Seats = screen.Seat.Where(s => s.ScreenUuid == screen.Uuid).Select(seat => new SeatForBookingDTO
+                        {
+                            Uuid = seat.Uuid,
+                            SeatCode = seat.SeatCode,
+                            SeatType = _context.SeatType.Where(t => t.Uuid == seat.SeatTypeUuid).Select(t => t.Type).FirstOrDefault(),
+                            Price = _context.Ticket.Where(p => p.ScreenTypeUuid == st.ScreenUu.ScreenTypeUu.Uuid &&
+                                                          p.SeatTypeUuid == seat.SeatTypeUuid &&
+                                                          p.DateState == dateState).Select(t => t.Price).FirstOrDefault(),
+                            isBooked = _context.Booking.Any(b => b.SeatUuid == seat.Uuid && b.BillUu.ShowtimeUuid == request.Uuid)
+                        }).ToList(),
+                    }).FirstOrDefault();
+                response.Data = ScreenSeatDTO;
                 return Ok(response);
             }
             catch (Exception ex)

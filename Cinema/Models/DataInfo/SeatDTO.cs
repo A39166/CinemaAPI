@@ -16,5 +16,11 @@ namespace CinemaAPI.Models.DataInfo
         public int Price { get; set; }
         public bool isBooked { get; set; } 
     }
+    public class ScreenSeatForBookingDTO
+    {
+        public int Row { get; set; }
+        public int Collumn { get; set; }
+        public List<SeatForBookingDTO> Seats { get; set; }
+    }
 
 }
