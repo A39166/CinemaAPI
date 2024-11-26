@@ -145,5 +145,44 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost("get_list_combo_for_booking")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListComboForBookingDTO>), description: "GetListComboForBooking Response")]
+        public async Task<IActionResult> GetPageListCombo()
+        {
+            var response = new BaseResponseMessageItem<PageListComboForBookingDTO>();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                response.Data = _context.Combo.Where(x => x.Status != 0)
+                    .Select(combo => new PageListComboForBookingDTO
+                    {
+                        Uuid = combo.Uuid,
+                        ComboName = combo.ComboName,
+                        ComboItems = combo.ComboItems,
+                        Price = combo.Price,
+                        Status = combo.Status,
+
+                    }).ToList();
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
     }
 }

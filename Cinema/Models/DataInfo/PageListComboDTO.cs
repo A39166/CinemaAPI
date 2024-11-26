@@ -11,6 +11,14 @@ namespace CinemaAPI.Models.DataInfo
         public DateTime TimeCreated { get; set; }
         public sbyte Status { get; set; }
     }
-   
+    public class PageListComboForBookingDTO : BaseDTO
+    {
+
+        public string ComboName { get; set; }
+        public string ComboItems { get; set; }
+        public int? Price { get; set; }
+        public sbyte Status { get; set; }
+    }
+
 }
 
