@@ -13,6 +13,7 @@ namespace CinemaAPI.Models.DataInfo
     public class ScreenGroupDTO
     {
         public string ScreenTypeName { get; set; }
+        public string LanguageType { get; set; }
         public List<FormShowtimesByMoviesDTO>? Showtimes { get; set; }
     }
     public class PageListShowtimesByCinemaDTO
