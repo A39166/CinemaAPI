@@ -457,6 +457,7 @@ namespace CinemaAPI.Controllers
                                     EndTime = showtime.EndTime,
                                     LanguageType = showtime.LanguageType,
                                     ScreenName = _context.Screen.Where(c => c.Uuid == showtime.ScreenUuid).Select(c => c.ScreenName).FirstOrDefault(),
+                                    ScreenTypename = screen.ScreenTypeUu.Name,
                                     ShowDate = showtime.ShowDate,
                                     Status = showtime.Status,
                                     Uuid = showtime.Uuid

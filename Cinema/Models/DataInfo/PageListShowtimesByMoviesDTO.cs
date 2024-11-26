@@ -28,10 +28,12 @@ namespace CinemaAPI.Models.DataInfo
     }
     public class FormShowtimesByMoviesDTO : BaseDTO
     {
+
         public DateOnly ShowDate { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public string ScreenName { get; set; }
+        public string ScreenTypename { get; set; }
         public sbyte LanguageType { get; set; }
         public sbyte Status { get; set; }
     }
