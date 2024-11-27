@@ -89,6 +89,7 @@ public partial class DBContext : DbContext
                 .HasMaxLength(36)
                 .IsFixedLength()
                 .HasColumnName("coupon_uuid");
+            entity.Property(e => e.PayPrice).HasColumnName("pay_price");
             entity.Property(e => e.ShowtimeUuid)
                 .HasMaxLength(36)
                 .IsFixedLength()
@@ -103,7 +104,7 @@ public partial class DBContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("time_created");
             entity.Property(e => e.TotalPrice)
-                .HasColumnType("int(11)")
+                .HasColumnType("double(11,2)")
                 .HasColumnName("total_price");
             entity.Property(e => e.UserUuid)
                 .HasMaxLength(36)
@@ -484,7 +485,9 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
-            entity.Property(e => e.AverageReview).HasColumnName("average_review");
+            entity.Property(e => e.AverageReview)
+                .HasColumnType("double(10,1)")
+                .HasColumnName("average_review");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.DirectorUuid)
                 .HasMaxLength(36)
@@ -671,7 +674,6 @@ public partial class DBContext : DbContext
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
             entity.Property(e => e.TimeCreated)
-                .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("current_timestamp()")
                 .HasColumnType("timestamp")
                 .HasColumnName("time_created");

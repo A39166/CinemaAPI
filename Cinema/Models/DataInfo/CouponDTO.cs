@@ -14,4 +14,11 @@ namespace CinemaAPI.Models.DataInfo
         [DefaultValue(1)]
         public sbyte Status { get; set; }
     }
+    public class CouponForBookingDTO : BaseDTO
+    {
+        public string Code { get; set; }
+        public int Discount { get; set; }
+        [DefaultValue(1)]
+        public sbyte Status { get; set; }
+    }
 }

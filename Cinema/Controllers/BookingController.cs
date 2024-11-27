@@ -35,7 +35,7 @@ namespace CinemaAPI.Controllers
 
         [HttpPost("create_bill")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "CreateBill Response")]
-        public async Task<IActionResult> CreateBill(UpsertCinemaRequest request)
+        public async Task<IActionResult> CreateBill(CreateBillRequest request)
         {
             var response = new BaseResponse();
 
@@ -46,38 +46,43 @@ namespace CinemaAPI.Controllers
             }
             try
             {
-                if (string.IsNullOrEmpty(request.Uuid))
-                {
 
-                    var cinema = new Cinemas()
-                    {
-                        Uuid = Guid.NewGuid().ToString(),
-                        CinemaName = request.CinemaName,
-                        Address = request.Address,
-                        Location = request.Location,
-                        TimeCreated = DateTime.Now,
-                        Status = 1,
-                    };
-                    _context.Cinemas.Add(cinema);
-                    _context.SaveChanges();
-                }
-                else
-                //cập nhập dữ liệu
+                var bill = new Bill()
                 {
-                    var cinema = _context.Cinemas.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
-                    if (cinema != null)
+                    Uuid = Guid.NewGuid().ToString(),
+                    UserUuid = validToken.UserUuid,
+                    ShowtimeUuid = request.ShowtimeUuid,
+                    CouponUuid = request.CouponUuid ?? null,
+                    TotalPrice = request.TotalPrice,
+                    PayPrice = request.PayPrice,
+                    State = 1,
+                    TimeCreated = DateTime.Now,
+                    Status = 1,
+                };
+                bill.Code = "PCB" + bill.Id;
+                _context.Bill.Add(bill);
+                foreach (var seat in request.Seats)
+                {
+                    var newSeat = new Booking()
                     {
-                        cinema.CinemaName = request.CinemaName;
-                        cinema.Address = request.Address;
-                        cinema.Location = request.Location;
-                        _context.Cinemas.Update(cinema);
-                        _context.SaveChanges();
-                    }
-                    else
-                    {
-                        response.error.SetErrorCode(ErrorCode.NOT_FOUND);
-                    }
+                        BillUuid = bill.Uuid,
+                        SeatUuid = seat.SeatUuid,
+                        TicketUuid = seat.SeatPriceUuid,
+                        Status = 1
+                    };
+                    _context.Booking.Add(newSeat);
                 }
+                foreach (var combo in request.Combo)
+                {
+                    var newCombo = new BillCombo()
+                    {
+                        BillUuid = bill.Uuid,
+                        ComboUuid = combo,
+                        Status = 1
+                    };
+                    _context.BillCombo.Add(newCombo);
+                }
+                _context.SaveChanges();
                 return Ok(response);
             }
             catch (ErrorException ex)
@@ -192,6 +197,9 @@ namespace CinemaAPI.Controllers
                             Price = _context.Ticket.Where(p => p.ScreenTypeUuid == st.ScreenUu.ScreenTypeUu.Uuid &&
                                                           p.SeatTypeUuid == seat.SeatTypeUuid &&
                                                           p.DateState == dateState).Select(t => t.Price).FirstOrDefault(),
+                            TicketPriceUuid = _context.Ticket.Where(p => p.ScreenTypeUuid == st.ScreenUu.ScreenTypeUu.Uuid &&
+                                                          p.SeatTypeUuid == seat.SeatTypeUuid &&
+                                                          p.DateState == dateState).Select(t => t.Uuid).FirstOrDefault(),
                             isBooked = _context.Booking.Any(b => b.SeatUuid == seat.Uuid && b.BillUu.ShowtimeUuid == request.Uuid)
                         }).ToList(),
                     }).FirstOrDefault();
@@ -247,6 +255,43 @@ namespace CinemaAPI.Controllers
             }
         }
 
+        [HttpPost("page_list_coupon_for_booking")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<CouponForBookingDTO>), description: "GetPageListCoupon Response")]
+        public async Task<IActionResult> GetPageListCoupon()
+        {
+            var response = new BaseResponseMessageItem<CouponForBookingDTO>();
 
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+
+                response.Data = _context.Coupon.Where(x => x.Status == 1)
+                    .Select(coupon => new CouponForBookingDTO()
+                    {
+                        Uuid = coupon.Uuid,
+                        Code = coupon.Code,
+                        Discount = coupon.Discount,
+                        Status = coupon.Status,
+                    }).ToList();
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
     }
 }
+    

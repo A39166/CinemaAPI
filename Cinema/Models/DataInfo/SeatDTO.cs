@@ -14,7 +14,8 @@ namespace CinemaAPI.Models.DataInfo
 
         public sbyte SeatType { get; set; }
         public int Price { get; set; }
-        public bool isBooked { get; set; } 
+        public bool isBooked { get; set; }
+        public string TicketPriceUuid {  get; set; }
     }
     public class ScreenSeatForBookingDTO
     {
