@@ -372,8 +372,8 @@ namespace CinemaAPI.Controllers
                         Status = newsdetail.Status,
                     };
                     newsdetail.View += 1;
-                    _context.News.Update(newsdetail);
-                    await _context.SaveChangesAsync();
+                    /*_context.News.Update(newsdetail);*/
+                    _context.SaveChanges();
                 }
                 _context.News.Update(newsdetail);
 

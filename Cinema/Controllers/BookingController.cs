@@ -32,6 +32,67 @@ namespace CinemaAPI.Controllers
             _context = context;
             _logger = logger;
         }
+
+        [HttpPost("create_bill")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "CreateBill Response")]
+        public async Task<IActionResult> CreateBill(UpsertCinemaRequest request)
+        {
+            var response = new BaseResponse();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+                if (string.IsNullOrEmpty(request.Uuid))
+                {
+
+                    var cinema = new Cinemas()
+                    {
+                        Uuid = Guid.NewGuid().ToString(),
+                        CinemaName = request.CinemaName,
+                        Address = request.Address,
+                        Location = request.Location,
+                        TimeCreated = DateTime.Now,
+                        Status = 1,
+                    };
+                    _context.Cinemas.Add(cinema);
+                    _context.SaveChanges();
+                }
+                else
+                //cập nhập dữ liệu
+                {
+                    var cinema = _context.Cinemas.Where(x => x.Uuid == request.Uuid).FirstOrDefault();
+                    if (cinema != null)
+                    {
+                        cinema.CinemaName = request.CinemaName;
+                        cinema.Address = request.Address;
+                        cinema.Location = request.Location;
+                        _context.Cinemas.Update(cinema);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        response.error.SetErrorCode(ErrorCode.NOT_FOUND);
+                    }
+                }
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
         [HttpPost("showtime_detail_for_booking")]
         [SwaggerResponse(statusCode: 200, type: typeof(ShowtimeClientDTO), description: "GetShowtimeDetailClient Response")]
         public async Task<IActionResult> GetShowtimeDetailClient(UuidRequest request)
@@ -165,6 +226,7 @@ namespace CinemaAPI.Controllers
                         Uuid = combo.Uuid,
                         ComboName = combo.ComboName,
                         ComboItems = combo.ComboItems,
+                        ImageUrl = _context.Images.Where(x => x.OwnerUuid == combo.Uuid).Select(x => x.Path).FirstOrDefault(),
                         Price = combo.Price,
                         Status = combo.Status,
 
@@ -184,5 +246,7 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
+
     }
 }

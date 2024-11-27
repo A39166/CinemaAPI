@@ -16,6 +16,7 @@ namespace CinemaAPI.Models.DataInfo
 
         public string ComboName { get; set; }
         public string ComboItems { get; set; }
+        public string ImageUrl { get; set; }
         public int? Price { get; set; }
         public sbyte Status { get; set; }
     }
