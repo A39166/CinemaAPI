@@ -19,11 +19,14 @@ public partial class Bill
 
     public double TotalPrice { get; set; }
 
-    public double? PayPrice { get; set; }
+    public double PayPrice { get; set; }
 
-    public sbyte? State { get; set; }
+    /// <summary>
+    /// 0-Chưa thanh toán, 1-Đã thanh toán,2-Thanh toán thất bại
+    /// </summary>
+    public sbyte State { get; set; }
 
-    public DateTime? TimeCreated { get; set; }
+    public DateTime TimeCreated { get; set; }
 
     public sbyte Status { get; set; }
 

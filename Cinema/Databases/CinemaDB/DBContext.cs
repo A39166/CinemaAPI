@@ -95,6 +95,7 @@ public partial class DBContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("showtime_uuid");
             entity.Property(e => e.State)
+                .HasComment("0-Chưa thanh toán, 1-Đã thanh toán,2-Thanh toán thất bại")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("state");
             entity.Property(e => e.Status)
