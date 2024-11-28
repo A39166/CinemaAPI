@@ -314,7 +314,7 @@ namespace CinemaAPI.Controllers
                     Uuid = Guid.NewGuid().ToString(),
                     UserUuid = validToken.UserUuid,
                     ShowtimeUuid = request.ShowtimeUuid,
-                    CouponUuid = request.CouponUuid ?? null,
+                    CouponUuid = string.IsNullOrEmpty(request.CouponUuid) ? null : request.CouponUuid,
                     TotalPrice = request.TotalPrice,
                     PayPrice = request.PayPrice,
                     State = 0, // Chưa thanh toán
@@ -470,8 +470,8 @@ namespace CinemaAPI.Controllers
                     "http://localhost:3001/payment-failed");*/
 
                 return Redirect(responseCode == "00" ?
-                    "http://localhost:3030/payment-success" :
-                    "http://localhost:3030/payment-failed");
+                    "http://localhost:3030/payment/success" :
+                    "http://localhost:3030/payment/error");
             }
             catch (Exception ex)
             {
