@@ -465,9 +465,13 @@ namespace CinemaAPI.Controllers
                 _context.SaveChanges();
 
                 // Chuyển hướng về FE
-                return Redirect(responseCode == "00" ?
+                /*return Redirect(responseCode == "00" ?
                     "http://localhost:3001/payment-success" :
-                    "http://localhost:3001/payment-failed");
+                    "http://localhost:3001/payment-failed");*/
+
+                return Redirect(responseCode == "00" ?
+                    "http://localhost:3030/payment-success" :
+                    "http://localhost:3030/payment-failed");
             }
             catch (Exception ex)
             {
