@@ -305,6 +305,81 @@ namespace CinemaAPI.Controllers
             }
         }
 
+        [HttpPost("page_list_myticket_client")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<PageListMyTicketDTO>), description: "GetPageListMyTicketClient Response")]
+        public async Task<IActionResult> GetPageListMyTicketClient(DpsPagingParamBase request)
+        {
+            var response = new BaseResponseMessagePage<PageListMyTicketDTO>();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+            try
+            {
+
+                var lstticket = _context.Bill.Include(p => p.ShowtimeUu).ThenInclude(m => m.MoviesUu)
+                                             .Include(p => p.ShowtimeUu).ThenInclude(s => s.ScreenUu).ThenInclude(c => c.CinemaUu)
+                                             .Where(x => x.Status == 1 && x.UserUuid == validToken.UserUuid && x.State == 1)
+                                             .ToList();
+
+                var totalcount = lstticket.Count();
+
+                if (lstticket != null && lstticket.Count > 0)
+                {
+                    var result = lstticket.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
+                    if (result != null && result.Count > 0)
+                    {
+                        response.Data.Items = new List<PageListMyTicketDTO>();
+                    }
+                    foreach (var bill in result)
+                    {
+                        var convertItemDTO = new PageListMyTicketDTO()
+                        {
+                            Uuid = bill.Uuid,
+                            Code = bill.Code,
+                            Movie = new MyTicketMoviesDTO
+                            {
+                                Uuid = bill.ShowtimeUu.MoviesUu.Uuid,
+                                Title = bill.ShowtimeUu.MoviesUu.Title,
+                                Rated = bill.ShowtimeUu.MoviesUu.Rated,
+                                ImageUrl = _context.Images.Where(img => img.OwnerUuid == bill.ShowtimeUu.MoviesUuid).Select(img => img.Path).FirstOrDefault(),
+                            },
+                            ScreenName = bill.ShowtimeUu.ScreenUu.ScreenName,
+                            CinemaName = bill.ShowtimeUu.ScreenUu.CinemaUu.CinemaName,
+                            ShowDate = bill.ShowtimeUu.ShowDate,
+                            StartTime = bill.ShowtimeUu.StartTime,
+                            EndTime = bill.ShowtimeUu.EndTime,
+                            PayPrice = bill.PayPrice,
+                            State = bill.State,
+                            Status = bill.Status,
+                        };
+                        response.Data.Items.Add(convertItemDTO);
+                    }
+                    // trả về thông tin page
+                    response.Data.Pagination = new Paginations()
+                    {
+                        TotalPage = result.TotalPages,
+                        TotalCount = result.TotalCount,
+                    };
+                }
+
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
 
 
 

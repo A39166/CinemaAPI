@@ -40,5 +40,10 @@ namespace CinemaAPI.Models.DataInfo
         public string Title { get; set; }
         public sbyte Rated { get; set; }
     }
+
+    public class MyTicketMoviesDTO : ShortMoviesDTO
+    {
+        public string ImageUrl { get; set; }
+    }
 }
 

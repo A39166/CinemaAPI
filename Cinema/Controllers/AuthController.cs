@@ -48,7 +48,10 @@ namespace CinemaAPI.Controllers
                 var user = _context.User.Where(x => x.Email == request.Email)
                                               .Where(x => x.Password == request.Password)
                                               .SingleOrDefault();
-
+                if(user == null)
+                {
+                    throw new ErrorException(ErrorCode.WRONG_LOGIN);
+                }
                 if(user.Status == 2)
                 {
                     throw new ErrorException(ErrorCode.LOCKED_ACCOUNT);
@@ -97,10 +100,6 @@ namespace CinemaAPI.Controllers
                     };
                     _context.Sessions.Add(newSession);
                     _context.SaveChanges();
-                }
-                else
-                {
-                    throw new ErrorException(ErrorCode.WRONG_LOGIN);
                 }
                 return Ok(response);
             }
