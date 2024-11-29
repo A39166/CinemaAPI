@@ -107,9 +107,12 @@ public partial class DBContext : DbContext
             entity.Property(e => e.TimeCreated)
                 .HasColumnType("datetime")
                 .HasColumnName("time_created");
-            entity.Property(e => e.TotalPrice)
+            entity.Property(e => e.TotalComboPrice)
                 .HasColumnType("double(11,2)")
-                .HasColumnName("total_price");
+                .HasColumnName("total_combo_price");
+            entity.Property(e => e.TotalSeatPrice)
+                .HasColumnType("double(11,2)")
+                .HasColumnName("total_seat_price");
             entity.Property(e => e.UserUuid)
                 .HasMaxLength(36)
                 .IsFixedLength()

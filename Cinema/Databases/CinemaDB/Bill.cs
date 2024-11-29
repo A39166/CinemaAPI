@@ -17,7 +17,9 @@ public partial class Bill
 
     public string? CouponUuid { get; set; }
 
-    public double TotalPrice { get; set; }
+    public double TotalSeatPrice { get; set; }
+
+    public double TotalComboPrice { get; set; }
 
     public double PayPrice { get; set; }
 

@@ -8,7 +8,8 @@ namespace CinemaAPI.Models.Request
     {
         public string ShowtimeUuid { get; set; }
         public string? CouponUuid {  get; set; }
-        public double TotalPrice { get; set; }
+        public double TotalSeatPrice { get; set; }
+        public double TotalComboPrice { get; set; }
         public double PayPrice { get; set; }
         public List<TicketForm> Seats { get; set; }
         public List<string> Combo {  get; set; }

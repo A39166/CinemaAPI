@@ -14,7 +14,8 @@ namespace CinemaAPI.Models.DataInfo
         public TimeOnly EndTime { get; set; }
         public string  LanguageTypeName { get; set; }
         public string CouponUuid {  get; set; }
-        public double TotalPrice { get; set; }
+        public double TotalSeatPrice { get; set; }
+        public double TotalComboPrice { get; set; }
         public double PayPrice { get; set; }
         public string QRPath { get; set; }
         public sbyte Status { get; set; }

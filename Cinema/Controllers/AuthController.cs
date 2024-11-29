@@ -100,9 +100,14 @@ namespace CinemaAPI.Controllers
                 }
                 else
                 {
-                    response.error.SetErrorCode(ErrorCode.WRONG_LOGIN);
+                    throw new ErrorException(ErrorCode.WRONG_LOGIN);
                 }
                 return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
             }
             catch (Exception ex)
             {
@@ -143,6 +148,7 @@ namespace CinemaAPI.Controllers
                 return Ok(response);
 
             }
+
             catch (Exception ex)
             {
                 response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
