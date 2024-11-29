@@ -286,6 +286,7 @@ namespace CinemaAPI.Controllers
                         TotalComboPrice = bill.TotalComboPrice,
                         TotalSeatPrice = bill.TotalSeatPrice,
                         PayPrice = bill.PayPrice,
+                        DiscountPrice = (bill.TotalComboPrice + bill.TotalSeatPrice) - bill.PayPrice,
                         QRPath = bill.QrPath,
                         Status = bill.Status,
                     };

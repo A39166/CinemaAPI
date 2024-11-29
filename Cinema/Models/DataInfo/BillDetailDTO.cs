@@ -17,7 +17,8 @@ namespace CinemaAPI.Models.DataInfo
         public double TotalSeatPrice { get; set; }
         public double TotalComboPrice { get; set; }
         public double PayPrice { get; set; }
-        public string QRPath { get; set; }
+        public double DiscountPrice { get; set; }
+        public string? QRPath { get; set; }
         public sbyte Status { get; set; }
     }
     
