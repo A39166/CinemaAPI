@@ -30,6 +30,8 @@ public partial class Bill
 
     public sbyte Status { get; set; }
 
+    public string? QrPath { get; set; }
+
     public virtual ICollection<BillCombo> BillCombo { get; set; } = new List<BillCombo>();
 
     public virtual ICollection<Booking> Booking { get; set; } = new List<Booking>();

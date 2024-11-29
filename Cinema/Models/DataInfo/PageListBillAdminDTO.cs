@@ -21,6 +21,7 @@ namespace CinemaAPI.Models.DataInfo
     {
         public string Code { get; set; }
         public string MovieName { get; set; }
+        public sbyte State { get; set; }
         public double PayPrice { get; set; }
         public DateTime TimeCreated { get; set; }
         public sbyte Status { get; set; }

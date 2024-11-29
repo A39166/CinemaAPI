@@ -16,6 +16,7 @@ namespace CinemaAPI.Models.DataInfo
         public string CouponUuid {  get; set; }
         public double TotalPrice { get; set; }
         public double PayPrice { get; set; }
+        public string QRPath { get; set; }
         public sbyte Status { get; set; }
     }
     

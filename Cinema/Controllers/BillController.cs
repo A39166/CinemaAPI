@@ -188,6 +188,7 @@ namespace CinemaAPI.Controllers
                             Code = bill.Code,
                             MovieName = bill.ShowtimeUu.MoviesUu.Title,                           
                             PayPrice = bill.PayPrice,
+                            State = bill.State,
                             TimeCreated = bill.TimeCreated,
                             Status = bill.Status,
                         };
@@ -284,6 +285,7 @@ namespace CinemaAPI.Controllers
                         LanguageTypeName = bill.ShowtimeUu.LanguageType == 1 ? "Phụ đề" : "Lồng tiếng",
                         TotalPrice = bill.TotalPrice,
                         PayPrice = bill.PayPrice,
+                        QRPath = bill.QrPath,
                         Status = bill.Status,
                     };
                 }

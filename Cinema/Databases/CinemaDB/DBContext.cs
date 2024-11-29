@@ -90,6 +90,9 @@ public partial class DBContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("coupon_uuid");
             entity.Property(e => e.PayPrice).HasColumnName("pay_price");
+            entity.Property(e => e.QrPath)
+                .HasMaxLength(255)
+                .HasColumnName("qr_path");
             entity.Property(e => e.ShowtimeUuid)
                 .HasMaxLength(36)
                 .IsFixedLength()

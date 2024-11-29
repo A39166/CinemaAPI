@@ -15,6 +15,9 @@ using System.Security.Principal;
 using static System.Net.Mime.MediaTypeNames;
 using CinemaAPI.Configuaration;
 using VNPAY_CS_ASPX;
+using QRCoder;
+using System.Drawing;
+using static QRCoder.QRCodeGenerator; // Định nghĩa các kiểu dữ liệu QR Code
 
 namespace CinemaAPI.Controllers
 {
@@ -448,16 +451,44 @@ namespace CinemaAPI.Controllers
                     bill.State = (sbyte)(responseCode == "00" ? 1 : 2); // Thành công: 1, Thất bại: 2
                 }
 
-                _context.SaveChanges();
-
                 // Chuyển hướng về FE
-                /*return Redirect(responseCode == "00" ?
-                    "http://localhost:3001/payment-success" :
-                    "http://localhost:3001/payment-failed");*/
 
-                return Redirect(responseCode == "00" ?
-                    "http://localhost:3030/payment/success" :
-                    "http://localhost:3030/payment/error");
+                if (responseCode == "00")
+                {
+                    var qrData = $"Mã hóa đơn: {bill.Code}\nSố tiền: {bill.PayPrice} VND\nTrạng thái: Thành công";
+
+                    // Tạo thư mục lưu trữ nếu chưa có
+                    var folderSavePath = $"{GlobalSettings.FOLDER_EXPORT}/{GlobalSettings.SUB_FOLDER_QRCODE}";
+                    if (!Directory.Exists(folderSavePath))
+                    {
+                        Directory.CreateDirectory(folderSavePath);
+                    }
+
+                    // Đường dẫn file QR Code
+                    var newUuid = Guid.NewGuid().ToString();
+                    var filePath = $"{folderSavePath}/{newUuid}.png";
+
+                    // Cấu hình QR Code
+                    var qrCodeGenerator = new QRCodeGenerator();
+                    var qrCodeData = qrCodeGenerator.CreateQrCode(qrData, ECCLevel.H);  // Tạo dữ liệu QR
+                    using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
+                    {
+                        byte[] qrCodeImage = qrCode.GetGraphic(20);
+                        System.IO.File.WriteAllBytes(filePath, qrCodeImage);
+                    }
+
+
+                    bill.QrPath = $"/{GlobalSettings.SUB_FOLDER_QRCODE}/{newUuid}.png";
+                    _context.SaveChanges();
+                    return Redirect("http://localhost:3030/payment/success");
+                }
+
+
+
+                else
+                {
+                    return Redirect("http://localhost:3030/payment/error");
+                }
             }
             catch (Exception ex)
             {

@@ -17,6 +17,7 @@
         public static readonly string FOLDER_EXPORT = "resources";
         public static readonly string SUB_FOLDER_AVATAR = "avatars";
         public static readonly string SUB_FOLDER_POSTER = "poster";
-        public static readonly string SUB_FOLDER_IMAGE = "images";  
+        public static readonly string SUB_FOLDER_IMAGE = "images";
+        public static readonly string SUB_FOLDER_QRCODE = "qrcode";
     }
 }
