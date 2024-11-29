@@ -23,5 +23,10 @@ namespace CinemaAPI.Models.DataInfo
         public int Collumn { get; set; }
         public List<SeatForBookingDTO> Seats { get; set; }
     }
+    public class SeatBillDTO : BaseDTO
+    {
+        public string SeatCode { get; set; }
+        public int Price { get; set; }
+    }
 
 }

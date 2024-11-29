@@ -20,6 +20,11 @@ namespace CinemaAPI.Models.DataInfo
         public int? Price { get; set; }
         public sbyte Status { get; set; }
     }
+   public class ComboForBill : BaseDTO
+    {
+        public string ComboName { get; set; }
+        public int? Price { get; set; }
+    }
 
 }
 

@@ -201,7 +201,7 @@ namespace CinemaAPI.Controllers
                             TicketPriceUuid = _context.Ticket.Where(p => p.ScreenTypeUuid == st.ScreenUu.ScreenTypeUu.Uuid &&
                                                           p.SeatTypeUuid == seat.SeatTypeUuid &&
                                                           p.DateState == dateState).Select(t => t.Uuid).FirstOrDefault(),
-                            isBooked = _context.Booking.Any(b => b.SeatUuid == seat.Uuid && b.BillUu.ShowtimeUuid == request.Uuid)
+                            isBooked = _context.Booking.Any(b => b.SeatUuid == seat.Uuid && b.BillUu.ShowtimeUuid == request.Uuid && b.BillUu.State == 1)
                         }).ToList(),
                     }).FirstOrDefault();
                 response.Data = ScreenSeatDTO;
@@ -379,7 +379,7 @@ namespace CinemaAPI.Controllers
         {
             var vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
             var tmnCode = "8LA1XGFW";
-            var hashSecret = "TJXK8MZO7GTWP2UGNRSCJTVFLQURJREM";
+            var hashSecret = "L65OAYQV0UTFPXS54BXO1JT3GBP180VX";
 
             var vnpay = new VnPayLibrary();
             vnpay.AddRequestData("vnp_Version", "2.1.0");
@@ -409,7 +409,7 @@ namespace CinemaAPI.Controllers
         public IActionResult VnPayReturn()
         {
             var vnpay = new VnPayLibrary();
-            var hashSecret = "TJXK8MZO7GTWP2UGNRSCJTVFLQURJREM";
+            var hashSecret = "L65OAYQV0UTFPXS54BXO1JT3GBP180VX";
 
             // Lấy dữ liệu từ query string
             var requestQuery = HttpContext.Request.Query;
@@ -446,21 +446,7 @@ namespace CinemaAPI.Controllers
                 if (bill.State == 0) // Chỉ cập nhật khi bill chưa được thanh toán
                 {
                     bill.State = (sbyte)(responseCode == "00" ? 1 : 2); // Thành công: 1, Thất bại: 2
-                    /*bill.TransactionId = transactionId;*/ // Ghi nhận mã giao dịch
                 }
-
-                // Lưu thông tin vào PaymentTransaction
-                /*var paymentTransaction = new PaymentTransaction
-                {
-                    BillUuid = billUuid,
-                    TransactionId = transactionId,
-                    Amount = Convert.ToDecimal(vnpay.GetResponseData("vnp_Amount")) / 100, // Số tiền
-                    ResponseCode = responseCode,
-                    Message = vnpay.GetResponseData("vnp_Message"),
-                    CreatedTime = DateTime.Now,
-                    Status = responseCode == "00" ? 1 : -1 // Thành công: 1, Thất bại: -1
-                };
-                _context.PaymentTransaction.Add(paymentTransaction);*/
 
                 _context.SaveChanges();
 

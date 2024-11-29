@@ -34,8 +34,8 @@ namespace CinemaAPI.Controllers
         }
         
         [HttpPost("page_list_bill_admin")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<PageListBillAdminDTO>), description: "GetPageListCast Response")]
-        public async Task<IActionResult> GetPageListCast(DpsPagingParamBase request)
+        [SwaggerResponse(statusCode: 200, type: typeof(List<PageListBillAdminDTO>), description: "GetPageListBillAdmin Response")]
+        public async Task<IActionResult> GetPageListBillAdmin(DpsPagingParamBase request)
         {
             var response = new BaseResponseMessagePage<PageListBillAdminDTO>();
 
@@ -103,6 +103,8 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
+
         [HttpPost("screen_detail")]
         [SwaggerResponse(statusCode: 200, type: typeof(ScreenDTO), description: "GetScreenDetail Response")]
         public async Task<IActionResult> GetScreenDetail(UuidRequest request)
@@ -149,181 +151,55 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost("update_screen_status")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "UpdateScreenStatus Response")]
-        public async Task<IActionResult> UpdateCastStatus(UpdateStatusRequest request)
+        [HttpPost("page_list_bill_client")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<PageListBillClientDTO>), description: "GetPageListBillClient Response")]
+        public async Task<IActionResult> GetPageListBillClient(DpsPagingParamBase request)
         {
-            var response = new BaseResponse();
+            var response = new BaseResponseMessagePage<PageListBillClientDTO>();
 
             var validToken = validateToken(_context);
             if (validToken is null)
             {
                 return Unauthorized();
             }
-
             try
             {
-                var screen = _context.Screen.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
 
-                if (screen == null)
+                var lstBill = _context.Bill.Include(p => p.ShowtimeUu).ThenInclude(m => m.MoviesUu)
+                                             .Include(p => p.ShowtimeUu).ThenInclude(s => s.ScreenUu).ThenInclude(c => c.CinemaUu)
+                                             
+                                             .Where(x => x.Status == 1 && x.UserUuid == validToken.UserUuid)
+                                             .ToList();
+
+                var totalcount = lstBill.Count();
+
+                if (lstBill != null && lstBill.Count > 0)
                 {
-                    throw new ErrorException(ErrorCode.SCREEN_NOT_FOUND);
-                }
-                else
-                {
-                    screen.Status = request.Status;
-                    var existingSeats = _context.Seat.Where(x => x.ScreenUuid == request.Uuid).ToList();
-                    foreach(var seat in existingSeats)
+                    var result = lstBill.OrderByDescending(x => x.Id).TakePage(request.Page, request.PageSize);
+                    if (result != null && result.Count > 0)
                     {
-                        seat.Status = request.Status;
-                        _context.Seat.Update(seat);
+                        response.Data.Items = new List<PageListBillClientDTO>();
                     }
-                    _context.Screen.Update(screen);
-                    _context.SaveChanges();
-
-                }
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
-                _logger.LogError(ex.Message);
-
-                return BadRequest(response);
-            }
-        }
-
-        [HttpPost("get_list_seat")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<ShortSeatDTO>), description: "GetListSeat Response")]
-        public async Task<IActionResult> GetListSeat(UuidRequest request)
-        {
-            var response = new BaseResponseMessageItem<ShortSeatDTO>();
-
-            var validToken = validateToken(_context);
-            if (validToken is null)
-            {
-                return Unauthorized();
-            }
-
-            try
-            {
-                response.Data = _context.Seat.Where(x => x.ScreenUuid == request.Uuid && x.Status == 1)
-               .Select(seat => new ShortSeatDTO
-                {
-                    Uuid = seat.Uuid,
-                    SeatCode = seat.SeatCode,
-                    SeatType = _context.SeatType
-                    .Where(t => t.Uuid == seat.SeatTypeUuid)
-                    .Select(t => t.Type)
-                    .FirstOrDefault()
-                }).ToList();
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
-                _logger.LogError(ex.Message);
-
-                return BadRequest(response);
-            }
-        }
-
-        [HttpPost("category-screen-type")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<CategoryDTO>), description: "GetCategoryScreenType Response")]
-        public async Task<IActionResult> GetCategoryScreenType(BaseCategoryRequest request)
-        {
-            var response = new BaseResponseMessageItem<CategoryDTO>();
-
-            var validToken = validateToken(_context);
-            if (validToken is null)
-            {
-                return Unauthorized();
-            }
-
-            try
-            {
-                var screentype = _context.ScreenType.Where(x => string.IsNullOrEmpty(request.Keyword)
-                                                        || EF.Functions.Like(x.Type + " " + x.Name, $"%{request.Keyword}%"))
-                                                 .ToList();
-               if(screentype != null)
-                {
-                    response.Data = screentype.Select(st => new CategoryDTO
+                    foreach (var bill in result)
                     {
-                        Uuid = st.Uuid, 
-                        Name = st.Name,
-                        Type = st.Type,
-                    }).ToList();
-                }
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
-                _logger.LogError(ex.Message);
-
-                return BadRequest(response);
-            }
-        }
-
-        
-
-        [HttpPost("category-seat-type")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<CategoryDTO>), description: "GetCategorySeatType Response")]
-        public async Task<IActionResult> GetCategorySeatType(BaseCategoryRequest request)
-        {
-            var response = new BaseResponseMessageItem<CategoryDTO>();
-
-            var validToken = validateToken(_context);
-            if (validToken is null)
-            {
-                return Unauthorized();
-            }
-
-            try
-            {
-                var seattype = _context.SeatType.Where(x => string.IsNullOrEmpty(request.Keyword)
-                                                        || EF.Functions.Like(x.Type + " " + x.Name, $"%{request.Keyword}%"))
-                                                 .ToList();
-                if (seattype != null)
-                {
-                    response.Data = seattype.Select(st => new CategoryDTO
+                        var convertItemDTO = new PageListBillClientDTO()
+                        {
+                            Uuid = bill.Uuid,
+                            Code = bill.Code,
+                            MovieName = bill.ShowtimeUu.MoviesUu.Title,                           
+                            PayPrice = bill.PayPrice,
+                            TimeCreated = bill.TimeCreated,
+                            Status = bill.Status,
+                        };
+                        response.Data.Items.Add(convertItemDTO);
+                    }
+                    // trả về thông tin page
+                    response.Data.Pagination = new Paginations()
                     {
-                        Uuid = st.Uuid,
-                        Name = st.Name,
-                        Type = st.Type,
-                    }).ToList();
+                        TotalPage = result.TotalPages,
+                        TotalCount = result.TotalCount,
+                    };
                 }
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
-                _logger.LogError(ex.Message);
-
-                return BadRequest(response);
-            }
-        }
-
-        /*[HttpPost("page_list_screen_for_client")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListScreenForClientDTO>), description: "GetPageListScreenForClient Response")]
-        public async Task<IActionResult> GetPageListScreenForClient(BaseKeywordRequest request)
-        {
-            var response = new BaseResponseMessageItem<PageListScreenForClientDTO>();
-            try
-            {
-               
-               response.Data = _context.Screen.Include(p => p.CinemaUu).Where(x => string.IsNullOrEmpty(request.Keyword)
-                                                        || EF.Functions.Like(x.ScreenName + " ", $"%{request.Keyword}%"))
-                                                              .Where(x => x.Status != 0)
-                                .Select(scr => new PageListScreenForClientDTO
-                                {
-                                    Uuid = scr.Uuid,
-                                    ScreenName = scr.ScreenName,
-                                    Status = scr.Status
-                                }).ToList();
-
 
                 return Ok(response);
             }
@@ -339,7 +215,94 @@ namespace CinemaAPI.Controllers
 
                 return BadRequest(response);
             }
-        }*/
+        }
+
+        [HttpPost("bill_detail")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BillDetailCLientDTO), description: "GetBillDetail Response")]
+        public async Task<IActionResult> GetBillDetail(UuidRequest request)
+        {
+            var response = new BaseResponseMessage<BillDetailCLientDTO>();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                //TODO: Write code late
+
+                var bill = _context.Bill.Include(s => s.ShowtimeUu).ThenInclude(m => m.MoviesUu)
+                                                .Include(s => s.ShowtimeUu).ThenInclude(m => m.ScreenUu).ThenInclude(m => m.CinemaUu)
+                                                .Include(s => s.ShowtimeUu).ThenInclude(m => m.ScreenUu).ThenInclude(m => m.ScreenTypeUu)
+                                                .Include(b => b.Booking).ThenInclude(s => s.SeatUu)
+                                                .Include(c => c.CouponUu)
+                                                .Include(b => b.Booking).ThenInclude(t => t.TicketUu)
+                                                .Include(bcb => bcb.BillCombo).ThenInclude(cb => cb.ComboUu)
+                                                .Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                if (bill != null)
+                {
+                    response.Data = new BillDetailCLientDTO()
+                    {
+                        Uuid = bill.Uuid,
+                        Movie = new ShortMoviesDTO
+                        {
+                            Uuid = bill.ShowtimeUu.MoviesUuid,
+                            Title = bill.ShowtimeUu.MoviesUu.Title,
+                            Rated = bill.ShowtimeUu.MoviesUu.Rated,
+                        },
+                        Screen = new ShortScreenDTO
+                        {
+                            Uuid = bill.ShowtimeUu.ScreenUu.Uuid,
+                            ScreenName = bill.ShowtimeUu.ScreenUu.ScreenName,
+                            ScreenTypeName = bill.ShowtimeUu.ScreenUu.ScreenTypeUu.Name,
+                        },
+                        Cinema = new ShortCinemaDTO
+                        {
+                            Uuid = bill.ShowtimeUu.ScreenUu.CinemaUu.Uuid,
+                            CinemaName = bill.ShowtimeUu.ScreenUu.CinemaUu.CinemaName,
+                            Address = bill.ShowtimeUu.ScreenUu.CinemaUu.Address,
+                            Status = bill.ShowtimeUu.ScreenUu.CinemaUu.Status,
+                        },
+                        Seat = bill.Booking.Select(b => new SeatBillDTO
+                        {
+                            Uuid = b.SeatUu.Uuid,
+                            SeatCode = b.SeatUu.SeatCode,
+                            Price = b.TicketUu.Price,
+                        }).ToList(),
+                        Combo = bill.BillCombo.Select(cb => new ComboForBill
+                        {
+                            Uuid = cb.ComboUu.Uuid,
+                            ComboName = cb.ComboUu.ComboName,
+                            Price = cb.ComboUu.Price,
+                        }).ToList(),
+                        ShowDate = bill.ShowtimeUu.ShowDate,
+                        StartTime = bill.ShowtimeUu.StartTime,
+                        EndTime = bill.ShowtimeUu.EndTime,
+                        CouponUuid = bill.CouponUuid,
+                        LanguageTypeName = bill.ShowtimeUu.LanguageType == 1 ? "Phụ đề" : "Lồng tiếng",
+                        TotalPrice = bill.TotalPrice,
+                        PayPrice = bill.PayPrice,
+                        Status = bill.Status,
+                    };
+                }
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+                return BadRequest(response);
+            }
+        }
+
+
 
 
     }
