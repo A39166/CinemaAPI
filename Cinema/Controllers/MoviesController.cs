@@ -461,6 +461,77 @@ namespace CinemaAPI.Controllers
             }
         }
 
+        [HttpPost("get_director_cast_detail")]
+        [SwaggerResponse(statusCode: 200, type: typeof(DirectorCastDetailDTO), description: "GetDirectorCastDetail Response")]
+        public async Task<IActionResult> GetDirectorCastDetail(UuidRequest request)
+        {
+            var response = new BaseResponseMessage<DirectorCastDetailDTO>();
+            try
+            {
+                //TODO: Write code late
+
+                // Tìm trong bảng Director
+                var director = _context.Director.FirstOrDefault(x => x.Uuid == request.Uuid);
+
+                // Tìm trong bảng Cast nếu không tìm thấy trong Director
+                var cast = director == null
+                    ? _context.Cast.FirstOrDefault(x => x.Uuid == request.Uuid)
+                    : null;
+
+                // Nếu không tìm thấy trong cả Director và Cast, trả về lỗi NOT_FOUND
+                if (director == null && cast == null)
+                {
+                    throw new ErrorException(ErrorCode.NOT_FOUND);
+                }
+
+                // Chuẩn bị dữ liệu trả về
+                if (director != null)
+                {
+                    response.Data = new DirectorCastDetailDTO()
+                    {
+                        Uuid = director.Uuid,
+                        DirectorName = director.DirectorName,
+                        Birthday = director.Birthday,
+                        Description = director.Description,
+                        ImageUrl = _context.Images
+                            .Where(x => director.Uuid == x.OwnerUuid && x.Status == 1)
+                            .Select(x => x.Path)
+                            .FirstOrDefault(),
+                        Status = director.Status,
+                    };
+                }
+                else if (cast != null)
+                {
+                    response.Data = new DirectorCastDetailDTO()
+                    {
+                        Uuid = cast.Uuid,
+                        DirectorName = cast.CastName, // Điều chỉnh nếu bảng Cast có tên khác
+                        Birthday = cast.Birthday,
+                        Description = cast.Description,
+                        ImageUrl = _context.Images
+                            .Where(x => cast.Uuid == x.OwnerUuid && x.Status == 1)
+                            .Select(x => x.Path)
+                            .FirstOrDefault(),
+                        Status = cast.Status,
+                    };
+                }
+
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+                return BadRequest(response);
+            }
+        }
+
         private void AddCast(string movieUuid, List<string> CastUuid)
         {
             foreach (var cast in CastUuid)
