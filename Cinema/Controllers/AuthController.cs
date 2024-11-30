@@ -156,5 +156,47 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost("check_token_timeout")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "CheckTokenTimeout Response")]
+        public async Task<IActionResult> CheckTokenTimeout(CheckTokenRequest request)
+        {
+            var response = new BaseResponse();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var session = _context.Sessions.Where(x => x.Uuid == request.Token && x.Status == 0).FirstOrDefault();
+                var tokenExpiration = session.TimeLogin.AddHours(1);
+                if (session == null)
+                {
+                    response.error.SetErrorCode(ErrorCode.NOT_FOUND);
+                    return Unauthorized(response);
+                }
+                if (DateTime.UtcNow > tokenExpiration)
+                {
+                    return Unauthorized(response);
+                }
+
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
     }
 }
