@@ -1,6 +1,6 @@
 ﻿namespace CinemaAPI.Models.Request
 {
-    public class CheckTokenRequest : UuidRequest
+    public class CheckTokenRequest 
     {
         public string Token { get; set; }
     }
