@@ -159,7 +159,7 @@ namespace CinemaAPI.Controllers
 
         [HttpPost("check_token_timeout")]
         [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "CheckTokenTimeout Response")]
-        public async Task<IActionResult> CheckTokenTimeout(CheckTokenRequest request)
+        public async Task<IActionResult> CheckTokenTimeout()
         {
             var response = new BaseResponse();
 
@@ -171,7 +171,13 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                var session = _context.Sessions.Where(x => x.Uuid == request.Token && x.Status == 0).FirstOrDefault();
+                var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader))
+                {
+                    return Unauthorized(response);
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+                var session = _context.Sessions.Where(x => x.Uuid == token && x.TimeLogout == null).FirstOrDefault();
                 var tokenExpiration = session.TimeLogin.AddHours(1);
                 if (session == null)
                 {
