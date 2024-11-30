@@ -382,6 +382,85 @@ namespace CinemaAPI.Controllers
             }
         }
 
+        [HttpPost("bill_detail_for_admin")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BillDetailAdminDTO), description: "GetBillDetailForAdmin Response")]
+        public async Task<IActionResult> GetBillDetailForAdmin(UuidRequest request)
+        {
+            var response = new BaseResponseMessage<BillDetailAdminDTO>();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                //TODO: Write code late
+
+                var bill = _context.Bill.Include(s => s.ShowtimeUu).ThenInclude(m => m.MoviesUu)
+                                                .Include(u => u.UserUu)
+                                                .Include(s => s.ShowtimeUu).ThenInclude(m => m.ScreenUu).ThenInclude(m => m.CinemaUu)
+                                                .Include(s => s.ShowtimeUu).ThenInclude(m => m.ScreenUu).ThenInclude(m => m.ScreenTypeUu)
+                                                .Include(b => b.Booking).ThenInclude(s => s.SeatUu)
+                                                .Include(c => c.CouponUu)
+                                                .Include(b => b.Booking).ThenInclude(t => t.TicketUu)
+                                                .Include(bcb => bcb.BillCombo).ThenInclude(cb => cb.ComboUu)
+                                                .Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                if (bill != null)
+                {
+                    response.Data = new BillDetailAdminDTO()
+                    {
+                        Uuid = bill.Uuid,
+                        MovieName = bill.ShowtimeUu.MoviesUu.Title,
+                        ScreenName = bill.ShowtimeUu.ScreenUu.ScreenName,
+                        CinemaName = bill.ShowtimeUu.ScreenUu.CinemaUu.CinemaName,
+                        Seat = bill.Booking.Select(b => new SeatBillDTO
+                        {
+                            Uuid = b.SeatUu.Uuid,
+                            SeatCode = b.SeatUu.SeatCode,
+                            Price = b.TicketUu.Price,
+                        }).ToList(),
+                        Combo = bill.BillCombo.Select(cb => new ComboForBill
+                        {
+                            Uuid = cb.ComboUu.Uuid,
+                            ComboName = cb.ComboUu.ComboName,
+                            Price = cb.ComboUu.Price,
+                        }).ToList(),
+                        User = new UserAdminBillDTO
+                        {
+                            Uuid = bill.UserUu.Uuid,
+                            Fullname = bill.UserUu.Fullname,
+                            Email = bill.UserUu.Email,
+                            PhoneNumber = bill.UserUu.PhoneNumber,
+                            Status = bill.UserUu.Status,
+                        },
+                        ShowDate = bill.ShowtimeUu.ShowDate,
+                        StartTime = bill.ShowtimeUu.StartTime,
+                        EndTime = bill.ShowtimeUu.EndTime,
+                        TotalComboPrice = bill.TotalComboPrice,
+                        TotalSeatPrice = bill.TotalSeatPrice,
+                        PayPrice = bill.PayPrice,
+                        DiscountPrice = (bill.TotalComboPrice + bill.TotalSeatPrice) - bill.PayPrice,
+                        State = bill.State,
+                        Status = bill.Status,
+                    };
+                }
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+                return BadRequest(response);
+            }
+        }
+
 
 
     }
