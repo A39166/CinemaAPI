@@ -95,7 +95,13 @@ namespace CinemaAPI.Enums
 
         [Description("Không thể đặt vé trong vòng 5 phút trước giờ chiếu!")]
         BOOKING_NOT_ALLOWED = 43,
-        
+
+        [Description("Mã OTP đã hết hạn")]
+        EXPIRED_OTP = 44,
+
+        [Description("Mã OTP không hợp lệ")]
+        INVALID_OTP = 45,
+
 
     }
 }

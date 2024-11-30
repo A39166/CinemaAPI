@@ -9,6 +9,7 @@ using CinemaAPI.Extensions;
 using CinemaAPI.Models.BaseRequest;
 using CinemaAPI.Models.DataInfo;
 using CinemaAPI.Configuaration;
+using CinemaAPI.Utils;
 
 namespace CinemaAPI.Controllers
 {
@@ -431,6 +432,129 @@ namespace CinemaAPI.Controllers
                 _logger.LogError(ex.Message);
 
                 return BadRequest(response);
+            }
+        }
+
+        [HttpPost("send_otp")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "SendOtpEmail Response")]
+        public async Task<IActionResult> SendOtpEmail(SendOtpRequest request)
+        {
+            var response = new BaseResponse();
+            try
+            {
+                var account = _context.User.FirstOrDefault(x => x.Email == request.Email);
+                if (account == null)
+                {
+                    response.error.SetErrorCode(ErrorCode.ACCOUNT_NOTFOUND, "Tài khoản không tồn tại. Vui lòng kiểm tra lại");
+                    return BadRequest(response);
+                }
+                var otp = OtpService.GenerateAndStoreOtp(request.Email);
+                _logger.LogInformation($"OTP for {request.Email}: {otp}");
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost("enter_otp")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "EnterOtp Response")]
+        public async Task<IActionResult> EnterOtp(EnterOtpReqDTO request)
+        {
+            var response = new BaseResponse();
+            try
+            {
+                var isValid = OtpService.ValidateOtp(request.Email, request.Otp);
+                var isExpiredOtp = OtpService.IsOtpExpired(request.Email, request.Otp);
+                if (!isValid)
+                {
+                    throw new ErrorException(ErrorCode.OTP_INVALID);
+                }
+                if (isExpiredOtp)
+                {
+                    throw new ErrorException(ErrorCode.OTP_EXPIRED);
+                }
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+        [HttpPost("change_pass_forget")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "ChangePassForget Response")]
+        public async Task<IActionResult> ChangePasswordForget(ChangePasswordForget request)
+        {
+            var response = new BaseResponse();
+
+            try
+            {
+                var account = _context.User.FirstOrDefault(x => x.Email == request.Email);
+                account.Password = request.NewPassword;
+                _context.SaveChanges();
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+
+                return BadRequest(response);
+            }
+        }
+
+        public class OtpService
+        {
+            private static readonly Dictionary<string, (string Otp, DateTime Expiry)> OtpStorage = new Dictionary<string, (string, DateTime)>();
+            private static readonly string FixedOtp = "123456"; // Mã OTP cố định
+            private const int OtpExpiryMinutes = 1; // Thời gian hết hạn của mã OTP
+
+            public static string GenerateAndStoreOtp(string email)
+            {
+                DateTime expiryTime = DateTime.Now.AddMinutes(OtpExpiryMinutes);
+                OtpStorage[email] = (FixedOtp, expiryTime);
+                return FixedOtp;
+            }
+
+            public static bool ValidateOtp(string email, string otp)
+            {
+                return otp == FixedOtp;
+            }
+            public static bool IsOtpExpired(string email, string otp)
+            {
+                // Lấy thời điểm tạo OTP
+                if (OtpStorage.TryGetValue(email, out var otpData) && otpData.Otp == otp)
+                {
+                    DateTime otpCreationTime = otpData.Expiry;
+                    // Tính thời gian đã trôi qua từ khi tạo OTP đến hiện tại
+                    var timeElapsed = DateTime.Now;
+                    // Kiểm tra xem thời gian đã trôi qua có vượt quá thời hạn của OTP không
+                    return timeElapsed > otpCreationTime;
+                }
+                // Trả về true nếu không thể tìm thấy thời gian tạo OTP
+                return true;
             }
         }
 
