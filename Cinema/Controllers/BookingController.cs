@@ -284,7 +284,8 @@ namespace CinemaAPI.Controllers
                     var newCombo = new BillCombo()
                     {
                         BillUuid = bill.Uuid,
-                        ComboUuid = combo,
+                        ComboUuid = combo.ComboUuid,
+                        Quantity = combo.Quantity,
                         Status = 1
                     };
                     _context.BillCombo.Add(newCombo);

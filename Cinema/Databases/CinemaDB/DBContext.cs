@@ -163,6 +163,9 @@ public partial class DBContext : DbContext
                 .HasMaxLength(36)
                 .IsFixedLength()
                 .HasColumnName("combo_uuid");
+            entity.Property(e => e.Quantity)
+                .HasColumnType("int(11)")
+                .HasColumnName("quantity");
             entity.Property(e => e.Status)
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
@@ -900,7 +903,6 @@ public partial class DBContext : DbContext
                 .HasColumnType("bigint(20)")
                 .HasColumnName("id");
             entity.Property(e => e.Status)
-                .HasDefaultValueSql("'1'")
                 .HasComment("0: LogIn - 1: LogOut")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");

@@ -12,7 +12,7 @@ namespace CinemaAPI.Models.Request
         public double TotalComboPrice { get; set; }
         public double PayPrice { get; set; }
         public List<TicketForm> Seats { get; set; }
-        public List<string> Combo {  get; set; }
+        public List<TicketComboForm> Combo {  get; set; }
         [DefaultValue(1)]
         public sbyte Status {  get; set; }
 
@@ -21,5 +21,10 @@ namespace CinemaAPI.Models.Request
     {
         public string SeatUuid { get; set; }
         public string SeatPriceUuid { get; set; }
+    }
+    public class TicketComboForm
+    {
+        public string ComboUuid { get; set; }
+        public int Quantity { get; set; }
     }
 }

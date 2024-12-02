@@ -26,7 +26,6 @@ namespace CinemaAPI.Models.DataInfo
     public class SeatBillDTO : BaseDTO
     {
         public string SeatCode { get; set; }
-        public int Price { get; set; }
     }
 
 }

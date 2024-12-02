@@ -270,13 +270,13 @@ namespace CinemaAPI.Controllers
                         {
                             Uuid = b.SeatUu.Uuid,
                             SeatCode = b.SeatUu.SeatCode,
-                            Price = b.TicketUu.Price,
+                           
                         }).ToList(),
                         Combo = bill.BillCombo.Select(cb => new ComboForBill
                         {
                             Uuid = cb.ComboUu.Uuid,
                             ComboName = cb.ComboUu.ComboName,
-                            Price = cb.ComboUu.Price,
+                            
                         }).ToList(),
                         ShowDate = bill.ShowtimeUu.ShowDate,
                         StartTime = bill.ShowtimeUu.StartTime,
@@ -412,6 +412,7 @@ namespace CinemaAPI.Controllers
                     response.Data = new BillDetailAdminDTO()
                     {
                         Uuid = bill.Uuid,
+                        Code = bill.Code,
                         MovieName = bill.ShowtimeUu.MoviesUu.Title,
                         ScreenName = bill.ShowtimeUu.ScreenUu.ScreenName,
                         CinemaName = bill.ShowtimeUu.ScreenUu.CinemaUu.CinemaName,
@@ -419,13 +420,12 @@ namespace CinemaAPI.Controllers
                         {
                             Uuid = b.SeatUu.Uuid,
                             SeatCode = b.SeatUu.SeatCode,
-                            Price = b.TicketUu.Price,
                         }).ToList(),
                         Combo = bill.BillCombo.Select(cb => new ComboForBill
                         {
                             Uuid = cb.ComboUu.Uuid,
                             ComboName = cb.ComboUu.ComboName,
-                            Price = cb.ComboUu.Price,
+                            Quantity = cb.Quantity
                         }).ToList(),
                         User = new UserAdminBillDTO
                         {

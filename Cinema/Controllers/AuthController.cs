@@ -162,26 +162,25 @@ namespace CinemaAPI.Controllers
         public async Task<IActionResult> CheckTokenTimeout()
         {
             var response = new BaseResponse();
-
             var validToken = validateToken(_context);
             if (validToken is null)
             {
                 return Unauthorized();
             }
-
             try
             {
+
                 var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
                 if (string.IsNullOrEmpty(authHeader))
                 {
                     return Unauthorized(response);
                 }
                 var token = authHeader.Substring("Bearer ".Length).Trim();
-                var session = _context.Sessions.Where(x => x.Uuid == token && x.TimeLogout == null).FirstOrDefault();
-                var tokenExpiration = session.TimeLogin.AddHours(1);
+                var session = _context.Sessions.Where(x => x.Uuid ==token).FirstOrDefault();
+                /*var session = _context.Sessions.Where(x => x.Uuid == validToken.Token).FirstOrDefault();*/
+                var tokenExpiration = session.TimeLogin.AddMinutes(1);
                 if (session == null)
                 {
-                    response.error.SetErrorCode(ErrorCode.NOT_FOUND);
                     return Unauthorized(response);
                 }
                 if (DateTime.UtcNow > tokenExpiration)

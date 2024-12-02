@@ -15,6 +15,8 @@ public partial class BillCombo
 
     public sbyte Status { get; set; }
 
+    public int Quantity { get; set; }
+
     public virtual Bill BillUu { get; set; } = null!;
 
     public virtual Combo ComboUu { get; set; } = null!;
