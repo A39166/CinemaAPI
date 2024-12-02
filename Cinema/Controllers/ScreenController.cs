@@ -14,6 +14,7 @@ using System.IO;
 using System.Security.Principal;
 using static System.Net.Mime.MediaTypeNames;
 using CinemaAPI.Configuaration;
+using System.Text.RegularExpressions;
 
 namespace CinemaAPI.Controllers
 {
@@ -124,37 +125,50 @@ namespace CinemaAPI.Controllers
                 screen.Capacity = request.Capacity;
                 screen.Row = request.Rows;
                 screen.Collumn = request.Columns;
+
                 var seatUuidsInRequest = request.Seats.Select(seat => seat.SeatUuid).ToList();
                 var existingSeats = _context.Seat.Where(s => s.ScreenUuid == screen.Uuid).ToList();
-                
-                var seatsToRemove = existingSeats.Where(s => !seatUuidsInRequest.Contains(s.Uuid)).ToList();
-                _context.Seat.RemoveRange(seatsToRemove);
+                var seatsToDeactivate = existingSeats.Where(s => !seatUuidsInRequest.Contains(s.Uuid) && s.Status == 1).ToList();
+                foreach (var seat in seatsToDeactivate)
+                {
+                    seat.Status = 0; 
+                    _context.Seat.Update(seat);
+                }
                 foreach (var seat in request.Seats)
                 {
-                    var existingSeat = _context.Seat.FirstOrDefault(s => s.Uuid == seat.SeatUuid && s.ScreenUuid == screen.Uuid);
+                    var existingSeat = _context.Seat.FirstOrDefault(s => s.ScreenUuid == screen.Uuid && s.Uuid == seat.SeatUuid && s.Status == 1);
                     if (existingSeat != null)
                     {
-                        existingSeat.SeatCode = seat.SeatCode;
                         existingSeat.SeatTypeUuid = _context.SeatType.Where(t => t.Type == seat.SeatType).Select(up => up.Uuid).FirstOrDefault();
                         _context.Seat.Update(existingSeat);
                     }
-                    else if(string.IsNullOrEmpty(seat.SeatUuid))
+                    else 
                     {
-                        var newSeat = new Seat
+                        var inactiveSeat = _context.Seat.FirstOrDefault(s => s.SeatCode == seat.SeatCode && s.ScreenUuid == screen.Uuid && s.Status == 0);
+                        if (inactiveSeat != null) // Kích hoạt lại ghế có mã ghế trùng
                         {
-                            Uuid = Guid.NewGuid().ToString(),
-                            ScreenUuid = screen.Uuid,
-                            SeatCode = seat.SeatCode,
-                            SeatTypeUuid = _context.SeatType.Where(t => t.Type == seat.SeatType)
+                            inactiveSeat.SeatTypeUuid = _context.SeatType
+                                .Where(t => t.Type == seat.SeatType)
+                                .Select(up => up.Uuid)
+                                .FirstOrDefault();
+                            inactiveSeat.Status = 1; // Kích hoạt lại ghế
+                            _context.Seat.Update(inactiveSeat);
+                            _context.SaveChanges();
+                        }
+                        else
+                        {
+                            var newSeat = new Seat
+                            {
+                                Uuid = Guid.NewGuid().ToString(),
+                                ScreenUuid = screen.Uuid,
+                                SeatCode = seat.SeatCode,
+                                SeatTypeUuid = _context.SeatType.Where(t => t.Type == seat.SeatType)
                                                             .Select(up => up.Uuid).FirstOrDefault(),
-                            TimeCreated = DateTime.Now,
-                            Status = 1
-                        };
-                        _context.Seat.Add(newSeat);
-                    }
-                    else
-                    {
-
+                                TimeCreated = DateTime.Now,
+                                Status = 1
+                            };
+                            _context.Seat.Add(newSeat);
+                        }
                     }
                 }
                 _context.Screen.Update(screen);
@@ -343,16 +357,20 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                response.Data = _context.Seat.Where(x => x.ScreenUuid == request.Uuid && x.Status == 1)
+                var seat = _context.Seat.Where(x => x.ScreenUuid == request.Uuid && x.Status == 1)
                .Select(seat => new ShortSeatDTO
-                {
-                    Uuid = seat.Uuid,
-                    SeatCode = seat.SeatCode,
-                    SeatType = _context.SeatType
+               {
+                   Uuid = seat.Uuid,
+                   SeatCode = seat.SeatCode,
+                   SeatType = _context.SeatType
                     .Where(t => t.Uuid == seat.SeatTypeUuid)
                     .Select(t => t.Type)
                     .FirstOrDefault()
-                }).ToList();
+               })
+               .AsEnumerable()
+               .OrderBy(seat => Regex.Match(seat.SeatCode, @"^[A-Za-z]+").Value) // Sắp xếp phần chữ cái
+               .ToList();
+                response.Data = seat;
                 return Ok(response);
             }
             catch (Exception ex)
@@ -442,40 +460,7 @@ namespace CinemaAPI.Controllers
             }
         }
 
-        /*[HttpPost("page_list_screen_for_client")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<PageListScreenForClientDTO>), description: "GetPageListScreenForClient Response")]
-        public async Task<IActionResult> GetPageListScreenForClient(BaseKeywordRequest request)
-        {
-            var response = new BaseResponseMessageItem<PageListScreenForClientDTO>();
-            try
-            {
-               
-               response.Data = _context.Screen.Include(p => p.CinemaUu).Where(x => string.IsNullOrEmpty(request.Keyword)
-                                                        || EF.Functions.Like(x.ScreenName + " ", $"%{request.Keyword}%"))
-                                                              .Where(x => x.Status != 0)
-                                .Select(scr => new PageListScreenForClientDTO
-                                {
-                                    Uuid = scr.Uuid,
-                                    ScreenName = scr.ScreenName,
-                                    Status = scr.Status
-                                }).ToList();
-
-
-                return Ok(response);
-            }
-            catch (ErrorException ex)
-            {
-                response.error.SetErrorCode(ex.Code);
-                return BadRequest(response);
-            }
-            catch (Exception ex)
-            {
-                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
-                _logger.LogError(ex.Message);
-
-                return BadRequest(response);
-            }
-        }*/
+       
 
 
     }

@@ -17,7 +17,8 @@ using CinemaAPI.Configuaration;
 using VNPAY_CS_ASPX;
 using QRCoder;
 using System.Drawing;
-using static QRCoder.QRCodeGenerator; // Định nghĩa các kiểu dữ liệu QR Code
+using static QRCoder.QRCodeGenerator;
+using System.Text.RegularExpressions; // Định nghĩa các kiểu dữ liệu QR Code
 
 namespace CinemaAPI.Controllers
 {
@@ -119,14 +120,12 @@ namespace CinemaAPI.Controllers
             {
                 var st = _context.Showtimes.Include(s => s.ScreenUu).ThenInclude(s => s.ScreenTypeUu)
                     .Where(x => x.Uuid == request.Uuid).FirstOrDefault();
-                var dateState = (DateTime.Now.DayOfWeek == DayOfWeek.Saturday || DateTime.Now.DayOfWeek == DayOfWeek.Sunday)
-            ? 2
-            : 1;
+                var dateState = (DateTime.Now.DayOfWeek == DayOfWeek.Saturday || DateTime.Now.DayOfWeek == DayOfWeek.Sunday)? 2: 1;
                 var ScreenSeatDTO = _context.Screen.Where(x => x.Uuid == st.ScreenUuid && x.Status == 1)
-                    .Select(screen => new ScreenSeatForBookingDTO
+                    .Select(screen => new 
                     {
-                        Row = screen.Row,
-                        Collumn = screen.Collumn,
+                        screen.Row,
+                        screen.Collumn,
                         Seats = screen.Seat.Where(s => s.ScreenUuid == screen.Uuid).Select(seat => new SeatForBookingDTO
                         {
                             Uuid = seat.Uuid,
@@ -139,9 +138,22 @@ namespace CinemaAPI.Controllers
                                                           p.SeatTypeUuid == seat.SeatTypeUuid &&
                                                           p.DateState == dateState).Select(t => t.Uuid).FirstOrDefault(),
                             isBooked = _context.Booking.Any(b => b.SeatUuid == seat.Uuid && b.BillUu.ShowtimeUuid == request.Uuid && b.BillUu.State == 1)
-                        }).ToList(),
+                        }).AsEnumerable().ToList(),
                     }).FirstOrDefault();
-                response.Data = ScreenSeatDTO;
+
+                if (ScreenSeatDTO != null)
+                {
+                    var sortedSeats = ScreenSeatDTO.Seats
+                        .OrderBy(seat => Regex.Match(seat.SeatCode ?? "", @"^[A-Za-z]+").Value)
+                        .ToList();
+
+                    response.Data = new ScreenSeatForBookingDTO
+                    {
+                        Row = ScreenSeatDTO.Row,
+                        Collumn = ScreenSeatDTO.Collumn,
+                        Seats = sortedSeats
+                    };
+                }
                 return Ok(response);
             }
             catch (Exception ex)
@@ -207,7 +219,7 @@ namespace CinemaAPI.Controllers
             try
             {
 
-                response.Data = _context.Coupon.Include(b => b.Bill).Where(x => x.Status == 1 && !x.Bill.Any(b => b.UserUuid == validToken.UserUuid))
+                response.Data = _context.Coupon.Include(b => b.Bill).Where(x => x.Status == 1 && !x.Bill.Any(b => b.UserUuid == validToken.UserUuid && b.State == 1))
                     .Select(coupon => new CouponForBookingDTO()
                     {
                         Uuid = coupon.Uuid,
@@ -436,7 +448,10 @@ namespace CinemaAPI.Controllers
                 return BadRequest("Có lỗi xảy ra khi xử lý giao dịch.");
             }
         }
-
+        private IEnumerable<SeatForBookingDTO> SortSeatsByCode(IEnumerable<SeatForBookingDTO> seats)
+        {
+            return seats.OrderBy(seat => Regex.Match(seat.SeatCode ?? "", @"^[A-Za-z]+").Value);
+        }
 
     }
 }
