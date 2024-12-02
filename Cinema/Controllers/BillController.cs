@@ -239,9 +239,11 @@ namespace CinemaAPI.Controllers
                                                 .Include(s => s.ShowtimeUu).ThenInclude(m => m.ScreenUu).ThenInclude(m => m.ScreenTypeUu)
                                                 .Include(b => b.Booking).ThenInclude(s => s.SeatUu)
                                                 .Include(c => c.CouponUu)
+                                                .Include(u => u.UserUu).ThenInclude(s => s.Sessions)
                                                 .Include(b => b.Booking).ThenInclude(t => t.TicketUu)
                                                 .Include(bcb => bcb.BillCombo).ThenInclude(cb => cb.ComboUu)
-                                                .Where(x => x.Uuid == request.Uuid).SingleOrDefault();
+                                                .Where(x => x.Uuid == request.Uuid)
+                                                .Where(x => x.UserUu.Uuid == validToken.UserUuid).SingleOrDefault();
                 if (bill != null)
                 {
                     response.Data = new BillDetailCLientDTO()
@@ -443,6 +445,7 @@ namespace CinemaAPI.Controllers
                         PayPrice = bill.PayPrice,
                         DiscountPrice = (bill.TotalComboPrice + bill.TotalSeatPrice) - bill.PayPrice,
                         State = bill.State,
+                        TimeCreated = bill.TimeCreated,
                         Status = bill.Status,
                     };
                 }
