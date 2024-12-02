@@ -15,7 +15,7 @@
 
         public void ResetExpired()
         {
-            ExpiredDate = DateTime.Now.AddMinutes(15);
+            ExpiredDate = DateTime.Now.AddHours(1);
         }
     }
 }
