@@ -444,6 +444,7 @@ namespace CinemaAPI.Controllers
                         TotalSeatPrice = bill.TotalSeatPrice,
                         PayPrice = bill.PayPrice,
                         DiscountPrice = (bill.TotalComboPrice + bill.TotalSeatPrice) - bill.PayPrice,
+                        CouponCode = bill.CouponUu.Code,
                         State = bill.State,
                         TimeCreated = bill.TimeCreated,
                         Status = bill.Status,

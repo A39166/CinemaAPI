@@ -38,6 +38,7 @@ namespace CinemaAPI.Models.DataInfo
         public double TotalComboPrice { get; set; }
         public double PayPrice { get; set; }
         public double DiscountPrice { get; set; }
+        public string? CouponCode {  get; set; }
         public sbyte State { get; set; }
         public DateTime TimeCreated { get; set; }
         public sbyte Status { get; set; }
