@@ -207,7 +207,7 @@ namespace CinemaAPI.Controllers
             try
             {
 
-                response.Data = _context.Coupon.Where(x => x.Status == 1)
+                response.Data = _context.Coupon.Include(b => b.Bill).Where(x => x.Status == 1 && !x.Bill.Any(b => b.UserUuid == validToken.UserUuid))
                     .Select(coupon => new CouponForBookingDTO()
                     {
                         Uuid = coupon.Uuid,
@@ -333,7 +333,7 @@ namespace CinemaAPI.Controllers
             vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_Locale", "vn");
             vnpay.AddRequestData("vnp_OrderType", "other");
-            vnpay.AddRequestData("vnp_ExpireDate", DateTime.Now.AddMinutes(15).ToString("yyyyMMddHHmmss"));
+            vnpay.AddRequestData("vnp_ExpireDate", DateTime.Now.AddMinutes(1).ToString("yyyyMMddHHmmss"));
 
             /*// Chỉ thêm mã ngân hàng nếu có
             vnpay.AddRequestData("vnp_BankCode", "NCB");*/
@@ -345,7 +345,8 @@ namespace CinemaAPI.Controllers
 
 
         [HttpGet("vnpay-return")]
-        public IActionResult VnPayReturn()
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponse), description: "VnpayReturns Response")]
+        public async Task<IActionResult> VnPayReturn()
         {
             var vnpay = new VnPayLibrary();
             var hashSecret = "L65OAYQV0UTFPXS54BXO1JT3GBP180VX";
@@ -382,10 +383,6 @@ namespace CinemaAPI.Controllers
                 }
 
                 // Kiểm tra trạng thái và cập nhật nếu cần
-                if (bill.State == 0) // Chỉ cập nhật khi bill chưa được thanh toán
-                {
-                    bill.State = (sbyte)(responseCode == "00" ? 1 : 2); // Thành công: 1, Thất bại: 2
-                }
 
                 // Chuyển hướng về FE
 
@@ -415,6 +412,8 @@ namespace CinemaAPI.Controllers
 
 
                     bill.QrPath = $"/{GlobalSettings.SUB_FOLDER_QRCODE}/{newUuid}.png";
+                    bill.State = 1;
+                    _context.Bill.Update(bill);
                     _context.SaveChanges();
                     return Redirect("http://localhost:3030/payment/success");
                 }
@@ -423,7 +422,11 @@ namespace CinemaAPI.Controllers
 
                 else
                 {
+                    bill.State = 2;
+                    _context.Bill.Update(bill);
+                    _context.SaveChanges();
                     return Redirect("http://localhost:3030/payment/error");
+
                 }
             }
             catch (Exception ex)

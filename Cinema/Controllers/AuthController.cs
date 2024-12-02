@@ -177,8 +177,7 @@ namespace CinemaAPI.Controllers
                 }
                 var token = authHeader.Substring("Bearer ".Length).Trim();
                 var session = _context.Sessions.Where(x => x.Uuid ==token).FirstOrDefault();
-                /*var session = _context.Sessions.Where(x => x.Uuid == validToken.Token).FirstOrDefault();*/
-                var tokenExpiration = session.TimeLogin.AddMinutes(1);
+                var tokenExpiration = session.TimeLogin.AddMinutes(15);
                 if (session == null)
                 {
                     return Unauthorized(response);
