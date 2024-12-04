@@ -53,8 +53,8 @@ namespace CinemaAPI.Controllers
                     TodayRevenue = _context.Bill.Where(x => x.TimeCreated == DateTime.Now).Sum(x => x.PayPrice),
                     TotalTicketSell = _context.Bill.Include(b => b.Booking).Where(x => x.TimeCreated >= startOfMonth && x.TimeCreated <= endOfMonth)
                                                     .Sum(b => b.Booking.Count()),
-                    TotalRevenueByMonth = _context.Bill.Where(b => b.TimeCreated >= startOfMonth && b.TimeCreated <= endOfMonth).Sum(b => b.PayPrice),
-                    TotalRevenueByYear = _context.Bill.Where(b => b.TimeCreated.Year == DateTime.Now.Year).Sum(b => b.PayPrice)
+                    TotalRevenueByMonth = _context.Bill.Where(b => b.TimeCreated >= startOfMonth && b.TimeCreated <= endOfMonth && b.State == 1).Sum(b => b.PayPrice),
+                    TotalRevenueByYear = _context.Bill.Where(b => b.TimeCreated.Year == DateTime.Now.Year && b.State == 1).Sum(b => b.PayPrice)
                 };
                 return Ok(response);
             }
@@ -107,9 +107,9 @@ namespace CinemaAPI.Controllers
                 return BadRequest(response);
             }
         }
-        /*[HttpPost("dashboard_list_revenue_by_movies")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<RevenueByMoviesDTO>), description: "GetCouponDetail Response")]
-        public async Task<IActionResult> GetCouponDetail()
+        [HttpPost("dashboard_list_revenue_by_movies")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<RevenueByMoviesDTO>), description: "ListRevenueByMovies Response")]
+        public async Task<IActionResult> ListRevenueByMovies(RevenueRequest request)
         {
             var response = new BaseResponseMessageItem<RevenueByMoviesDTO>();
 
@@ -121,7 +121,25 @@ namespace CinemaAPI.Controllers
 
             try
             {
-                response.Data = _context.Mo
+                response.Data = _context.Movies.Where(movie => _context.Bill.Any(b => b.ShowtimeUu.MoviesUu.Title == movie.Title
+                                           && b.State == 1
+                                           && b.TimeCreated.Month == request.Month
+                                           && b.TimeCreated.Year == request.Year
+                                           && b.PayPrice > 0)) // Lọc các phim có doanh thu
+                .Select(movie => new RevenueByMoviesDTO
+                {
+                    MovieName = movie.Title,
+                    TotalTicketSell = _context.Bill.Where(b => b.ShowtimeUu.MoviesUu.Title == movie.Title
+                                                            && b.State == 1
+                                                            && b.TimeCreated.Month == request.Month
+                                                            && b.TimeCreated.Year == request.Year)
+                                                            .SelectMany(b => b.Booking).Count(),
+                    TotalRevenue = _context.Bill.Where(b => b.ShowtimeUu.MoviesUu.Title == movie.Title
+                                                            && b.State == 1
+                                                            && b.TimeCreated.Month == request.Month
+                                                            && b.TimeCreated.Year == request.Year)
+                                                            .Sum(x => x.PayPrice),
+                }).OrderByDescending(dto => dto.TotalRevenue).ToList();
                 return Ok(response);
             }
             catch (ErrorException ex)
@@ -135,7 +153,47 @@ namespace CinemaAPI.Controllers
                 _logger.LogError(ex.Message);
                 return BadRequest(response);
             }
-        }*/
-        
+        }
+
+        [HttpPost("dashboard_list_revenue_by_cinemas")]
+        [SwaggerResponse(statusCode: 200, type: typeof(BaseResponseMessageItem<RevenueByCinemasDTO>), description: "ListRevenueByCinemas Response")]
+        public async Task<IActionResult> ListRevenueByCinemas(RevenueRequest request)
+        {
+            var response = new BaseResponseMessageItem<RevenueByCinemasDTO>();
+
+            var validToken = validateToken(_context);
+            if (validToken is null)
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                response.Data = _context.Cinemas.Select(cinema => new RevenueByCinemasDTO
+                {
+                    CinemaName = cinema.CinemaName,
+                    TotalTicketSell = _context.Bill.Where(b => b.ShowtimeUu.ScreenUu.CinemaUu.CinemaName == cinema.CinemaName && b.State == 1
+                                                            && b.TimeCreated.Month == request.Month && b.TimeCreated.Year == request.Year)
+                                                            .SelectMany(b => b.Booking).Count(),
+                    TotalRevenue = _context.Bill.Where(b => b.ShowtimeUu.ScreenUu.CinemaUu.CinemaName == cinema.CinemaName && b.State == 1
+                                                            && b.TimeCreated.Month == request.Month && b.TimeCreated.Year == request.Year)
+                                                            .Sum(x => x.PayPrice),
+
+                }).OrderByDescending(dto => dto.TotalRevenue).ToList();
+                return Ok(response);
+            }
+            catch (ErrorException ex)
+            {
+                response.error.SetErrorCode(ex.Code);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.error.SetErrorCode(ErrorCode.BAD_REQUEST, ex.Message);
+                _logger.LogError(ex.Message);
+                return BadRequest(response);
+            }
+        }
+
     }
 }
