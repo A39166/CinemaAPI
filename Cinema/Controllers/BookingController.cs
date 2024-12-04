@@ -284,7 +284,7 @@ namespace CinemaAPI.Controllers
                     {
                         BillUuid = bill.Uuid,
                         SeatUuid = seat.SeatUuid,
-                        TicketUuid = seat.SeatPriceUuid,
+                        Price = _context.Ticket.Where(t => t.Uuid == seat.SeatUuid).Select(p => p.Price).FirstOrDefault(),
                         Status = 1
                     };
                     _context.Booking.Add(newSeat);

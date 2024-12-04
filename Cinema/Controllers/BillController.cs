@@ -240,7 +240,7 @@ namespace CinemaAPI.Controllers
                                                 .Include(b => b.Booking).ThenInclude(s => s.SeatUu)
                                                 .Include(c => c.CouponUu)
                                                 .Include(u => u.UserUu).ThenInclude(s => s.Sessions)
-                                                .Include(b => b.Booking).ThenInclude(t => t.TicketUu)
+                                                .Include(b => b.Booking)
                                                 .Include(bcb => bcb.BillCombo).ThenInclude(cb => cb.ComboUu)
                                                 .Where(x => x.Uuid == request.Uuid)
                                                 .Where(x => x.UserUu.Uuid == validToken.UserUuid).SingleOrDefault();
@@ -406,7 +406,7 @@ namespace CinemaAPI.Controllers
                                                 .Include(s => s.ShowtimeUu).ThenInclude(m => m.ScreenUu).ThenInclude(m => m.ScreenTypeUu)
                                                 .Include(b => b.Booking).ThenInclude(s => s.SeatUu)
                                                 .Include(c => c.CouponUu)
-                                                .Include(b => b.Booking).ThenInclude(t => t.TicketUu)
+                                                .Include(b => b.Booking)
                                                 .Include(bcb => bcb.BillCombo).ThenInclude(cb => cb.ComboUu)
                                                 .Where(x => x.Uuid == request.Uuid).SingleOrDefault();
                 if (bill != null)

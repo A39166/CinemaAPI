@@ -196,8 +196,6 @@ public partial class DBContext : DbContext
 
             entity.HasIndex(e => e.SeatUuid, "fk_seat_uuid_bk_ref");
 
-            entity.HasIndex(e => e.TicketUuid, "fk_ticket_uuid_bk_ref");
-
             entity.HasIndex(e => e.Uuid, "unq_uuid").IsUnique();
 
             entity.Property(e => e.Id)
@@ -207,6 +205,9 @@ public partial class DBContext : DbContext
                 .HasMaxLength(36)
                 .IsFixedLength()
                 .HasColumnName("bill_uuid");
+            entity.Property(e => e.Price)
+                .HasColumnType("double(10,2)")
+                .HasColumnName("price");
             entity.Property(e => e.SeatUuid)
                 .HasMaxLength(36)
                 .IsFixedLength()
@@ -214,10 +215,6 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Status)
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
-            entity.Property(e => e.TicketUuid)
-                .HasMaxLength(36)
-                .IsFixedLength()
-                .HasColumnName("ticket_uuid");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
                 .HasDefaultValueSql("uuid()")
@@ -233,11 +230,6 @@ public partial class DBContext : DbContext
                 .HasPrincipalKey(p => p.Uuid)
                 .HasForeignKey(d => d.SeatUuid)
                 .HasConstraintName("fk_seat_uuid_bk_ref");
-
-            entity.HasOne(d => d.TicketUu).WithMany(p => p.Booking)
-                .HasPrincipalKey(p => p.Uuid)
-                .HasForeignKey(d => d.TicketUuid)
-                .HasConstraintName("fk_ticket_uuid_bk_ref");
         });
 
         modelBuilder.Entity<Cast>(entity =>
@@ -845,6 +837,8 @@ public partial class DBContext : DbContext
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
             entity.Property(e => e.TimeCreated)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("'0000-00-00 00:00:00'")
                 .HasColumnType("datetime")
                 .HasColumnName("time_created");
             entity.Property(e => e.Uuid)

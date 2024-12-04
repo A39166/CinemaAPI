@@ -22,8 +22,6 @@ public partial class Ticket
 
     public sbyte Status { get; set; }
 
-    public virtual ICollection<Booking> Booking { get; set; } = new List<Booking>();
-
     public virtual ScreenType ScreenTypeUu { get; set; } = null!;
 
     public virtual SeatType SeatTypeUu { get; set; } = null!;

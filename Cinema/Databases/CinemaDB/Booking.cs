@@ -11,15 +11,13 @@ public partial class Booking
 
     public string BillUuid { get; set; } = null!;
 
-    public string TicketUuid { get; set; } = null!;
-
     public string SeatUuid { get; set; } = null!;
+
+    public double? Price { get; set; }
 
     public sbyte Status { get; set; }
 
     public virtual Bill BillUu { get; set; } = null!;
 
     public virtual Seat SeatUu { get; set; } = null!;
-
-    public virtual Ticket TicketUu { get; set; } = null!;
 }
