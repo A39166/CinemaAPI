@@ -137,7 +137,8 @@ namespace CinemaAPI.Controllers
                             TicketPriceUuid = _context.Ticket.Where(p => p.ScreenTypeUuid == st.ScreenUu.ScreenTypeUu.Uuid &&
                                                           p.SeatTypeUuid == seat.SeatTypeUuid &&
                                                           p.DateState == dateState).Select(t => t.Uuid).FirstOrDefault(),
-                            isBooked = _context.Booking.Any(b => b.SeatUuid == seat.Uuid && b.BillUu.ShowtimeUuid == request.Uuid && b.BillUu.State == 1)
+                            isBooked = _context.Booking.Any(b => b.SeatUuid == seat.Uuid && b.BillUu.ShowtimeUuid == request.Uuid && ((b.BillUu.State == 0 
+                                                            && b.BillUu.UserUuid != validToken.UserUuid) || b.BillUu.State == 1))
                         }).AsEnumerable().ToList(),
                     }).FirstOrDefault();
 
@@ -273,7 +274,7 @@ namespace CinemaAPI.Controllers
                 };
                 Random random = new Random();
                 string datePart = DateTime.Now.ToString("yyyyMMdd"); // Lấy ngày hiện tại với định dạng YYYYMMDD
-                string randomDigits = random.Next(1000, 9999).ToString(); // 8 chữ số ngẫu nhiên
+                string randomDigits = random.Next(1000, 9999).ToString();
                 bill.Code = datePart + "" + randomDigits;
                 _context.Bill.Add(bill);
 
@@ -345,7 +346,7 @@ namespace CinemaAPI.Controllers
             vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_Locale", "vn");
             vnpay.AddRequestData("vnp_OrderType", "other");
-            vnpay.AddRequestData("vnp_ExpireDate", DateTime.Now.AddMinutes(1).ToString("yyyyMMddHHmmss"));
+            vnpay.AddRequestData("vnp_ExpireDate", DateTime.Now.AddMinutes(5).ToString("yyyyMMddHHmmss"));
 
             /*// Chỉ thêm mã ngân hàng nếu có
             vnpay.AddRequestData("vnp_BankCode", "NCB");*/
@@ -426,6 +427,10 @@ namespace CinemaAPI.Controllers
                     bill.QrPath = $"/{GlobalSettings.SUB_FOLDER_QRCODE}/{newUuid}.png";
                     bill.State = 1;
                     _context.Bill.Update(bill);
+                    var coupon = _context.Coupon.Where(x => x.Uuid == bill.CouponUuid).FirstOrDefault();
+                    coupon.Used += 1;
+                    coupon.Quantity -= 1;
+                    _context.Coupon.Update(coupon);
                     _context.SaveChanges();
                     return Redirect("http://localhost:3030/payment/success");
                 }

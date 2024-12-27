@@ -59,15 +59,24 @@ builder.Services.AddQuartz(q =>
     q.UseMicrosoftDependencyInjectionJobFactory();
 
     // Đăng ký công việc
-    var jobKey = new JobKey("UpdateShowtimeStateJob");
-    q.AddJob<UpdateShowtimeStateJob>(opts => opts.WithIdentity(jobKey));
+    var updateShowtimeJobKey = new JobKey("UpdateShowtimeStateJob");
+    q.AddJob<UpdateShowtimeStateJob>(opts => opts.WithIdentity(updateShowtimeJobKey));
 
-    // Lên lịch công việc
     q.AddTrigger(opts => opts
-        .ForJob(jobKey)
+        .ForJob(updateShowtimeJobKey)
         .WithIdentity("UpdateShowtimeStateTrigger")
         .StartNow()
-        .WithCronSchedule("0 0/1 * * * ?") 
+        .WithCronSchedule("0 0/1 * * * ?") // Chạy mỗi phút
+    );
+
+    var cancelUnpaidBillsJobKey = new JobKey("CancelUnpaidBillsJob");
+    q.AddJob<BillCleanupJob>(opts => opts.WithIdentity(cancelUnpaidBillsJobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(cancelUnpaidBillsJobKey)
+        .WithIdentity("CancelUnpaidBillsTrigger")
+        .StartNow()
+        .WithCronSchedule("0 0/1 * * * ?") // Chạy mỗi phút
     );
 });
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

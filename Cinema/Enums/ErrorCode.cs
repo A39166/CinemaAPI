@@ -102,6 +102,8 @@ namespace CinemaAPI.Enums
         [Description("Mã OTP không hợp lệ")]
         INVALID_OTP = 45,
 
+        [Description("Không thể xóa phim do phim đã có suất chiếu!")]
+        CANT_DELETE_MOVIE = 46,
 
     }
 }

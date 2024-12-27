@@ -50,7 +50,7 @@ namespace CinemaAPI.Controllers
                 var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
                 response.Data = new DashboardOverviewDTO()
                 {
-                    TodayRevenue = _context.Bill.Where(x => x.TimeCreated == DateTime.Now).Sum(x => x.PayPrice),
+                    TodayRevenue = _context.Bill.Where(x => x.TimeCreated.Date == DateTime.Now.Date).Sum(x => x.PayPrice),
                     TotalTicketSell = _context.Bill.Include(b => b.Booking).Where(x => x.TimeCreated >= startOfMonth && x.TimeCreated <= endOfMonth)
                                                     .Sum(b => b.Booking.Count()),
                     TotalRevenueByMonth = _context.Bill.Where(b => b.TimeCreated >= startOfMonth && b.TimeCreated <= endOfMonth && b.State == 1).Sum(b => b.PayPrice),
@@ -125,7 +125,7 @@ namespace CinemaAPI.Controllers
                                            && b.State == 1
                                            && b.TimeCreated.Month == request.Month
                                            && b.TimeCreated.Year == request.Year
-                                           && b.PayPrice > 0)) // Lọc các phim có doanh thu
+                                           && b.PayPrice > 0) && movie.Status != 0) // Lọc các phim có doanh thu
                 .Select(movie => new RevenueByMoviesDTO
                 {
                     MovieName = movie.Title,

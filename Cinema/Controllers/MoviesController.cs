@@ -306,8 +306,8 @@ namespace CinemaAPI.Controllers
             try
             {
                 var moviesstatus = _context.Movies.Where(x => x.Uuid == request.Uuid).SingleOrDefault();
-
-                if (moviesstatus != null)
+                var moviesShowtimes = _context.Showtimes.Where(x => x.MoviesUuid == request.Uuid).FirstOrDefault();
+                if (moviesstatus != null && moviesShowtimes == null)
                 {
                     moviesstatus.Status = request.Status;
                     var relatedCasts = _context.MoviesCast.Where(mc => mc.MoviesUuid == request.Uuid).ToList();
@@ -336,7 +336,7 @@ namespace CinemaAPI.Controllers
                 }
                 else
                 {
-                    response.error.SetErrorCode(ErrorCode.NOT_FOUND);
+                    response.error.SetErrorCode(ErrorCode.CANT_DELETE_MOVIE);
                 }
                 return Ok(response);
             }

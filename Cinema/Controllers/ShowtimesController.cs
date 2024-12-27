@@ -326,11 +326,12 @@ namespace CinemaAPI.Controllers
             try
             {
                 var showtime = _context.Showtimes.Where(x => x.Uuid == request.Uuid && x.Status != 0).SingleOrDefault();
+                var billShowtime = _context.Bill.Where(x => x.ShowtimeUuid == request.Uuid).FirstOrDefault();
                 if(showtime.State != 0)
                 {
                     throw new ErrorException(ErrorCode.BAD_REQUEST);
                 }
-                if (showtime != null)
+                if (showtime != null && billShowtime == null)
                 {
                     showtime.Status = request.Status;
                     
