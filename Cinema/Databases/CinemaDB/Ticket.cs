@@ -18,7 +18,7 @@ public partial class Ticket
     /// </summary>
     public sbyte DateState { get; set; }
 
-    public int Price { get; set; }
+    public double Price { get; set; }
 
     public sbyte Status { get; set; }
 

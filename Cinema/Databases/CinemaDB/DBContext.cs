@@ -314,7 +314,7 @@ public partial class DBContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("combo_name");
             entity.Property(e => e.Price)
-                .HasColumnType("int(11)")
+                .HasColumnType("double(11,2)")
                 .HasColumnName("price");
             entity.Property(e => e.Status)
                 .HasColumnType("tinyint(4)")
@@ -1003,7 +1003,7 @@ public partial class DBContext : DbContext
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("date_state");
             entity.Property(e => e.Price)
-                .HasColumnType("int(11)")
+                .HasColumnType("double(11,2)")
                 .HasColumnName("price");
             entity.Property(e => e.ScreenTypeUuid)
                 .HasMaxLength(36)
@@ -1065,12 +1065,12 @@ public partial class DBContext : DbContext
                 .HasColumnName("phone_number");
             entity.Property(e => e.Role)
                 .HasDefaultValueSql("'1'")
-                .HasComment("0-Admin, 1-Client")
+                .HasComment("1-Admin, 2-Client")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("role");
             entity.Property(e => e.Status)
                 .HasDefaultValueSql("'1'")
-                .HasComment("0 - đang khóa, 1 - hoạt động")
+                .HasComment("0 - không sử dụng, 1 - hoạt động, 2 - đang khóa")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("status");
             entity.Property(e => e.TimeCreated)

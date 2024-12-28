@@ -346,7 +346,7 @@ namespace CinemaAPI.Controllers
             vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_Locale", "vn");
             vnpay.AddRequestData("vnp_OrderType", "other");
-            vnpay.AddRequestData("vnp_ExpireDate", DateTime.Now.AddMinutes(5).ToString("yyyyMMddHHmmss"));
+            vnpay.AddRequestData("vnp_ExpireDate", DateTime.Now.AddMinutes(3).ToString("yyyyMMddHHmmss"));
 
             /*// Chỉ thêm mã ngân hàng nếu có
             vnpay.AddRequestData("vnp_BankCode", "NCB");*/
@@ -428,9 +428,12 @@ namespace CinemaAPI.Controllers
                     bill.State = 1;
                     _context.Bill.Update(bill);
                     var coupon = _context.Coupon.Where(x => x.Uuid == bill.CouponUuid).FirstOrDefault();
-                    coupon.Used += 1;
-                    coupon.Quantity -= 1;
-                    _context.Coupon.Update(coupon);
+                    if(coupon != null)
+                    {
+                        coupon.Used += 1;
+                        _context.Coupon.Update(coupon);
+                    }    
+                    
                     _context.SaveChanges();
                     return Redirect("http://localhost:3030/payment/success");
                 }

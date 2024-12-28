@@ -14,7 +14,7 @@ public class BillCleanupJob : IJob
     {
         var now = DateTime.Now;
         var unpaidBills = _context.Bill
-            .Where(b => b.State == 0 && b.TimeCreated.AddMinutes(5) <= now)
+            .Where(b => b.State == 0 && b.TimeCreated.AddMinutes(3) <= now)
             .ToList();
 
         foreach (var bill in unpaidBills)

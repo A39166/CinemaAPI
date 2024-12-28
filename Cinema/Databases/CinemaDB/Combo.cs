@@ -13,7 +13,7 @@ public partial class Combo
 
     public string ComboItems { get; set; } = null!;
 
-    public int Price { get; set; }
+    public double Price { get; set; }
 
     public DateTime TimeCreated { get; set; }
 

@@ -81,7 +81,7 @@ namespace CinemaAPI.Enums
         [Description("Chỉ được cập nhật suất chiếu khi trạng thái là Sắp chiếu!")]
         CANT_UPDATE_SHOWTIME = 38,
 
-        [Description("Phòng chiếu đang có suất chiếu đang chiếu!")]
+        [Description("Phòng chiếu đang có suất chiếu!")]
         CANT_UPDATE_SCREEN = 39,
 
         [Description("Đã có giá vé này!")]

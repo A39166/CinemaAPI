@@ -7,7 +7,7 @@ namespace CinemaAPI.Models.DataInfo
         public string SeatTypeUuid { get; set; }
         public string ScreenTypeUuid { get; set; }
         public sbyte DateState { get; set; }
-        public int Price { get; set; }
+        public double Price { get; set; }
         public sbyte Status { get; set; }
     }
     public class PageListTicketDTO : BaseDTO
@@ -15,7 +15,7 @@ namespace CinemaAPI.Models.DataInfo
         public sbyte SeatType { get; set; }
         public sbyte ScreenType { get; set; }
         public sbyte DateState { get; set; }
-        public int Price { get; set; }
+        public double Price { get; set; }
         public sbyte Status { get; set; }
     }
 }

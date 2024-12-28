@@ -25,14 +25,14 @@ public partial class User
     public string Password { get; set; } = null!;
 
     /// <summary>
-    /// 0-Admin, 1-Client
+    /// 1-Admin, 2-Client
     /// </summary>
     public sbyte Role { get; set; }
 
     public DateTime TimeCreated { get; set; }
 
     /// <summary>
-    /// 0 - đang khóa, 1 - hoạt động
+    /// 0 - không sử dụng, 1 - hoạt động, 2 - đang khóa
     /// </summary>
     public sbyte Status { get; set; }
 

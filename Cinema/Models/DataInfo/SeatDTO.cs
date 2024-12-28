@@ -13,7 +13,7 @@ namespace CinemaAPI.Models.DataInfo
         public string SeatCode { get; set; }
 
         public sbyte SeatType { get; set; }
-        public int Price { get; set; }
+        public double Price { get; set; }
         public bool isBooked { get; set; }
         public string TicketPriceUuid {  get; set; }
     }

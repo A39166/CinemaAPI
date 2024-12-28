@@ -109,7 +109,7 @@ namespace CinemaAPI.Controllers
             try
             {
                 var screen = _context.Screen.FirstOrDefault(x => x.Uuid == request.Uuid && x.Status == 1);
-                var stcheck = _context.Showtimes.Where(x => x.ScreenUuid == screen.Uuid && x.Status == 1 && x.State == 1);
+                var stcheck = _context.Showtimes.Where(x => x.State != 2 && x.Status == 1);
                 if (stcheck.Any())
                 {
                     throw new ErrorException(ErrorCode.CANT_UPDATE_SCREEN);
