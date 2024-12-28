@@ -838,8 +838,8 @@ public partial class DBContext : DbContext
                 .HasColumnName("status");
             entity.Property(e => e.TimeCreated)
                 .ValueGeneratedOnAddOrUpdate()
-                .HasDefaultValueSql("'0000-00-00 00:00:00'")
-                .HasColumnType("datetime")
+                .HasDefaultValueSql("current_timestamp()")
+                .HasColumnType("timestamp")
                 .HasColumnName("time_created");
             entity.Property(e => e.Uuid)
                 .HasMaxLength(36)
